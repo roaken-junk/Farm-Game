@@ -1,0 +1,15 @@
+{
+  "name": "Sunny Acres — Farm Game",
+  "short_name": "Sunny Acres",
+  "description": "Plant crops, raise animals, craft goods and fill orders on your own pocket farm.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#86d3f5",
+  "theme_color": "#86d3f5",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
