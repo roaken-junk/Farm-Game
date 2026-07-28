@@ -17,40 +17,58 @@ let currentMood = 'menu';
 const YO = [0, 2, 5, 7, 9];
 const noteHz = (semi) => 440 * Math.pow(2, (semi - 9) / 12);
 
+// Audio is a luxury: on some devices (locked-down frames, low power mode) the
+// context cannot be created at all. Nothing in here may ever throw into the
+// caller, because the caller is the code that starts the game.
+let failed = false;
+
 export function initAudio() {
-  if (ctx) return ctx;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return null;
-  ctx = new AC();
-  master = ctx.createGain();
-  master.gain.value = 0.9;
-  master.connect(ctx.destination);
+  if (ctx || failed) return ctx;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { failed = true; return null; }
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.9;
+    master.connect(ctx.destination);
 
-  musicGain = ctx.createGain();
-  musicGain.gain.value = 0.0;
-  musicGain.connect(master);
+    musicGain = ctx.createGain();
+    musicGain.gain.value = 0.0;
+    musicGain.connect(master);
 
-  sfxGain = ctx.createGain();
-  sfxGain.gain.value = 0.85;
-  sfxGain.connect(master);
+    sfxGain = ctx.createGain();
+    sfxGain.gain.value = 0.85;
+    sfxGain.connect(master);
+  } catch (err) {
+    console.warn('audio unavailable, continuing silently', err);
+    failed = true;
+    ctx = null;
+  }
   return ctx;
 }
 
 export function resumeAudio() {
-  if (!ctx) initAudio();
-  if (ctx && ctx.state === 'suspended') ctx.resume();
-  if (!started && ctx) {
-    started = true;
-    scheduleMusic();
+  try {
+    if (!ctx) initAudio();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (!started) {
+      started = true;
+      scheduleMusic();
+    }
+  } catch (err) {
+    console.warn('audio resume failed', err);
   }
 }
 
 export function setAudioPrefs({ music, sfx }) {
   if (music !== undefined) musicOn = music;
   if (sfx !== undefined) sfxOn = sfx;
-  if (musicGain && ctx) {
-    musicGain.gain.setTargetAtTime(musicOn ? 0.22 : 0, ctx.currentTime, 0.3);
-  }
+  try {
+    if (musicGain && ctx) {
+      musicGain.gain.setTargetAtTime(musicOn ? 0.22 : 0, ctx.currentTime, 0.3);
+    }
+  } catch { /* not fatal */ }
 }
 
 export function setMood(mood) {
@@ -62,22 +80,33 @@ export function setMood(mood) {
 function scheduleMusic() {
   clearInterval(musicTimer);
   const tick = () => {
-    if (!ctx || !musicOn || ctx.state !== 'running') return;
-    const battle = currentMood === 'battle';
-    const root = battle ? -5 : 0;
-    const octave = step % 16 < 8 ? 0 : 12;
-    const degree = YO[(step * (battle ? 3 : 2) + (step >> 2)) % YO.length];
-    const t = ctx.currentTime;
-
-    pluck(noteHz(root + degree + octave), t, battle ? 0.55 : 0.85, 0.16);
-    if (step % 4 === 0) pluck(noteHz(root + degree - 12), t, 1.6, 0.11);
-    if (battle && step % 8 === 4) taiko(t);
-    if (!battle && step % 16 === 12) pluck(noteHz(root + YO[4] + 12), t + 0.12, 1.2, 0.08);
-    step++;
+    try {
+      musicTick();
+    } catch (err) {
+      clearInterval(musicTimer);
+      console.warn('music stopped', err);
+    }
   };
   tick();
   musicTimer = setInterval(tick, 380);
-  if (musicGain && ctx) musicGain.gain.setTargetAtTime(musicOn ? 0.22 : 0, ctx.currentTime, 1.2);
+  try {
+    if (musicGain && ctx) musicGain.gain.setTargetAtTime(musicOn ? 0.22 : 0, ctx.currentTime, 1.2);
+  } catch { /* not fatal */ }
+}
+
+function musicTick() {
+  if (!ctx || !musicOn || ctx.state !== 'running') return;
+  const battle = currentMood === 'battle';
+  const root = battle ? -5 : 0;
+  const octave = step % 16 < 8 ? 0 : 12;
+  const degree = YO[(step * (battle ? 3 : 2) + (step >> 2)) % YO.length];
+  const t = ctx.currentTime;
+
+  pluck(noteHz(root + degree + octave), t, battle ? 0.55 : 0.85, 0.16);
+  if (step % 4 === 0) pluck(noteHz(root + degree - 12), t, 1.6, 0.11);
+  if (battle && step % 8 === 4) taiko(t);
+  if (!battle && step % 16 === 12) pluck(noteHz(root + YO[4] + 12), t + 0.12, 1.2, 0.08);
+  step++;
 }
 
 // Karplus-Strong-ish plucked string via a decaying triangle + lowpass.
@@ -137,6 +166,14 @@ function noiseBuffer(dur = 0.4) {
 
 export function sfx(name, intensity = 1) {
   if (!ctx || !sfxOn || ctx.state !== 'running') return;
+  try {
+    playSfx(name, intensity);
+  } catch (err) {
+    // A dud oscillator must never take down the render loop that called it.
+  }
+}
+
+function playSfx(name, intensity) {
   const t = ctx.currentTime;
   const I = Math.max(0.1, Math.min(1.6, intensity));
 

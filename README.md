@@ -67,8 +67,14 @@ src/
   art/       procedural characters, arenas, particles, chests
   ui/        screens, and the battle loop that glues it together
 tools/
-  make-icons.mjs   renders the PWA icons (hand-rolled PNG encoder)
-  art-preview.html a contact sheet of every hero, for art iteration
+  make-icons.mjs    renders the PWA icons (hand-rolled PNG encoder)
+  bundle.mjs        flattens src/ into one self-contained HTML file
+  check-imports.mjs verifies every import resolves to a real export
+  art-preview.html  a contact sheet of every hero, for art iteration
+```
+
+```bash
+node tools/check-imports.mjs   # catches a missing export before the page loads
 ```
 
 Two decisions shape the rest:
@@ -94,6 +100,19 @@ reading back turn counts, knockout causes and ability usage. That's how the pits
 were causing 81% of all knockouts) and how the opening-rage compensation arrived (moving second was
 winning 70% of mirror matches; it's even now). Matches land between roughly 10 and 30 turns
 depending on how hazardous the arena is.
+
+## Running on older phones
+
+The game targets a wide range of devices, so it avoids anything that would hard-fail
+on an older iOS Safari and treats every optional subsystem as optional:
+
+- No `structuredClone` (added in Safari 15.4) — the save file is cloned via JSON.
+- `ctx.roundRect` (Safari 16.4) has an `arcTo` fallback.
+- Audio, storage, haptics and the service worker can each fail completely without
+  stopping the game; audio in particular must never block startup.
+- No `window.prompt`, which sandboxed frames silently ignore.
+
+If boot does fail, the loading screen shows the reason instead of hanging.
 
 ## Deploying
 

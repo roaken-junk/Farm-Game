@@ -26,19 +26,21 @@ export const DEFAULT_SAVE = {
 
 let cache = null;
 
+// Deliberately not structuredClone: it is missing on iOS Safari before 15.4,
+// and a save file is plain JSON anyway. A missing global here used to take the
+// whole boot down, since the fallback path needed it too.
+const clone = (v) => JSON.parse(JSON.stringify(v));
+
 export function load() {
   if (cache) return cache;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      cache = deepMerge(structuredClone(DEFAULT_SAVE), parsed);
-    } else {
-      cache = structuredClone(DEFAULT_SAVE);
-    }
+    cache = raw ? deepMerge(clone(DEFAULT_SAVE), JSON.parse(raw)) : clone(DEFAULT_SAVE);
   } catch (err) {
+    // Storage can be unavailable outright (private mode, sandboxed frame).
+    // The game still has to run — it just will not remember anything.
     console.warn('save load failed, starting fresh', err);
-    cache = structuredClone(DEFAULT_SAVE);
+    cache = clone(DEFAULT_SAVE);
   }
   return cache;
 }
@@ -63,7 +65,7 @@ export function save(immediate = false) {
 }
 
 export function resetSave() {
-  cache = structuredClone(DEFAULT_SAVE);
+  cache = clone(DEFAULT_SAVE);
   save(true);
   return cache;
 }

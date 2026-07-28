@@ -322,6 +322,11 @@ function resolveUnitCollisions(w) {
       const approach = avn - bvn;
       if (approach <= 0) continue;
 
+      // Captured before the impulse: abilities that punch through a target
+      // need the speed the attacker arrived with, not what it bounced away at.
+      const preSpeedA = len(a.vx, a.vy);
+      const preSpeedB = len(b.vx, b.vy);
+
       // 1D elastic impulse along the normal
       const imp = ((1 + UNIT_BOUNCE) * approach) / totalMass;
       a.vx -= imp * b.mass * nx; a.vy -= imp * b.mass * ny;
@@ -340,7 +345,6 @@ function resolveUnitCollisions(w) {
       }
 
       const aShare = Math.abs(avn) / (Math.abs(avn) + Math.abs(bvn) + 1e-6);
-      const preSpeedA = len(a.vx, a.vy);
 
       const dmgToB = a.atk * impact * aShare * a.dmgMul;
       const dmgToA = b.atk * impact * (1 - aShare) * b.dmgMul;
@@ -359,7 +363,7 @@ function resolveUnitCollisions(w) {
         const other = active === a ? b : a;
         if (other.side !== active.side) {
           w.firstHitDone = true;
-          resolveFirstHitAbility(w, active, other, nx, ny, preSpeedA);
+          resolveFirstHitAbility(w, active, other, nx, ny, active === a ? preSpeedA : preSpeedB);
         }
       }
     }
@@ -709,6 +713,14 @@ function finishTurn(w) {
         }
       }
     }
+  }
+
+  // Per-turn modifiers expire with the turn that granted them.
+  for (const u of w.units) {
+    u.leech = 0;
+    u.slick = 0;
+    u.dmgMul = 1;
+    u.pierce = 0;
   }
 
   // shields and freezes decay

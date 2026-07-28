@@ -1,7 +1,7 @@
 // Bootstrap: wire the screens together, register the service worker,
 // and hand control to the home screen.
 
-import { $, $$, go, goRoot, back, toast, modal, closeModal, updateCurrencies, tapFx } from './ui/ui.js';
+import { $, $$, go, goRoot, back, modal, updateCurrencies, tapFx } from './ui/ui.js';
 import { load, save } from './core/storage.js';
 import { initAudio, resumeAudio, setAudioPrefs, setMood, sfx } from './core/audio.js';
 import { ensureStarter } from './game/profile.js';
@@ -9,7 +9,7 @@ import { initHome, initBootCrest } from './ui/home.js';
 import { initTeam, initCollection, initHeroDetail } from './ui/collection.js';
 import { initShop } from './ui/shop.js';
 import { initSettings } from './ui/settings.js';
-import { initBattle, startBattle, stopBattle } from './ui/battle.js';
+import { initBattle, startBattle } from './ui/battle.js';
 
 const bootBar = $('.boot-bar i');
 let progress = 0;
@@ -69,20 +69,27 @@ async function boot() {
   await new Promise((r) => setTimeout(r, 420));
   const tap = $('#btn-tap-start');
   tap.hidden = false;
-  tap.onclick = async () => {
-    initAudio();
-    resumeAudio();
-    setMood('menu');
-    sfx('click');
-    stopCrest();
+  tap.onclick = () => {
+    // Audio is optional. Getting into the game is not.
+    try {
+      initAudio();
+      resumeAudio();
+      setMood('menu');
+      sfx('click');
+    } catch (err) {
+      console.warn('audio start failed, continuing', err);
+    }
+    try { stopCrest(); } catch { /* ignore */ }
     $('#screen-boot').classList.remove('active');
     goRoot('home');
-    if (!load().seenIntro) {
+    try {
       const pp = load();
-      pp.seenIntro = true;
-      save(true);
-      setTimeout(showIntro, 500);
-    }
+      if (!pp.seenIntro) {
+        pp.seenIntro = true;
+        save(true);
+        setTimeout(showIntro, 500);
+      }
+    } catch { /* intro is cosmetic */ }
   };
 }
 
@@ -114,10 +121,12 @@ window.addEventListener('pagehide', () => save(true));
 ['pointerdown', 'touchstart'].forEach((ev) =>
   window.addEventListener(ev, () => resumeAudio(), { passive: true }));
 
-// stop iOS Safari from bouncing / zooming the game surface
+// Stop iOS Safari from rubber-banding the game surface, while leaving the
+// genuinely scrollable regions — screen bodies and tall modals — alone.
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('touchmove', (e) => {
-  if (e.target.closest('.scroll')) return;
+  const t = e.target;
+  if (t && typeof t.closest === 'function' && t.closest('.scroll, .modal, .modal-layer')) return;
   e.preventDefault();
 }, { passive: false });
 
@@ -127,4 +136,15 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-boot();
+boot().catch((err) => {
+  // A dead loading bar tells the player nothing. Surface the reason.
+  console.error('boot failed', err);
+  const inner = document.querySelector('.boot-inner');
+  if (inner) {
+    const msg = document.createElement('p');
+    msg.className = 'boot-tag';
+    msg.style.cssText = 'letter-spacing:0;color:#ff8a8a;max-width:280px;text-align:center;line-height:1.5';
+    msg.textContent = `Could not start: ${err && err.message ? err.message : err}`;
+    inner.appendChild(msg);
+  }
+});

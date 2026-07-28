@@ -1,10 +1,14 @@
 // "More" screen: audio/haptics, profile name, share, install help, reset.
 
-import { $, el, onEnter, toast, modal, closeModal, goRoot } from './ui.js';
+import { $, el, onEnter, toast, modal } from './ui.js';
 import { load, save, resetSave } from '../core/storage.js';
 import { setAudioPrefs, sfx } from '../core/audio.js';
 import { HEROES } from '../data/heroes.js';
 import { ARENAS } from '../data/arenas.js';
+
+const escapeHtml = (str) => String(str).replace(/[&<>"']/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
 
 export function initSettings() {
   onEnter('settings', render);
@@ -53,20 +57,41 @@ function render() {
   const stats = el('div', 'set-row');
   stats.innerHTML = `
     <div class="lbl">
-      <b>${p.name}</b>
+      <b>${escapeHtml(p.name)}</b>
       <small>${p.wins}W / ${p.losses}L · best 🏆${p.bestTrophies} · ${Object.keys(p.owned).length}/${HEROES.length} heroes</small>
     </div>`;
   const rename = el('button', 'btn btn-ghost', 'RENAME');
   rename.style.padding = '10px 16px';
+  // Not window.prompt: it is silently ignored inside sandboxed frames, which
+  // is exactly where this game often ends up being embedded.
   rename.onclick = () => {
-    const name = prompt('Choose your name', p.name);
-    if (name && name.trim()) {
-      const pp = load();
-      pp.name = name.trim().slice(0, 14);
-      save(true);
-      render();
-      const h = $('#home-name'); if (h) h.textContent = pp.name;
-    }
+    const form = el('div');
+    const input = el('input');
+    input.type = 'text';
+    input.value = p.name;
+    input.maxLength = 14;
+    input.setAttribute('aria-label', 'Your name');
+    input.style.cssText = `width:100%;padding:12px 14px;border-radius:12px;font:800 16px inherit;
+      background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.2);color:#fdf4e6;text-align:center`;
+    form.appendChild(input);
+    modal({
+      title: 'YOUR NAME', jp: 'なまえ', body: form,
+      actions: [
+        { label: 'CANCEL' },
+        {
+          label: 'SAVE', cls: 'btn-gold', onClick: () => {
+            const name = input.value.trim();
+            if (!name) { toast('Pick a name with at least one character'); return; }
+            const pp = load();
+            pp.name = name.slice(0, 14);
+            save(true);
+            render();
+            const h = $('#home-name'); if (h) h.textContent = pp.name;
+          },
+        },
+      ],
+    });
+    setTimeout(() => { input.focus(); input.select(); }, 60);
   };
   stats.appendChild(rename);
   body.appendChild(stats);
@@ -89,7 +114,11 @@ function render() {
         await navigator.clipboard.writeText(url);
         toast('Link copied to clipboard');
       } else {
-        prompt('Copy this link', url);
+        modal({
+          title: 'SHARE', jp: 'リンク',
+          body: `<p style="word-break:break-all">${escapeHtml(url)}</p>`,
+          actions: [{ label: 'CLOSE', cls: 'btn-gold' }],
+        });
       }
     }));
   body.appendChild(actionRow(

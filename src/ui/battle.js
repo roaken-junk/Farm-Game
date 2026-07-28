@@ -2,12 +2,9 @@
 // Battle screen: camera, input, rendering, HUD, AI driving and results.
 // ============================================================================
 
-import { $, el, go, goRoot, toast, modal, closeModal, updateCurrencies } from './ui.js';
+import { $, el, go, goRoot, toast, modal, updateCurrencies } from './ui.js';
 import { load, save } from '../core/storage.js';
-import {
-  createWorld, launch, step, legalLaunchers, unitById, aliveOf,
-  MAX_DRAG, MIN_LAUNCH_SPEED, MAX_LAUNCH_SPEED, RAGE_MAX,
-} from '../game/world.js';
+import { createWorld, launch, step, legalLaunchers, unitById, aliveOf, MAX_DRAG, RAGE_MAX } from '../game/world.js';
 import { planShot } from '../game/ai.js';
 import { ARENA_BY_ID, ARENA_W, ARENA_H, arenaForTrophies } from '../data/arenas.js';
 import { HERO_BY_ID } from '../data/heroes.js';
@@ -16,10 +13,10 @@ import { paintCard, withAlpha } from '../art/characters.js';
 import { Fx, Ambient } from '../art/fx.js';
 import { sfx, haptic, setMood } from '../core/audio.js';
 import { clamp, len, norm, dist } from '../core/math.js';
-import { teamMembers, buildRivalTeam, applyBattleResult, leagueName } from '../game/profile.js';
+import { teamMembers, buildRivalTeam, applyBattleResult } from '../game/profile.js';
 import { rivalForTrophies, CHESTS } from '../data/chests.js';
 import { makeRng } from '../core/rng.js';
-import { renderChests, showLoot } from './home.js';
+import { renderChests } from './home.js';
 
 const FIXED = 1 / 120;
 const TURN_SECONDS = 16;
@@ -76,6 +73,7 @@ export function startBattle(mode = 'ladder') {
     resultShown: false,
     cam: { x: 0, y: 0, s: 1 },
     lastTrail: 0,
+    pips: null,
   };
 
   // exposed for automated play-testing
@@ -202,6 +200,7 @@ function fire(unitId, dx, dy, power) {
 /* ---------------------------------- HUD ---------------------------------- */
 
 function buildPips() {
+  state.pips = new Map();
   for (const side of [0, 1]) {
     const bar = $(side === 0 ? '#bar-you' : '#bar-foe');
     bar.innerHTML = '';
@@ -217,20 +216,29 @@ function buildPips() {
       rage.appendChild(el('i'));
       pip.appendChild(rage);
       bar.appendChild(pip);
+      state.pips.set(u.id, {
+        root: pip,
+        hp: hp.firstChild,
+        rage: rage.firstChild,
+      });
       requestAnimationFrame(() => paintCard(cv, u.heroId, { w: 84, h: 34 }));
     }
   }
 }
 
+// Runs every frame, so it reads from a prebuilt node map rather than doing
+// eight querySelector lookups per tick.
 function updatePips() {
-  for (const u of state.world.units) {
-    const pip = document.querySelector(`.pip[data-unit="${u.id}"]`);
+  if (!state.pips) return;
+  const w = state.world;
+  for (const u of w.units) {
+    const pip = state.pips.get(u.id);
     if (!pip) continue;
-    pip.querySelector('.hp i').style.width = `${clamp((u.hp / u.hpMax) * 100, 0, 100)}%`;
-    pip.querySelector('.rage i').style.width = `${clamp((u.rage / RAGE_MAX) * 100, 0, 100)}%`;
-    pip.classList.toggle('dead', !u.alive);
-    pip.classList.toggle('charged', u.charged && u.alive);
-    pip.classList.toggle('turn', u.alive && state.world.turn === u.side && state.world.phase === 'aim');
+    pip.hp.style.width = `${clamp((u.hp / u.hpMax) * 100, 0, 100)}%`;
+    pip.rage.style.width = `${clamp((u.rage / RAGE_MAX) * 100, 0, 100)}%`;
+    pip.root.classList.toggle('dead', !u.alive);
+    pip.root.classList.toggle('charged', u.charged && u.alive);
+    pip.root.classList.toggle('turn', u.alive && w.turn === u.side && w.phase === 'aim');
   }
 }
 

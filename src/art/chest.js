@@ -4,6 +4,18 @@
 import { TAU } from '../core/math.js';
 import { withAlpha, shade } from './characters.js';
 
+// ctx.roundRect only arrived in Safari 16.4, and plenty of phones are older.
+function roundRect(ctx, x, y, w, h, r) {
+  if (typeof ctx.roundRect === 'function') { ctx.roundRect(x, y, w, h, r); return; }
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
 export function drawChest(ctx, chest, size, t = 0, opts = {}) {
   const s = size / 100;
   const open = opts.open || 0;
@@ -86,7 +98,7 @@ export function drawChest(ctx, chest, size, t = 0, opts = {}) {
 
   // hanko seal
   ctx.fillStyle = '#e8463c';
-  ctx.beginPath(); ctx.roundRect(-13, 2, 26, 26, 5); ctx.fill();
+  ctx.beginPath(); roundRect(ctx, -13, 2, 26, 26, 5); ctx.fill();
   ctx.strokeStyle = '#8b1f14'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#fff4e8';
   ctx.font = '900 19px "Hiragino Sans",serif';
@@ -137,14 +149,14 @@ export function drawCardIcon(ctx, color, size) {
   ctx.save();
   ctx.scale(s, s);
   ctx.beginPath();
-  ctx.roundRect(-26, -34, 52, 68, 7);
+  roundRect(ctx, -26, -34, 52, 68, 7);
   const g = ctx.createLinearGradient(-26, -34, 26, 34);
   g.addColorStop(0, shade(color, 0.3));
   g.addColorStop(1, shade(color, -0.35));
   ctx.fillStyle = g; ctx.fill();
   ctx.strokeStyle = '#2b1a3f'; ctx.lineWidth = 4; ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,.4)';
-  ctx.beginPath(); ctx.roundRect(-19, -27, 38, 30, 4); ctx.fill();
+  ctx.beginPath(); roundRect(ctx, -19, -27, 38, 30, 4); ctx.fill();
   ctx.restore();
 }
 

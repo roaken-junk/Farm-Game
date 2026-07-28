@@ -1,13 +1,13 @@
 // Shop: free daily chest, gem chests and a rotating card offer.
 
-import { $, el, onEnter, toast, updateCurrencies, modal } from './ui.js';
+import { $, el, onEnter, toast, updateCurrencies } from './ui.js';
 import { load, save } from '../core/storage.js';
 import { CHESTS } from '../data/chests.js';
-import { HEROES, HERO_BY_ID, RARITY } from '../data/heroes.js';
+import { HEROES, RARITY } from '../data/heroes.js';
 import { paintChest } from '../art/chest.js';
 import { paintCard } from '../art/characters.js';
-import { rollChest, addCards, grantChest } from '../game/profile.js';
-import { showLoot, renderChests } from './home.js';
+import { rollChest, addCards } from '../game/profile.js';
+import { showLoot } from './home.js';
 import { sfx, haptic } from '../core/audio.js';
 import { makeRng } from '../core/rng.js';
 

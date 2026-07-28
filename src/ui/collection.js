@@ -1,8 +1,8 @@
 // Team builder, hero collection and the hero detail sheet.
 
-import { $, el, go, back, toast, onEnter, updateCurrencies, animate } from './ui.js';
+import { $, el, go, toast, onEnter, updateCurrencies, animate } from './ui.js';
 import { load } from '../core/storage.js';
-import { HEROES, HERO_BY_ID, RARITY, heroStats, heroPower, MAX_LEVEL, ABILITY_TRIGGER, cardsForNextLevel } from '../data/heroes.js';
+import { HEROES, HERO_BY_ID, RARITY, heroStats, heroPower, ABILITY_TRIGGER, cardsForNextLevel } from '../data/heroes.js';
 import { paintCard, drawPortrait } from '../art/characters.js';
 import { teamPower, setTeamSlot, upgradeInfo, upgradeHero } from '../game/profile.js';
 import { sfx, haptic } from '../core/audio.js';

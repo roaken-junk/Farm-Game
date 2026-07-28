@@ -1,16 +1,13 @@
 // Home screen: hero showcase, battle entry, chest slots.
 
-import { $, el, go, toast, modal, closeModal, fmtTime, updateCurrencies, onEnter, animate } from './ui.js';
-import { load, save } from '../core/storage.js';
+import { $, el, toast, modal, fmtTime, updateCurrencies, onEnter, animate } from './ui.js';
+import { load } from '../core/storage.js';
 import { HERO_BY_ID } from '../data/heroes.js';
 import { drawPortrait, paintCard } from '../art/characters.js';
-import { drawCrest, paintChest, drawChest, drawCardIcon } from '../art/chest.js';
+import { drawCrest, paintChest } from '../art/chest.js';
 import { CHESTS } from '../data/chests.js';
 import { RARITY } from '../data/heroes.js';
-import {
-  chestSlots, startUnlock, isReady, remainingMs, gemCostToSkip, skipUnlock, openChest,
-  teamMembers, leagueName,
-} from '../game/profile.js';
+import { chestSlots, startUnlock, isReady, remainingMs, gemCostToSkip, skipUnlock, openChest, teamMembers, leagueName } from '../game/profile.js';
 import { arenaForTrophies, nextArena } from '../data/arenas.js';
 import { sfx, haptic } from '../core/audio.js';
 
