@@ -6,10 +6,15 @@
 import * as D from './data.js';
 import { now, clamp, uid } from './util.js';
 
-const KEY = 'sunnyacres.save.v1';
 const SAVE_VERSION = 1;
+export const SLOTS = 3;
+
+/** Slot 1 keeps the original key so farms from earlier builds survive. */
+const slotKey = i => (i === 0 ? 'sunnyacres.save.v1' : `sunnyacres.save.v1.slot${i + 1}`);
+const LAST_SLOT = 'sunnyacres.lastSlot';
 
 export let S = null;
+export let slot = 0;
 
 /* --------------------------------- setup -------------------------------- */
 
@@ -36,27 +41,87 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     upgrades: {},
     selectedSeed: 'wheat',
     settings: { sound: true },
+    goals: {},                                   // goal id -> tiers claimed
+    daily: { day: '', streak: 0 },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
 }
 
-export function load() {
+function readSlot(i) {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(slotKey(i));
     if (!raw) return null;
     const data = JSON.parse(raw);
-    if (!data || data.v !== SAVE_VERSION) return null;
-    S = migrate(data);
-    return S;
+    return data && data.v === SAVE_VERSION ? data : null;
   } catch {
     return null;
   }
 }
 
-export function startNew(name, avatar) {
+/** A one-line summary of every slot, for the title screen. */
+export function slotSummaries() {
+  return Array.from({ length: SLOTS }, (_, i) => {
+    const d = readSlot(i);
+    if (!d) return { i, empty: true };
+    return {
+      i, empty: false,
+      name: d.name, avatar: d.avatar, level: d.level,
+      coins: d.coins, played: d.lastSeen || d.createdAt,
+    };
+  });
+}
+
+/** Loads a slot into play. Returns the state, or null if the slot is empty. */
+export function load(i = null) {
+  if (i === null) {
+    const last = parseInt(localStorage.getItem(LAST_SLOT) || '0', 10);
+    i = Number.isInteger(last) && last >= 0 && last < SLOTS ? last : 0;
+  }
+  const data = readSlot(i);
+  if (!data) return null;
+  slot = i;
+  localStorage.setItem(LAST_SLOT, String(i));
+  S = migrate(data);
+  return S;
+}
+
+export function startNew(name, avatar, i = 0) {
+  slot = i;
+  localStorage.setItem(LAST_SLOT, String(i));
   S = freshState(name, avatar);
   save();
   return S;
+}
+
+export function deleteSlot(i) {
+  localStorage.removeItem(slotKey(i));
+}
+
+/* ------------------------- moving a farm elsewhere ----------------------- */
+
+/** The whole save as a paste-able code. */
+export function exportCode() {
+  const json = JSON.stringify(S);
+  // encodeURIComponent first so non-ASCII farm names survive btoa.
+  return btoa(unescape(encodeURIComponent(json))).replace(/=+$/, '');
+}
+
+/** Returns an error string, or null when the code was accepted. */
+export function importCode(code, i = slot) {
+  let data;
+  try {
+    data = JSON.parse(decodeURIComponent(escape(atob(String(code).trim()))));
+  } catch {
+    return 'That code could not be read.';
+  }
+  if (!data || typeof data !== 'object' || data.v !== SAVE_VERSION || !Array.isArray(data.plots)) {
+    return 'That code is not a Sunny Acres farm.';
+  }
+  slot = i;
+  S = migrate(data);
+  save();
+  localStorage.setItem(LAST_SLOT, String(i));
+  return null;
 }
 
 /** Fill in anything a save from an older build of the same version may lack. */
@@ -65,6 +130,8 @@ function migrate(data) {
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   data.settings = { ...base.settings, ...(data.settings || {}) };
   data.stats = { ...base.stats, ...(data.stats || {}) };
+  data.goals = data.goals || {};
+  data.daily = { ...base.daily, ...(data.daily || {}) };
   return data;
 }
 
@@ -73,7 +140,7 @@ export function save() {
   if (!S) return;
   S.lastSeen = now();
   try {
-    localStorage.setItem(KEY, JSON.stringify(S));
+    localStorage.setItem(slotKey(slot), JSON.stringify(S));
   } catch { /* storage full or private mode — keep playing in memory */ }
 }
 
@@ -84,7 +151,7 @@ export function saveSoon() {
 }
 
 export function wipe() {
-  localStorage.removeItem(KEY);
+  localStorage.removeItem(slotKey(slot));
 }
 
 /* ------------------------------- storage -------------------------------- */

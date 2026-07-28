@@ -1,7 +1,7 @@
 /* Offline support. Bump CACHE whenever the game files change so phones
    that already installed the app pick up the new build. */
 
-const CACHE = 'sunny-acres-v1';
+const CACHE = 'sunny-acres-v3';
 
 const ASSETS = [
   './',

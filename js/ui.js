@@ -20,6 +20,7 @@ const TABS = [
   { id: 'animals', icon: '🐔', label: 'Animals' },
   { id: 'craft',   icon: '🏭', label: 'Craft' },
   { id: 'orders',  icon: '📋', label: 'Orders' },
+  { id: 'goals',   icon: '🏆', label: 'Goals' },
   { id: 'shop',    icon: '🛒', label: 'Shop' },
 ];
 
@@ -40,7 +41,8 @@ export function render() {
   renderTabs();
   const host = $('view');
   host.innerHTML = '';
-  const builder = { farm: farmView, animals: animalsView, craft: craftView, orders: ordersView, shop: shopView }[view];
+  const builder = { farm: farmView, animals: animalsView, craft: craftView,
+                    orders: ordersView, goals: goalsView, shop: shopView }[view];
   host.appendChild(builder());
 }
 
@@ -107,6 +109,7 @@ function renderTabBadges() {
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
     orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
+    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0),
     shop: 0,
   };
   for (const t of TABS) {
@@ -510,6 +513,62 @@ function orderCard(o, i) {
   return card;
 }
 
+/* -------------------------------- GOALS ---------------------------------- */
+
+function goalsView() {
+  const frag = document.createDocumentFragment();
+
+  /* daily bonus */
+  const daily = panel(`<em>🎁</em>Daily Bonus`);
+  const S = St.S;
+  const streak = S.daily.streak || 0;
+  if (G.dailyReady()) {
+    const next = D.dailyReward(
+      D.today(Date.now() - 86400000) === S.daily.day ? streak + 1 : 1, S.level);
+    const row = el('div', 'row');
+    row.innerHTML = `<div class="ic">🎁</div><div class="body"><b>Today's bonus is waiting</b>
+      <small>🪙 ${fmt(next.coins)} · 💎 ${next.gems}${streak ? ` · ${streak}-day streak` : ''}</small></div>`;
+    const b = el('button', 'btn btn-sm btn-green', 'Claim');
+    b.onclick = () => { haptic(); G.claimDaily(); render(); };
+    row.appendChild(b);
+    daily.appendChild(row);
+  } else {
+    daily.appendChild(el('div', 'muted',
+      `Claimed today. Streak: ${streak} day${streak === 1 ? '' : 's'} — come back tomorrow to keep it going.`));
+  }
+  const dots = el('div', 'chips');
+  for (let i = 1; i <= D.DAILY_MAX_STREAK; i++) {
+    dots.appendChild(el('span', 'chip ' + (i <= streak ? 'done' : ''), i === D.DAILY_MAX_STREAK ? '🏅' : i));
+  }
+  daily.appendChild(dots);
+  frag.appendChild(daily);
+
+  /* goals */
+  const p = panel(`<em>🏆</em>Farm Goals`);
+  p.appendChild(el('div', 'muted', 'Every goal has four ranks. Claim each one for coins and gems.'));
+  for (const g of D.GOALS) {
+    const st = G.goalState(g);
+    const row = el('div', 'row' + (st.done ? ' locked' : ''));
+    const rank = st.done ? 'Legend' : D.GOAL_RANKS[st.claimed];
+    const pct = clamp(st.value / st.target, 0, 1) * 100;
+    row.innerHTML = `<div class="ic">${g.icon}</div><div class="body">
+      <b>${g.name} · ${rank}</b>
+      <small>${fmt(Math.min(st.value, st.target))} / ${fmt(st.target)} ${g.unit}</small>
+      <span class="goalbar"><i style="width:${pct.toFixed(1)}%"></i></span></div>`;
+    if (st.ready) {
+      const r = D.goalReward(st.claimed);
+      const b = el('button', 'btn btn-sm btn-gold', `🪙${fmt(r.coins)}`);
+      b.onclick = () => { haptic(); G.claimGoal(g.id); render(); };
+      row.appendChild(b);
+    } else if (st.done) {
+      row.appendChild(el('span', 'chip done', '✔'));
+    }
+    p.appendChild(row);
+  }
+  frag.appendChild(p);
+  return frag;
+}
+
 /* --------------------------------- SHOP ---------------------------------- */
 
 function shopView() {
@@ -528,6 +587,15 @@ function shopView() {
   mrow.append(s1, s2);
   market.appendChild(mrow);
   if (St.has('scythe')) market.appendChild(el('div', 'muted', '🪄 Golden Scythe: +25% on every sale.'));
+
+  const movers = G.marketMovers(4);
+  if (movers.length) {
+    market.appendChild(el('div', 'muted', 'Prices drift all day. Best rates on what you are holding:'));
+    const chips = el('div', 'chips');
+    for (const m of movers) chips.appendChild(el('span', 'chip ' + trendClass(m.factor),
+      `${D.ITEMS[m.id].icon} ${trendLabel(m.factor)}`));
+    market.appendChild(chips);
+  }
   frag.appendChild(market);
 
   /* land */
@@ -583,6 +651,13 @@ function buyRow(icon, name, desc, cost, needLevel, onBuy) {
   return r;
 }
 
+/** Market drift, as a chip class and a signed percentage. */
+function trendClass(f) { return f >= 1.06 ? 'done' : f <= 0.94 ? 'miss' : ''; }
+function trendLabel(f) {
+  const pct = Math.round((f - 1) * 100);
+  return `${pct > 0 ? '▲+' : pct < 0 ? '▼' : '='}${pct === 0 ? '' : pct + '%'}`;
+}
+
 /* -------------------------------- sheets --------------------------------- */
 
 export function openSheet(build) {
@@ -603,7 +678,8 @@ function sellSheet(kind) {
   openSheet((sheet, close) => {
     const isSilo = kind === 'silo';
     sheet.appendChild(el('h2', null, isSilo ? '🛖 Sell Crops' : '🏠 Sell Goods'));
-    sheet.appendChild(el('p', 'sub', 'Tap to sell. Orders pay much better — check the board first.'));
+    sheet.appendChild(el('p', 'sub',
+      'Tap to sell. Prices swing through the day — ▲ means better than usual.'));
 
     const list = el('div');
     const build = () => {
@@ -618,9 +694,11 @@ function sellSheet(kind) {
       for (const id of ids) {
         const it = D.ITEMS[id];
         const n = stock[id];
+        const f = G.marketFactor(id);
         const row = el('div', 'row');
         row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
-          <small>🪙 ${fmt(G.sellPrice(id))} each</small></div>`;
+          <small>🪙 ${fmt(G.sellPrice(id))} each
+          <span class="trend ${trendClass(f)}">${trendLabel(f)}</span></small></div>`;
         const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
         const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
         one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
@@ -658,7 +736,8 @@ function profileSheet() {
   const S = St.S;
   openSheet((sheet, close) => {
     sheet.appendChild(el('h2', null, `${S.avatar} ${S.name}`));
-    sheet.appendChild(el('p', 'sub', `${D.titleFor(S.level)} · Level ${S.level}`));
+    sheet.appendChild(el('p', 'sub',
+      `${D.titleFor(S.level)} · Level ${S.level} · Save ${St.slot + 1}`));
 
     const next = D.TITLES.find(t => t.level > S.level);
     const stats = el('div', 'panel');
@@ -693,13 +772,59 @@ function profileSheet() {
     };
     sheet.appendChild(snd);
 
-    const reset = el('button', 'btn btn-big btn-red', '🗑️ Start a new farm');
+    const swap = el('button', 'btn btn-big btn-blue', '🔄 Switch farm');
+    swap.style.marginTop = '8px';
+    swap.onclick = () => { St.save(); location.reload(); };
+    sheet.appendChild(swap);
+
+    const xfer = el('button', 'btn btn-big', '📤 Move this farm to another device');
+    xfer.style.marginTop = '8px';
+    xfer.onclick = () => transferSheet();
+    sheet.appendChild(xfer);
+
+    const reset = el('button', 'btn btn-big btn-red', '🗑️ Delete this farm');
     reset.style.marginTop = '8px';
-    reset.onclick = () => confirmSheet('Start over?',
-      'Your farm, coins and levels are erased for good.', () => { St.wipe(); location.reload(); });
+    reset.onclick = () => confirmSheet('Delete this farm?',
+      `Save ${St.slot + 1} is erased for good. Your other saves are untouched.`,
+      () => { St.wipe(); location.reload(); });
     sheet.appendChild(reset);
 
     const done = el('button', 'btn btn-big btn-blue', 'Close');
+    done.style.marginTop = '8px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** A farm's whole save as a code you can paste on another phone. */
+function transferSheet() {
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '📤 Move your farm'));
+    sheet.appendChild(el('p', 'sub',
+      'Copy this code, then paste it into Load From Code on the other device. Your farm here is left alone.'));
+
+    const box = el('textarea', 'fld code-box');
+    box.readOnly = true;
+    box.value = St.exportCode();
+    box.onclick = () => box.select();
+    sheet.appendChild(box);
+
+    const copy = el('button', 'btn btn-big btn-green', '📋 Copy code');
+    copy.style.marginTop = '10px';
+    copy.onclick = async () => {
+      haptic();
+      box.select();
+      try {
+        await navigator.clipboard.writeText(box.value);
+        toast('Code copied', '📋');
+      } catch {
+        // Clipboard is blocked in some in-app browsers; the selection still works.
+        toast('Press and hold the code to copy', '📋');
+      }
+    };
+    sheet.appendChild(copy);
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
     done.style.marginTop = '8px';
     done.onclick = close;
     sheet.appendChild(done);

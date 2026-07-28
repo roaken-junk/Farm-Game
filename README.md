@@ -46,6 +46,7 @@ and that version installs to the home screen with its proper icon.
 | 🐔 **Animals** | Buy animals, feed them, collect eggs, milk, bacon, wool and honey. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
+| 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
 | 🛒 **Shop** | Sell from storage, clear new fields, expand the silo and barn, buy upgrades. |
 
 The core loop: **grow → process → sell/deliver → level up → unlock more**.
@@ -55,13 +56,29 @@ The core loop: **grow → process → sell/deliver → level up → unlock more*
 - **XP** comes from harvesting, collecting, crafting and — mostly — orders.
 - **Storage is the real constraint.** The silo holds crops, the barn holds
   goods. Both fill fast; expanding them is one of the best early buys.
+- **Prices move.** Every good drifts between roughly 0.7x and 1.3x of its base
+  value on its own slow cycle. The sell list shows ▲ or ▼ against each item, so
+  holding a full silo until it swings green is worth real money.
+- **Goals and the daily bonus** pay out on top of everything else. The streak
+  resets if you skip a day and maxes out at seven.
 
 Timers are stored as timestamps, so crops keep growing and machines keep
 working while the app is closed.
 
+## Saves
+
+Three save slots, picked from the title screen. Each is a separate farm with its
+own level, coins and land; deleting one leaves the others alone. Slot 1 uses the
+original storage key, so a farm from an earlier build still loads.
+
+The game autosaves constantly — there's nothing to press. To move a farm to
+another phone, open your farmer (tap the avatar) → **Move this farm to another
+device**, copy the code, and paste it into **Load from a code** on the title
+screen of the other device. The farm you copied from is left untouched.
+
 ### Progression
 
-Every level opens something new. 8 crops, 5 animals, 8 workshops, 14 craftable
+Every level opens something new. 13 crops, 7 animals, 12 workshops, 22 craftable
 goods, 24 fields, and 8 permanent upgrades that make the grind disappear:
 
 | Level | Upgrade | What it does |
@@ -112,8 +129,8 @@ node scripts/make-icons.mjs
 
 ## Notes
 
-- Saves live in `localStorage` under `sunnyacres.save.v1`, on that device only.
-  Clearing Safari's website data wipes the farm. Profile → *Start a new farm*
-  does the same on purpose.
+- Saves live in `localStorage` (`sunnyacres.save.v1`, `…slot2`, `…slot3`), on
+  that device only. Clearing Safari's website data wipes them, so use a transfer
+  code if a farm matters to you.
 - After changing any game file, bump `CACHE` in `sw.js` so installed phones
   pick up the new build.

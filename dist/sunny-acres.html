@@ -665,12 +665,102 @@ button, input { font: inherit; color: inherit; }
 .center { text-align: center; }
 .hidden { display: none !important; }
 
+/* ------------------------- goals, market, saves --------------------------- */
+
+.goalbar {
+  display: block;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .12);
+  overflow: hidden;
+}
+.goalbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #ffd777, var(--gold-dk));
+  transition: width .35s ease;
+}
+
+.trend {
+  display: inline-block;
+  margin-left: 5px;
+  font-weight: 900;
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+.trend.done { color: #2e8b2e; }
+.trend.miss { color: #c33; }
+
+.code-box {
+  width: 100%;
+  height: 96px;
+  margin-top: 6px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  word-break: break-all;
+  resize: none;
+}
+
+.slots-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+.slot-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
+  text-align: left;
+  transition: transform .1s ease;
+}
+.slot-card:active { transform: translateY(3px); box-shadow: 0 0 0; }
+.slot-card .face {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
+  display: grid; place-items: center;
+  font-size: 22px;
+}
+.slot-card .who { flex: 1; min-width: 0; }
+.slot-card .who b { display: block; font-size: 15px; font-weight: 900; }
+.slot-card .who small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 700; }
+.slot-card.empty { border-style: dashed; background: rgba(255, 255, 255, .6); }
+.slot-card.empty .face { background: rgba(0, 0, 0, .06); border-color: rgba(255, 255, 255, .8); }
+
+.slot-del {
+  flex-shrink: 0;
+  border: 2px solid #c33;
+  background: #ffe4e4;
+  color: #c33;
+  border-radius: 10px;
+  width: 34px; height: 34px;
+  font-size: 15px;
+}
+
 </style>
 
 <div id="app" hidden>
   <header class="hud" id="hud"></header>
   <main class="view" id="view"></main>
   <nav class="tabbar" id="tabbar"></nav>
+</div>
+
+<!-- Pick a save -->
+<div id="title" class="onboard" hidden>
+  <div class="onboard-card">
+    <div class="onboard-logo">🌻</div>
+    <h1>Sunny Acres</h1>
+    <p class="sub">Grow it. Raise it. Sell it.</p>
+    <div id="slots" class="slots-list"></div>
+    <button class="btn btn-big" id="load-code">📥 Load from a code</button>
+  </div>
 </div>
 
 <!-- First run: name + avatar -->
@@ -780,7 +870,15 @@ const CROPS = [
   { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 330,  xp: 20 },
   { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 580,  xp: 32 },
   { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1050, xp: 50 },
+  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 62,   xp: 5 },
+  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 142,  xp: 10 },
+  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 225,  xp: 15 },
+  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 435,  xp: 26 },
+  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 830,  xp: 42 },
 ];
+
+/** Seed racks are shown in unlock order, not the order they were written. */
+CROPS.sort((a, b) => a.level - b.level || a.seed - b.seed);
 
 /** Animals live in pens, eat FEED, and drop goods into the BARN. */
 const ANIMALS = [
@@ -789,7 +887,10 @@ const ANIMALS = [
   { id: 'pig',     name: 'Pig',     icon: '🐖', level: 12, cost: 2500,  max: 6, feed: 3, cycle: 720,  product: 'bacon' },
   { id: 'sheep',   name: 'Sheep',   name2: 'Sheep', icon: '🐑', level: 16, cost: 6000,  max: 5, feed: 4, cycle: 1200, product: 'wool' },
   { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 14000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
+  { id: 'duck',    name: 'Duck',    icon: '🦆', level: 5,  cost: 450,   max: 6, feed: 1, cycle: 240,  product: 'feather' },
+  { id: 'goat',    name: 'Goat',    icon: '🐐', level: 14, cost: 4200,  max: 5, feed: 3, cycle: 900,  product: 'goatmilk' },
 ];
+ANIMALS.sort((a, b) => a.level - b.level);
 
 /** Goods produced by animals. Stored in the BARN. */
 const ANIMAL_GOODS = [
@@ -798,6 +899,8 @@ const ANIMAL_GOODS = [
   { id: 'bacon', name: 'Bacon', icon: '🥓', price: 140, xp: 11 },
   { id: 'wool',  name: 'Wool',  icon: '🧶', price: 240, xp: 18 },
   { id: 'honey', name: 'Honey', icon: '🍯', price: 400, xp: 28 },
+  { id: 'feather',  name: 'Down',      icon: '🪶', price: 50,  xp: 4 },
+  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 195, xp: 15 },
 ];
 
 /** Crafting stations. Jobs run one after another in a shared queue. */
@@ -810,7 +913,12 @@ const MACHINES = [
   { id: 'grill',   name: 'BBQ Grill',   icon: '🍗', level: 19, cost: 60000 },
   { id: 'loom',    name: 'Textile Mill',icon: '🧵', level: 23, cost: 150000 },
   { id: 'winery',  name: 'Winery',      icon: '🍷', level: 25, cost: 320000 },
+  { id: 'fryer',   name: 'Fry Shack',   icon: '🍟', level: 7,  cost: 2200 },
+  { id: 'press',   name: 'Oil Press',   icon: '🫗', level: 13, cost: 13000 },
+  { id: 'sweets',  name: 'Sweet Shop',  icon: '🍬', level: 18, cost: 42000 },
+  { id: 'cafe',    name: 'Cafe',        icon: '☕', level: 26, cost: 480000 },
 ];
+MACHINES.sort((a, b) => a.level - b.level);
 
 /** Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`). */
 const RECIPES = [
@@ -828,6 +936,14 @@ const RECIPES = [
   { id: 'sweater', machine: 'loom',   level: 23, time: 900, out: 'sweater', qty: 1, in: { wool: 3 } },
   { id: 'hotsauce',machine: 'loom',   level: 24, time: 720, out: 'hotsauce',qty: 1, in: { chili: 2, tomato: 2 } },
   { id: 'wine',    machine: 'winery', level: 25, time: 1200,out: 'wine',    qty: 1, in: { grape: 3 } },
+  { id: 'fries',   machine: 'fryer',  level: 7,  time: 120, out: 'fries',   qty: 1, in: { potato: 3 } },
+  { id: 'omelette',machine: 'fryer',  level: 10, time: 200, out: 'omelette',qty: 1, in: { egg: 2, eggplant: 1 } },
+  { id: 'oil',     machine: 'press',  level: 13, time: 240, out: 'oil',     qty: 1, in: { sunflower: 3 } },
+  { id: 'gcheese', machine: 'dairy',  level: 15, time: 260, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
+  { id: 'candy',   machine: 'sweets', level: 18, time: 360, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
+  { id: 'stew',    machine: 'grill',  level: 20, time: 540, out: 'stew',    qty: 1, in: { potato: 2, bacon: 1, eggplant: 1 } },
+  { id: 'quilt',   machine: 'loom',   level: 23, time: 780, out: 'quilt',   qty: 1, in: { feather: 3, wool: 1 } },
+  { id: 'espresso',machine: 'cafe',   level: 26, time: 900, out: 'espresso',qty: 1, in: { beans: 3 } },
 ];
 
 /** Crafted goods. Stored in the BARN. */
@@ -846,6 +962,14 @@ const CRAFTED = [
   { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1600, xp: 92 },
   { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 1900, xp: 105 },
   { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 2700, xp: 140 },
+  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 215,  xp: 17 },
+  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 330,  xp: 25 },
+  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 770,  xp: 47 },
+  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 690,  xp: 43 },
+  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 1180, xp: 68 },
+  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1450, xp: 82 },
+  { id: 'quilt',    name: 'Down Quilt',    icon: '🛏️', price: 1850, xp: 104 },
+  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 2550, xp: 132 },
 ];
 
 /** One flat lookup for anything that can sit in storage or fill an order. */
@@ -879,6 +1003,53 @@ const TITLES = [
 ];
 
 const AVATARS = ['🧑‍🌾', '👩‍🌾', '👨‍🌾', '🧔', '👵', '🤠', '🧙', '🐸'];
+
+/* -------------------------------- goals ---------------------------------- */
+
+/** Tiered goals, each tier claimed once. `stat` reads off S.stats (or level). */
+const GOALS = [
+  { id: 'harvest', name: 'Green Thumb',  icon: '🧺', stat: 'harvested', unit: 'crops harvested',  tiers: [50, 300, 1500, 8000] },
+  { id: 'collect', name: 'Rancher',      icon: '🥚', stat: 'collected', unit: 'goods collected',  tiers: [25, 150, 700, 3000] },
+  { id: 'craft',   name: 'Artisan',      icon: '🏭', stat: 'crafted',   unit: 'goods crafted',    tiers: [20, 120, 600, 2500] },
+  { id: 'orders',  name: 'Shipper',      icon: '🚚', stat: 'orders',    unit: 'orders delivered', tiers: [10, 60, 250, 1000] },
+  { id: 'earn',    name: 'Merchant',     icon: '🪙', stat: 'earned',    unit: 'coins earned',     tiers: [2000, 50000, 500000, 5000000] },
+  { id: 'level',   name: 'Homesteader',  icon: '⭐', stat: 'level',     unit: 'farm level',       tiers: [5, 12, 20, 30] },
+];
+
+const GOAL_RANKS = ['Bronze', 'Silver', 'Gold', 'Legend'];
+
+function goalReward(tier) {
+  return { coins: Math.round(400 * Math.pow(4, tier)), gems: tier + 1 };
+}
+
+/* ------------------------------ market prices ---------------------------- */
+
+/**
+ * Every good's price drifts on its own slow cycle. It's a pure function of the
+ * clock, so nothing has to be stored and every device agrees on the price.
+ * Range is roughly 0.70x to 1.30x.
+ */
+function marketMult(id, t = Date.now()) {
+  let h = 7;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973;
+  const phase = (h / 9973) * Math.PI * 2;
+  return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
+}
+
+/* ------------------------------ daily bonus ------------------------------ */
+
+const DAILY_MAX_STREAK = 7;
+
+function dailyReward(streak, level) {
+  const n = Math.min(streak, DAILY_MAX_STREAK);
+  return { coins: 150 * level * n, gems: n >= DAILY_MAX_STREAK ? 5 : n >= 4 ? 2 : 1 };
+}
+
+/** Local calendar day, so the bonus lands at midnight where the player is. */
+function today(t = Date.now()) {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 
 /* ------------------------------- economy -------------------------------- */
 
@@ -930,7 +1101,7 @@ function titleFor(level) {
 function recipesFor(machineId) {
   return RECIPES.filter(r => r.machine === machineId);
 }
-return { xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, UPGRADES, TITLES, AVATARS, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
+return { goalReward, marketMult, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
 })();
 
 /* ---------- js/audio.js ---------- */
@@ -997,10 +1168,15 @@ const {now, clamp, uid} = __mod_util;
 
 
 
-const KEY = 'sunnyacres.save.v1';
 const SAVE_VERSION = 1;
+const SLOTS = 3;
+
+/** Slot 1 keeps the original key so farms from earlier builds survive. */
+const slotKey = i => (i === 0 ? 'sunnyacres.save.v1' : `sunnyacres.save.v1.slot${i + 1}`);
+const LAST_SLOT = 'sunnyacres.lastSlot';
 
 let S = null;
+let slot = 0;
 
 /* --------------------------------- setup -------------------------------- */
 
@@ -1027,27 +1203,87 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     upgrades: {},
     selectedSeed: 'wheat',
     settings: { sound: true },
+    goals: {},                                   // goal id -> tiers claimed
+    daily: { day: '', streak: 0 },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
 }
 
-function load() {
+function readSlot(i) {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(slotKey(i));
     if (!raw) return null;
     const data = JSON.parse(raw);
-    if (!data || data.v !== SAVE_VERSION) return null;
-    S = migrate(data);
-    return S;
+    return data && data.v === SAVE_VERSION ? data : null;
   } catch {
     return null;
   }
 }
 
-function startNew(name, avatar) {
+/** A one-line summary of every slot, for the title screen. */
+function slotSummaries() {
+  return Array.from({ length: SLOTS }, (_, i) => {
+    const d = readSlot(i);
+    if (!d) return { i, empty: true };
+    return {
+      i, empty: false,
+      name: d.name, avatar: d.avatar, level: d.level,
+      coins: d.coins, played: d.lastSeen || d.createdAt,
+    };
+  });
+}
+
+/** Loads a slot into play. Returns the state, or null if the slot is empty. */
+function load(i = null) {
+  if (i === null) {
+    const last = parseInt(localStorage.getItem(LAST_SLOT) || '0', 10);
+    i = Number.isInteger(last) && last >= 0 && last < SLOTS ? last : 0;
+  }
+  const data = readSlot(i);
+  if (!data) return null;
+  slot = i;
+  localStorage.setItem(LAST_SLOT, String(i));
+  S = migrate(data);
+  return S;
+}
+
+function startNew(name, avatar, i = 0) {
+  slot = i;
+  localStorage.setItem(LAST_SLOT, String(i));
   S = freshState(name, avatar);
   save();
   return S;
+}
+
+function deleteSlot(i) {
+  localStorage.removeItem(slotKey(i));
+}
+
+/* ------------------------- moving a farm elsewhere ----------------------- */
+
+/** The whole save as a paste-able code. */
+function exportCode() {
+  const json = JSON.stringify(S);
+  // encodeURIComponent first so non-ASCII farm names survive btoa.
+  return btoa(unescape(encodeURIComponent(json))).replace(/=+$/, '');
+}
+
+/** Returns an error string, or null when the code was accepted. */
+function importCode(code, i = slot) {
+  let data;
+  try {
+    data = JSON.parse(decodeURIComponent(escape(atob(String(code).trim()))));
+  } catch {
+    return 'That code could not be read.';
+  }
+  if (!data || typeof data !== 'object' || data.v !== SAVE_VERSION || !Array.isArray(data.plots)) {
+    return 'That code is not a Sunny Acres farm.';
+  }
+  slot = i;
+  S = migrate(data);
+  save();
+  localStorage.setItem(LAST_SLOT, String(i));
+  return null;
 }
 
 /** Fill in anything a save from an older build of the same version may lack. */
@@ -1056,6 +1292,8 @@ function migrate(data) {
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   data.settings = { ...base.settings, ...(data.settings || {}) };
   data.stats = { ...base.stats, ...(data.stats || {}) };
+  data.goals = data.goals || {};
+  data.daily = { ...base.daily, ...(data.daily || {}) };
   return data;
 }
 
@@ -1064,7 +1302,7 @@ function save() {
   if (!S) return;
   S.lastSeen = now();
   try {
-    localStorage.setItem(KEY, JSON.stringify(S));
+    localStorage.setItem(slotKey(slot), JSON.stringify(S));
   } catch { /* storage full or private mode — keep playing in memory */ }
 }
 
@@ -1075,7 +1313,7 @@ function saveSoon() {
 }
 
 function wipe() {
-  localStorage.removeItem(KEY);
+  localStorage.removeItem(slotKey(slot));
 }
 
 /* ------------------------------- storage -------------------------------- */
@@ -1225,7 +1463,7 @@ function producibleItems() {
   }
   return [...ids];
 }
-return { freshState, load, startNew, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, growthMult, craftMult, sellMult, orderMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, get S() { return S; }, isCrop };
+return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, growthMult, craftMult, sellMult, orderMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop };
 })();
 
 /* ---------- js/game.js ---------- */
@@ -1535,8 +1773,22 @@ function speedUpJob(machineId, jid) {
 
 /* -------------------------------- selling ------------------------------- */
 
+/** How far today's price sits from the item's base value. */
+function marketFactor(id) {
+  return D.marketMult(id);
+}
+
 function sellPrice(id) {
-  return Math.max(1, Math.round(D.ITEMS[id].price * St.sellMult()));
+  return Math.max(1, Math.round(D.ITEMS[id].price * St.sellMult() * marketFactor(id)));
+}
+
+/** The best-paying things you actually have in storage right now. */
+function marketMovers(limit = 4) {
+  return Object.keys(D.ITEMS)
+    .filter(id => St.count(id) > 0)
+    .map(id => ({ id, factor: marketFactor(id), value: sellPrice(id) * St.count(id) }))
+    .sort((a, b) => b.factor - a.factor)
+    .slice(0, limit);
 }
 
 function sell(id, qty = 1) {
@@ -1686,6 +1938,60 @@ function declineOrder(oid) {
   return true;
 }
 
+/* --------------------------------- goals -------------------------------- */
+
+function goalValue(goal) {
+  return goal.stat === 'level' ? St.S.level : (St.S.stats[goal.stat] || 0);
+}
+
+/** Which tier this goal is working on, and whether it can be claimed now. */
+function goalState(goal) {
+  const claimed = St.S.goals[goal.id] || 0;
+  const done = claimed >= goal.tiers.length;
+  const target = done ? goal.tiers[goal.tiers.length - 1] : goal.tiers[claimed];
+  const value = goalValue(goal);
+  return { claimed, done, target, value, ready: !done && value >= target };
+}
+
+function claimGoal(id) {
+  const goal = D.GOALS.find(g => g.id === id);
+  if (!goal) return false;
+  const st = goalState(goal);
+  if (!st.ready) return false;
+  const reward = D.goalReward(st.claimed);
+  St.S.goals[id] = st.claimed + 1;
+  St.earnCoins(reward.coins);
+  St.S.gems += reward.gems;
+  SFX.levelUp();
+  ok(`${goal.name} ${D.GOAL_RANKS[st.claimed]}! +${reward.coins} coins`, goal.icon);
+  St.saveSoon();
+  return true;
+}
+
+const goalsReady = () => D.GOALS.filter(g => goalState(g).ready).length;
+
+/* ------------------------------ daily bonus ------------------------------ */
+
+function dailyReady() {
+  return St.S.daily.day !== D.today();
+}
+
+function claimDaily() {
+  const S = St.S;
+  if (!dailyReady()) return false;
+  // Yesterday's date string tells us whether the streak survived.
+  const yesterday = D.today(Date.now() - 86400000);
+  S.daily.streak = S.daily.day === yesterday ? S.daily.streak + 1 : 1;
+  S.daily.day = D.today();
+  const r = D.dailyReward(S.daily.streak, S.level);
+  St.earnCoins(r.coins);
+  S.gems += r.gems;
+  SFX.levelUp();
+  ok(`Day ${S.daily.streak} bonus! +${r.coins} coins`, '🎁');
+  St.saveSoon();
+  return true;
+}
+
 /* --------------------------------- clock -------------------------------- */
 
 /** Runs about once a second, and once on load to settle offline progress. */
@@ -1738,7 +2044,7 @@ function settleOffline() {
   tick();
   return { away, ready, ripe, crafts };
 }
-return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, sellPrice, sell, buyPlot, upgradeSilo, upgradeBarn, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, tick, settleOffline };
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, dailyReady, claimDaily, tick, settleOffline, goalsReady };
 })();
 
 /* ---------- js/ui.js ---------- */
@@ -1770,6 +2076,7 @@ const TABS = [
   { id: 'animals', icon: '🐔', label: 'Animals' },
   { id: 'craft',   icon: '🏭', label: 'Craft' },
   { id: 'orders',  icon: '📋', label: 'Orders' },
+  { id: 'goals',   icon: '🏆', label: 'Goals' },
   { id: 'shop',    icon: '🛒', label: 'Shop' },
 ];
 
@@ -1790,7 +2097,8 @@ function render() {
   renderTabs();
   const host = $('view');
   host.innerHTML = '';
-  const builder = { farm: farmView, animals: animalsView, craft: craftView, orders: ordersView, shop: shopView }[view];
+  const builder = { farm: farmView, animals: animalsView, craft: craftView,
+                    orders: ordersView, goals: goalsView, shop: shopView }[view];
   host.appendChild(builder());
 }
 
@@ -1857,6 +2165,7 @@ function renderTabBadges() {
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
     orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
+    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0),
     shop: 0,
   };
   for (const t of TABS) {
@@ -2260,6 +2569,62 @@ function orderCard(o, i) {
   return card;
 }
 
+/* -------------------------------- GOALS ---------------------------------- */
+
+function goalsView() {
+  const frag = document.createDocumentFragment();
+
+  /* daily bonus */
+  const daily = panel(`<em>🎁</em>Daily Bonus`);
+  const S = St.S;
+  const streak = S.daily.streak || 0;
+  if (G.dailyReady()) {
+    const next = D.dailyReward(
+      D.today(Date.now() - 86400000) === S.daily.day ? streak + 1 : 1, S.level);
+    const row = el('div', 'row');
+    row.innerHTML = `<div class="ic">🎁</div><div class="body"><b>Today's bonus is waiting</b>
+      <small>🪙 ${fmt(next.coins)} · 💎 ${next.gems}${streak ? ` · ${streak}-day streak` : ''}</small></div>`;
+    const b = el('button', 'btn btn-sm btn-green', 'Claim');
+    b.onclick = () => { haptic(); G.claimDaily(); render(); };
+    row.appendChild(b);
+    daily.appendChild(row);
+  } else {
+    daily.appendChild(el('div', 'muted',
+      `Claimed today. Streak: ${streak} day${streak === 1 ? '' : 's'} — come back tomorrow to keep it going.`));
+  }
+  const dots = el('div', 'chips');
+  for (let i = 1; i <= D.DAILY_MAX_STREAK; i++) {
+    dots.appendChild(el('span', 'chip ' + (i <= streak ? 'done' : ''), i === D.DAILY_MAX_STREAK ? '🏅' : i));
+  }
+  daily.appendChild(dots);
+  frag.appendChild(daily);
+
+  /* goals */
+  const p = panel(`<em>🏆</em>Farm Goals`);
+  p.appendChild(el('div', 'muted', 'Every goal has four ranks. Claim each one for coins and gems.'));
+  for (const g of D.GOALS) {
+    const st = G.goalState(g);
+    const row = el('div', 'row' + (st.done ? ' locked' : ''));
+    const rank = st.done ? 'Legend' : D.GOAL_RANKS[st.claimed];
+    const pct = clamp(st.value / st.target, 0, 1) * 100;
+    row.innerHTML = `<div class="ic">${g.icon}</div><div class="body">
+      <b>${g.name} · ${rank}</b>
+      <small>${fmt(Math.min(st.value, st.target))} / ${fmt(st.target)} ${g.unit}</small>
+      <span class="goalbar"><i style="width:${pct.toFixed(1)}%"></i></span></div>`;
+    if (st.ready) {
+      const r = D.goalReward(st.claimed);
+      const b = el('button', 'btn btn-sm btn-gold', `🪙${fmt(r.coins)}`);
+      b.onclick = () => { haptic(); G.claimGoal(g.id); render(); };
+      row.appendChild(b);
+    } else if (st.done) {
+      row.appendChild(el('span', 'chip done', '✔'));
+    }
+    p.appendChild(row);
+  }
+  frag.appendChild(p);
+  return frag;
+}
+
 /* --------------------------------- SHOP ---------------------------------- */
 
 function shopView() {
@@ -2278,6 +2643,15 @@ function shopView() {
   mrow.append(s1, s2);
   market.appendChild(mrow);
   if (St.has('scythe')) market.appendChild(el('div', 'muted', '🪄 Golden Scythe: +25% on every sale.'));
+
+  const movers = G.marketMovers(4);
+  if (movers.length) {
+    market.appendChild(el('div', 'muted', 'Prices drift all day. Best rates on what you are holding:'));
+    const chips = el('div', 'chips');
+    for (const m of movers) chips.appendChild(el('span', 'chip ' + trendClass(m.factor),
+      `${D.ITEMS[m.id].icon} ${trendLabel(m.factor)}`));
+    market.appendChild(chips);
+  }
   frag.appendChild(market);
 
   /* land */
@@ -2333,6 +2707,13 @@ function buyRow(icon, name, desc, cost, needLevel, onBuy) {
   return r;
 }
 
+/** Market drift, as a chip class and a signed percentage. */
+function trendClass(f) { return f >= 1.06 ? 'done' : f <= 0.94 ? 'miss' : ''; }
+function trendLabel(f) {
+  const pct = Math.round((f - 1) * 100);
+  return `${pct > 0 ? '▲+' : pct < 0 ? '▼' : '='}${pct === 0 ? '' : pct + '%'}`;
+}
+
 /* -------------------------------- sheets --------------------------------- */
 
 function openSheet(build) {
@@ -2353,7 +2734,8 @@ function sellSheet(kind) {
   openSheet((sheet, close) => {
     const isSilo = kind === 'silo';
     sheet.appendChild(el('h2', null, isSilo ? '🛖 Sell Crops' : '🏠 Sell Goods'));
-    sheet.appendChild(el('p', 'sub', 'Tap to sell. Orders pay much better — check the board first.'));
+    sheet.appendChild(el('p', 'sub',
+      'Tap to sell. Prices swing through the day — ▲ means better than usual.'));
 
     const list = el('div');
     const build = () => {
@@ -2368,9 +2750,11 @@ function sellSheet(kind) {
       for (const id of ids) {
         const it = D.ITEMS[id];
         const n = stock[id];
+        const f = G.marketFactor(id);
         const row = el('div', 'row');
         row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
-          <small>🪙 ${fmt(G.sellPrice(id))} each</small></div>`;
+          <small>🪙 ${fmt(G.sellPrice(id))} each
+          <span class="trend ${trendClass(f)}">${trendLabel(f)}</span></small></div>`;
         const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
         const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
         one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
@@ -2408,7 +2792,8 @@ function profileSheet() {
   const S = St.S;
   openSheet((sheet, close) => {
     sheet.appendChild(el('h2', null, `${S.avatar} ${S.name}`));
-    sheet.appendChild(el('p', 'sub', `${D.titleFor(S.level)} · Level ${S.level}`));
+    sheet.appendChild(el('p', 'sub',
+      `${D.titleFor(S.level)} · Level ${S.level} · Save ${St.slot + 1}`));
 
     const next = D.TITLES.find(t => t.level > S.level);
     const stats = el('div', 'panel');
@@ -2443,13 +2828,59 @@ function profileSheet() {
     };
     sheet.appendChild(snd);
 
-    const reset = el('button', 'btn btn-big btn-red', '🗑️ Start a new farm');
+    const swap = el('button', 'btn btn-big btn-blue', '🔄 Switch farm');
+    swap.style.marginTop = '8px';
+    swap.onclick = () => { St.save(); location.reload(); };
+    sheet.appendChild(swap);
+
+    const xfer = el('button', 'btn btn-big', '📤 Move this farm to another device');
+    xfer.style.marginTop = '8px';
+    xfer.onclick = () => transferSheet();
+    sheet.appendChild(xfer);
+
+    const reset = el('button', 'btn btn-big btn-red', '🗑️ Delete this farm');
     reset.style.marginTop = '8px';
-    reset.onclick = () => confirmSheet('Start over?',
-      'Your farm, coins and levels are erased for good.', () => { St.wipe(); location.reload(); });
+    reset.onclick = () => confirmSheet('Delete this farm?',
+      `Save ${St.slot + 1} is erased for good. Your other saves are untouched.`,
+      () => { St.wipe(); location.reload(); });
     sheet.appendChild(reset);
 
     const done = el('button', 'btn btn-big btn-blue', 'Close');
+    done.style.marginTop = '8px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** A farm's whole save as a code you can paste on another phone. */
+function transferSheet() {
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '📤 Move your farm'));
+    sheet.appendChild(el('p', 'sub',
+      'Copy this code, then paste it into Load From Code on the other device. Your farm here is left alone.'));
+
+    const box = el('textarea', 'fld code-box');
+    box.readOnly = true;
+    box.value = St.exportCode();
+    box.onclick = () => box.select();
+    sheet.appendChild(box);
+
+    const copy = el('button', 'btn btn-big btn-green', '📋 Copy code');
+    copy.style.marginTop = '10px';
+    copy.onclick = async () => {
+      haptic();
+      box.select();
+      try {
+        await navigator.clipboard.writeText(box.value);
+        toast('Code copied', '📋');
+      } catch {
+        // Clipboard is blocked in some in-app browsers; the selection still works.
+        toast('Press and hold the code to copy', '📋');
+      }
+    };
+    sheet.appendChild(copy);
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
     done.style.marginTop = '8px';
     done.onclick = close;
     sheet.appendChild(done);
@@ -2553,9 +2984,11 @@ const St = __mod_state;
 const G = __mod_game;
 const UI = __mod_ui;
 const {setSound, unlockAudio} = __mod_audio;
+const {el, fmt} = __mod_util;
 /* ==========================================================================
-   main.js — boot, onboarding, and the once-a-second heartbeat.
+   main.js — the title screen, onboarding, and the once-a-second heartbeat.
    ========================================================================== */
+
 
 
 
@@ -2565,14 +2998,79 @@ const {setSound, unlockAudio} = __mod_audio;
 
 const $ = id => document.getElementById(id);
 
+/* ------------------------------ title screen ----------------------------- */
+
+/** "3 days ago" style, for the save list. */
+function ago(ts) {
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs > 1 ? 's' : ''} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
+}
+
+function showTitle() {
+  const screen = $('title');
+  screen.hidden = false;
+  $('onboard').hidden = true;
+  $('app').hidden = true;
+
+  const list = $('slots');
+  list.innerHTML = '';
+
+  for (const s of St.slotSummaries()) {
+    const card = el('button', 'slot-card' + (s.empty ? ' empty' : ''));
+    card.type = 'button';
+    card.innerHTML = s.empty
+      ? `<span class="face">＋</span><span class="who"><b>New Farm</b>
+         <small>Save ${s.i + 1} · empty</small></span>`
+      : `<span class="face">${s.avatar}</span><span class="who"><b>${s.name}</b>
+         <small>Level ${s.level} · 🪙 ${fmt(s.coins)} · played ${ago(s.played)}</small></span>`;
+    card.onclick = () => {
+      unlockAudio();
+      if (s.empty) showOnboarding(s.i);
+      else if (St.load(s.i)) boot();
+    };
+    list.appendChild(card);
+
+    if (!s.empty) {
+      const del = el('button', 'slot-del', '🗑️');
+      del.type = 'button';
+      del.title = `Delete save ${s.i + 1}`;
+      del.onclick = e => {
+        e.stopPropagation();
+        if (confirm(`Delete ${s.name}'s farm? This cannot be undone.`)) {
+          St.deleteSlot(s.i);
+          showTitle();
+        }
+      };
+      card.appendChild(del);
+    }
+  }
+
+  $('load-code').onclick = () => {
+    const code = prompt('Paste the farm code from your other device:');
+    if (!code) return;
+    const target = St.slotSummaries().find(s => s.empty);
+    if (!target) { alert('All three saves are full. Delete one first.'); return; }
+    const err = St.importCode(code, target.i);
+    if (err) alert(err);
+    else boot();
+  };
+}
+
 /* ------------------------------ onboarding ------------------------------- */
 
-function showOnboarding() {
+function showOnboarding(slot) {
   const ob = $('onboard');
+  $('title').hidden = true;
   ob.hidden = false;
   let avatar = D.AVATARS[0];
 
   const grid = $('ob-avatars');
+  grid.innerHTML = '';
   D.AVATARS.forEach((a, i) => {
     const b = document.createElement('button');
     b.className = 'av' + (i === 0 ? ' on' : '');
@@ -2588,53 +3086,58 @@ function showOnboarding() {
   $('ob-start').onclick = () => {
     unlockAudio();
     const name = ($('ob-name').value || '').trim().slice(0, 14) || 'Farmer';
-    St.startNew(name, avatar);
-    ob.hidden = true;
+    St.startNew(name, avatar, slot);
     boot();
   };
 }
 
 /* --------------------------------- boot ---------------------------------- */
 
+let started = false;
+
 function boot() {
   const S = St.S;
   setSound(S.settings.sound !== false);
+  $('title').hidden = true;
+  $('onboard').hidden = true;
   $('app').hidden = false;
 
-  G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
-  G.on('levelup', lv => UI.levelUpSplash(lv));
+  if (!started) {
+    started = true;
+    G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
+    G.on('levelup', lv => UI.levelUpSplash(lv));
+
+    // Heartbeat: advance the world, then repaint the cheap bits.
+    setInterval(() => {
+      G.tick();
+      UI.refresh();
+    }, 1000);
+
+    // Timers are all timestamp-based, so a backgrounded tab catches up instantly.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) St.save();
+      else { G.tick(); UI.render(); }
+    });
+    window.addEventListener('pagehide', St.save);
+    window.addEventListener('blur', St.save);
+
+    // iOS only starts audio inside a user gesture.
+    document.addEventListener('pointerdown', unlockAudio, { once: true });
+
+    // Kill the pull-to-refresh / rubber-band bounce on the game surface.
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+  }
 
   const info = G.settleOffline();
-  UI.render();
+  UI.setView('farm');
   UI.welcomeBack(info);
-
-  // Heartbeat: advance the world, then repaint the cheap bits.
-  setInterval(() => {
-    G.tick();
-    UI.refresh();
-  }, 1000);
-
-  // Timers are all timestamp-based, so a backgrounded tab catches up instantly.
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) St.save();
-    else { G.tick(); UI.render(); }
-  });
-  window.addEventListener('pagehide', St.save);
-  window.addEventListener('blur', St.save);
-
-  // iOS only starts audio inside a user gesture.
-  document.addEventListener('pointerdown', unlockAudio, { once: true });
-
-  // Kill the pull-to-refresh / rubber-band bounce on the game surface.
-  document.addEventListener('touchmove', e => {
-    if (e.touches.length > 1) e.preventDefault();
-  }, { passive: false });
 }
 
 /* --------------------------------- start --------------------------------- */
 
-if (St.load()) boot();
-else showOnboarding();
+showTitle();
 return {  };
 })();
 </script>

@@ -648,3 +648,82 @@ button, input { font: inherit; color: inherit; }
 .muted { color: var(--ink-soft); font-weight: 700; font-size: 12px; }
 .center { text-align: center; }
 .hidden { display: none !important; }
+
+/* ------------------------- goals, market, saves --------------------------- */
+
+.goalbar {
+  display: block;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .12);
+  overflow: hidden;
+}
+.goalbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #ffd777, var(--gold-dk));
+  transition: width .35s ease;
+}
+
+.trend {
+  display: inline-block;
+  margin-left: 5px;
+  font-weight: 900;
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+.trend.done { color: #2e8b2e; }
+.trend.miss { color: #c33; }
+
+.code-box {
+  width: 100%;
+  height: 96px;
+  margin-top: 6px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  word-break: break-all;
+  resize: none;
+}
+
+.slots-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+.slot-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
+  text-align: left;
+  transition: transform .1s ease;
+}
+.slot-card:active { transform: translateY(3px); box-shadow: 0 0 0; }
+.slot-card .face {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
+  display: grid; place-items: center;
+  font-size: 22px;
+}
+.slot-card .who { flex: 1; min-width: 0; }
+.slot-card .who b { display: block; font-size: 15px; font-weight: 900; }
+.slot-card .who small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 700; }
+.slot-card.empty { border-style: dashed; background: rgba(255, 255, 255, .6); }
+.slot-card.empty .face { background: rgba(0, 0, 0, .06); border-color: rgba(255, 255, 255, .8); }
+
+.slot-del {
+  flex-shrink: 0;
+  border: 2px solid #c33;
+  background: #ffe4e4;
+  color: #c33;
+  border-radius: 10px;
+  width: 34px; height: 34px;
+  font-size: 15px;
+}

@@ -13,7 +13,15 @@ export const CROPS = [
   { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 330,  xp: 20 },
   { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 580,  xp: 32 },
   { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1050, xp: 50 },
+  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 62,   xp: 5 },
+  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 142,  xp: 10 },
+  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 225,  xp: 15 },
+  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 435,  xp: 26 },
+  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 830,  xp: 42 },
 ];
+
+/** Seed racks are shown in unlock order, not the order they were written. */
+CROPS.sort((a, b) => a.level - b.level || a.seed - b.seed);
 
 /** Animals live in pens, eat FEED, and drop goods into the BARN. */
 export const ANIMALS = [
@@ -22,7 +30,10 @@ export const ANIMALS = [
   { id: 'pig',     name: 'Pig',     icon: '🐖', level: 12, cost: 2500,  max: 6, feed: 3, cycle: 720,  product: 'bacon' },
   { id: 'sheep',   name: 'Sheep',   name2: 'Sheep', icon: '🐑', level: 16, cost: 6000,  max: 5, feed: 4, cycle: 1200, product: 'wool' },
   { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 14000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
+  { id: 'duck',    name: 'Duck',    icon: '🦆', level: 5,  cost: 450,   max: 6, feed: 1, cycle: 240,  product: 'feather' },
+  { id: 'goat',    name: 'Goat',    icon: '🐐', level: 14, cost: 4200,  max: 5, feed: 3, cycle: 900,  product: 'goatmilk' },
 ];
+ANIMALS.sort((a, b) => a.level - b.level);
 
 /** Goods produced by animals. Stored in the BARN. */
 export const ANIMAL_GOODS = [
@@ -31,6 +42,8 @@ export const ANIMAL_GOODS = [
   { id: 'bacon', name: 'Bacon', icon: '🥓', price: 140, xp: 11 },
   { id: 'wool',  name: 'Wool',  icon: '🧶', price: 240, xp: 18 },
   { id: 'honey', name: 'Honey', icon: '🍯', price: 400, xp: 28 },
+  { id: 'feather',  name: 'Down',      icon: '🪶', price: 50,  xp: 4 },
+  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 195, xp: 15 },
 ];
 
 /** Crafting stations. Jobs run one after another in a shared queue. */
@@ -43,7 +56,12 @@ export const MACHINES = [
   { id: 'grill',   name: 'BBQ Grill',   icon: '🍗', level: 19, cost: 60000 },
   { id: 'loom',    name: 'Textile Mill',icon: '🧵', level: 23, cost: 150000 },
   { id: 'winery',  name: 'Winery',      icon: '🍷', level: 25, cost: 320000 },
+  { id: 'fryer',   name: 'Fry Shack',   icon: '🍟', level: 7,  cost: 2200 },
+  { id: 'press',   name: 'Oil Press',   icon: '🫗', level: 13, cost: 13000 },
+  { id: 'sweets',  name: 'Sweet Shop',  icon: '🍬', level: 18, cost: 42000 },
+  { id: 'cafe',    name: 'Cafe',        icon: '☕', level: 26, cost: 480000 },
 ];
+MACHINES.sort((a, b) => a.level - b.level);
 
 /** Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`). */
 export const RECIPES = [
@@ -61,6 +79,14 @@ export const RECIPES = [
   { id: 'sweater', machine: 'loom',   level: 23, time: 900, out: 'sweater', qty: 1, in: { wool: 3 } },
   { id: 'hotsauce',machine: 'loom',   level: 24, time: 720, out: 'hotsauce',qty: 1, in: { chili: 2, tomato: 2 } },
   { id: 'wine',    machine: 'winery', level: 25, time: 1200,out: 'wine',    qty: 1, in: { grape: 3 } },
+  { id: 'fries',   machine: 'fryer',  level: 7,  time: 120, out: 'fries',   qty: 1, in: { potato: 3 } },
+  { id: 'omelette',machine: 'fryer',  level: 10, time: 200, out: 'omelette',qty: 1, in: { egg: 2, eggplant: 1 } },
+  { id: 'oil',     machine: 'press',  level: 13, time: 240, out: 'oil',     qty: 1, in: { sunflower: 3 } },
+  { id: 'gcheese', machine: 'dairy',  level: 15, time: 260, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
+  { id: 'candy',   machine: 'sweets', level: 18, time: 360, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
+  { id: 'stew',    machine: 'grill',  level: 20, time: 540, out: 'stew',    qty: 1, in: { potato: 2, bacon: 1, eggplant: 1 } },
+  { id: 'quilt',   machine: 'loom',   level: 23, time: 780, out: 'quilt',   qty: 1, in: { feather: 3, wool: 1 } },
+  { id: 'espresso',machine: 'cafe',   level: 26, time: 900, out: 'espresso',qty: 1, in: { beans: 3 } },
 ];
 
 /** Crafted goods. Stored in the BARN. */
@@ -79,6 +105,14 @@ export const CRAFTED = [
   { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1600, xp: 92 },
   { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 1900, xp: 105 },
   { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 2700, xp: 140 },
+  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 215,  xp: 17 },
+  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 330,  xp: 25 },
+  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 770,  xp: 47 },
+  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 690,  xp: 43 },
+  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 1180, xp: 68 },
+  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1450, xp: 82 },
+  { id: 'quilt',    name: 'Down Quilt',    icon: '🛏️', price: 1850, xp: 104 },
+  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 2550, xp: 132 },
 ];
 
 /** One flat lookup for anything that can sit in storage or fill an order. */
@@ -112,6 +146,53 @@ export const TITLES = [
 ];
 
 export const AVATARS = ['🧑‍🌾', '👩‍🌾', '👨‍🌾', '🧔', '👵', '🤠', '🧙', '🐸'];
+
+/* -------------------------------- goals ---------------------------------- */
+
+/** Tiered goals, each tier claimed once. `stat` reads off S.stats (or level). */
+export const GOALS = [
+  { id: 'harvest', name: 'Green Thumb',  icon: '🧺', stat: 'harvested', unit: 'crops harvested',  tiers: [50, 300, 1500, 8000] },
+  { id: 'collect', name: 'Rancher',      icon: '🥚', stat: 'collected', unit: 'goods collected',  tiers: [25, 150, 700, 3000] },
+  { id: 'craft',   name: 'Artisan',      icon: '🏭', stat: 'crafted',   unit: 'goods crafted',    tiers: [20, 120, 600, 2500] },
+  { id: 'orders',  name: 'Shipper',      icon: '🚚', stat: 'orders',    unit: 'orders delivered', tiers: [10, 60, 250, 1000] },
+  { id: 'earn',    name: 'Merchant',     icon: '🪙', stat: 'earned',    unit: 'coins earned',     tiers: [2000, 50000, 500000, 5000000] },
+  { id: 'level',   name: 'Homesteader',  icon: '⭐', stat: 'level',     unit: 'farm level',       tiers: [5, 12, 20, 30] },
+];
+
+export const GOAL_RANKS = ['Bronze', 'Silver', 'Gold', 'Legend'];
+
+export function goalReward(tier) {
+  return { coins: Math.round(400 * Math.pow(4, tier)), gems: tier + 1 };
+}
+
+/* ------------------------------ market prices ---------------------------- */
+
+/**
+ * Every good's price drifts on its own slow cycle. It's a pure function of the
+ * clock, so nothing has to be stored and every device agrees on the price.
+ * Range is roughly 0.70x to 1.30x.
+ */
+export function marketMult(id, t = Date.now()) {
+  let h = 7;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973;
+  const phase = (h / 9973) * Math.PI * 2;
+  return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
+}
+
+/* ------------------------------ daily bonus ------------------------------ */
+
+export const DAILY_MAX_STREAK = 7;
+
+export function dailyReward(streak, level) {
+  const n = Math.min(streak, DAILY_MAX_STREAK);
+  return { coins: 150 * level * n, gems: n >= DAILY_MAX_STREAK ? 5 : n >= 4 ? 2 : 1 };
+}
+
+/** Local calendar day, so the bonus lands at midnight where the player is. */
+export function today(t = Date.now()) {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 
 /* ------------------------------- economy -------------------------------- */
 

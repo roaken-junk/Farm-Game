@@ -299,8 +299,22 @@ export function speedUpJob(machineId, jid) {
 
 /* -------------------------------- selling ------------------------------- */
 
+/** How far today's price sits from the item's base value. */
+export function marketFactor(id) {
+  return D.marketMult(id);
+}
+
 export function sellPrice(id) {
-  return Math.max(1, Math.round(D.ITEMS[id].price * St.sellMult()));
+  return Math.max(1, Math.round(D.ITEMS[id].price * St.sellMult() * marketFactor(id)));
+}
+
+/** The best-paying things you actually have in storage right now. */
+export function marketMovers(limit = 4) {
+  return Object.keys(D.ITEMS)
+    .filter(id => St.count(id) > 0)
+    .map(id => ({ id, factor: marketFactor(id), value: sellPrice(id) * St.count(id) }))
+    .sort((a, b) => b.factor - a.factor)
+    .slice(0, limit);
 }
 
 export function sell(id, qty = 1) {
@@ -446,6 +460,60 @@ export function declineOrder(oid) {
   const i = S.orders.findIndex(o => o && o.oid === oid);
   if (i < 0) return false;
   S.orders[i] = { wait: now() + orderWait() * 0.5 };
+  St.saveSoon();
+  return true;
+}
+
+/* --------------------------------- goals -------------------------------- */
+
+export function goalValue(goal) {
+  return goal.stat === 'level' ? St.S.level : (St.S.stats[goal.stat] || 0);
+}
+
+/** Which tier this goal is working on, and whether it can be claimed now. */
+export function goalState(goal) {
+  const claimed = St.S.goals[goal.id] || 0;
+  const done = claimed >= goal.tiers.length;
+  const target = done ? goal.tiers[goal.tiers.length - 1] : goal.tiers[claimed];
+  const value = goalValue(goal);
+  return { claimed, done, target, value, ready: !done && value >= target };
+}
+
+export function claimGoal(id) {
+  const goal = D.GOALS.find(g => g.id === id);
+  if (!goal) return false;
+  const st = goalState(goal);
+  if (!st.ready) return false;
+  const reward = D.goalReward(st.claimed);
+  St.S.goals[id] = st.claimed + 1;
+  St.earnCoins(reward.coins);
+  St.S.gems += reward.gems;
+  SFX.levelUp();
+  ok(`${goal.name} ${D.GOAL_RANKS[st.claimed]}! +${reward.coins} coins`, goal.icon);
+  St.saveSoon();
+  return true;
+}
+
+export const goalsReady = () => D.GOALS.filter(g => goalState(g).ready).length;
+
+/* ------------------------------ daily bonus ------------------------------ */
+
+export function dailyReady() {
+  return St.S.daily.day !== D.today();
+}
+
+export function claimDaily() {
+  const S = St.S;
+  if (!dailyReady()) return false;
+  // Yesterday's date string tells us whether the streak survived.
+  const yesterday = D.today(Date.now() - 86400000);
+  S.daily.streak = S.daily.day === yesterday ? S.daily.streak + 1 : 1;
+  S.daily.day = D.today();
+  const r = D.dailyReward(S.daily.streak, S.level);
+  St.earnCoins(r.coins);
+  S.gems += r.gems;
+  SFX.levelUp();
+  ok(`Day ${S.daily.streak} bonus! +${r.coins} coins`, '🎁');
   St.saveSoon();
   return true;
 }
