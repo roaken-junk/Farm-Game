@@ -106,3 +106,19 @@ Regenerate the icons after changing the crest:
 ```bash
 node tools/make-icons.mjs
 ```
+
+## The single-file build
+
+`dist/sakura-smash.html` is the whole game flattened into one HTML file — every
+module, all the CSS, no network requests. Useful when a host only accepts a single
+file, or for handing the game to someone directly over AirDrop or email.
+
+```bash
+node tools/bundle.mjs                  # regenerate after changing anything in src/
+node tools/bundle.mjs path/to/out.html
+```
+
+It is a committed build artifact, so re-run the bundler when the source changes.
+The single-file build drops the service worker (there is nothing to precache when
+the page *is* the app), so it does not install as an offline PWA — use the normal
+multi-file deploy for that.
