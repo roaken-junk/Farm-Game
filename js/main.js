@@ -81,8 +81,13 @@ function boot() {
 if (St.load()) boot();
 else showOnboarding();
 
-if ('serviceWorker' in navigator) {
+/* @strip-in-bundle:start — the single-file build ships no sw.js to register */
+// Offline play is a bonus, never a requirement, so failure here is silent.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* offline play is a bonus */ });
+    try {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    } catch { /* no controllable scope here */ }
   });
 }
+/* @strip-in-bundle:end */

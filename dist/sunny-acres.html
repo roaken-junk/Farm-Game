@@ -1,0 +1,2642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sunny Acres — Farm Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="theme-color" content="#86d3f5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sunny Acres">
+<link rel="icon" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+</head>
+<body>
+<style>
+/* ==========================================================================
+   Sunny Acres — phone-first styling.
+   Chunky rounded cards, thick outlines and warm colours, in the mould of the
+   big mobile farm games. Everything is CSS/emoji; no image or font downloads.
+   ========================================================================== */
+
+:root {
+  --sky-1: #86d3f5;
+  --sky-2: #c8ecff;
+  --grass: #74c045;
+  --grass-dk: #4e9a2c;
+  --soil: #a06a3c;
+  --soil-dk: #6f4520;
+  --wood: #d99a55;
+  --wood-dk: #9c5f26;
+  --card: #fffaef;
+  --card-2: #fff3dc;
+  --ink: #4a3520;
+  --ink-soft: #8a6f52;
+  --gold: #ffc42e;
+  --gold-dk: #d38f00;
+  --gem: #47c9ff;
+  --red: #ef5a5a;
+  --green: #57c04b;
+  --green-dk: #3d9134;
+  --shadow: 0 3px 0 rgba(0, 0, 0, .18);
+  --r-lg: 20px;
+  --r-md: 14px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* `display: flex/grid` on #app and .onboard would otherwise beat [hidden]. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body {
+  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 45%, #dff3c4 100%);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input { font: inherit; color: inherit; }
+
+/* ------------------------------ app frame -------------------------------- */
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;   /* fallback for older iOS */
+  height: 100dvh;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px calc(18px + var(--sab));
+}
+
+/* --------------------------------- HUD ----------------------------------- */
+
+.hud {
+  padding: calc(var(--sat) + 8px) 12px 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hud-avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
+  display: grid; place-items: center;
+  font-size: 24px;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+  padding: 0;
+  position: relative;
+}
+
+.hud-lvl {
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 0 5px;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.hud-mid { flex: 1; min-width: 0; }
+
+.hud-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xpbar {
+  height: 12px;
+  background: rgba(0, 0, 0, .22);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  margin-top: 3px;
+  position: relative;
+}
+.xpbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #b6ff6e, var(--green-dk));
+  border-radius: 6px 0 0 6px;
+  transition: width .35s ease;
+}
+.xpbar > span {
+  position: absolute; inset: 0;
+  font-size: 9px; font-weight: 800; color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+  display: grid; place-items: center;
+  letter-spacing: .2px;
+}
+
+.pill {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--card);
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 999px;
+  padding: 4px 10px 4px 6px;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+.pill em { font-style: normal; font-size: 15px; }
+
+/* -------------------------------- tabbar --------------------------------- */
+
+.tabbar {
+  display: flex;
+  background: linear-gradient(180deg, var(--wood), #c07b36);
+  border-top: 3px solid var(--wood-dk);
+  padding-bottom: var(--sab);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 7px 0 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #52300f;
+  font-size: 10px;
+  font-weight: 800;
+  position: relative;
+  transition: transform .12s ease;
+}
+.tab em { font-style: normal; font-size: 22px; line-height: 1; filter: saturate(.75) opacity(.75); }
+.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.tab.on em { filter: none; transform: translateY(-2px) scale(1.12); }
+.tab:active { transform: scale(.94); }
+
+.tab .badge {
+  position: absolute;
+  top: 3px; right: 50%;
+  margin-right: -22px;
+  min-width: 17px; height: 17px;
+  border-radius: 9px;
+  background: var(--red);
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid; place-items: center;
+  padding: 0 3px;
+}
+
+/* -------------------------------- pieces --------------------------------- */
+
+.panel {
+  background: var(--card);
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-lg);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .16);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-head {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 900;
+}
+.panel-head .spacer { flex: 1; }
+.panel-head em { font-style: normal; font-size: 20px; }
+
+.section-title {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  margin: 4px 2px 8px;
+}
+
+.btn {
+  border: 2.5px solid var(--wood-dk);
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .18);
+  transition: transform .1s ease, box-shadow .1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0, 0, 0, .18); }
+.btn[disabled] { opacity: .5; filter: grayscale(.6); }
+
+.btn-green { background: linear-gradient(180deg, #86dd6e, var(--green)); border-color: var(--green-dk); color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+.btn-gold  { background: linear-gradient(180deg, #ffdc73, var(--gold)); border-color: var(--gold-dk); }
+.btn-blue  { background: linear-gradient(180deg, #8fe2ff, #35b7ea); border-color: #1c86b3; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+.btn-red   { background: linear-gradient(180deg, #ff8e8e, var(--red)); border-color: #c33; color: #fff; }
+.btn-sm    { padding: 6px 10px; font-size: 12px; min-height: 32px; border-radius: 10px; }
+.btn-big   { width: 100%; padding: 14px; font-size: 17px; border-radius: 16px; }
+.btn-row   { display: flex; gap: 8px; }
+.btn-row > .btn { flex: 1; }
+
+.storage {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 800; color: var(--ink-soft);
+}
+.storage .bar {
+  flex: 1; height: 10px;
+  background: rgba(0, 0, 0, .12);
+  border-radius: 6px; overflow: hidden;
+}
+.storage .bar > i {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #ffd777, var(--gold-dk));
+  transition: width .3s ease;
+}
+.storage.full .bar > i { background: linear-gradient(180deg, #ff9a9a, #d33); }
+
+/* --------------------------------- farm ---------------------------------- */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
+}
+
+.plot {
+  position: relative;
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  border-radius: var(--r-md);
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px),
+    linear-gradient(180deg, var(--soil), var(--soil-dk));
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .16);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: transform .1s ease;
+}
+.plot:active { transform: scale(.95); }
+
+.plot .crop {
+  font-size: 34px;
+  line-height: 1;
+  transition: transform .5s cubic-bezier(.2, 1.4, .4, 1), opacity .3s;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
+}
+.plot.empty::after {
+  content: '＋';
+  font-size: 26px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .45);
+}
+.plot.ready { background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px), linear-gradient(180deg, #b98450, #7d5227); }
+.plot.ready .crop { animation: bob .9s ease-in-out infinite; }
+.plot.ready::before {
+  content: '';
+  position: absolute; inset: -30%;
+  background: radial-gradient(circle, rgba(255, 240, 150, .55), transparent 62%);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.plot.locked { filter: grayscale(1) brightness(.75); }
+
+.plot .tag {
+  position: absolute;
+  bottom: 8px; left: 4px; right: 4px;
+  background: rgba(0, 0, 0, .5);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 0;
+  text-align: center;
+  backdrop-filter: blur(2px);
+}
+.plot .growbar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, .3);
+}
+.plot .growbar > i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #ffe07a, #8ce35a);
+}
+
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+@keyframes pulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+
+/* seed picker strip */
+.seeds {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.seeds::-webkit-scrollbar { display: none; }
+
+.seed {
+  flex: 0 0 auto;
+  width: 74px;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  padding: 6px 4px 5px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  transition: transform .1s ease;
+}
+.seed em { font-style: normal; font-size: 26px; line-height: 1.1; }
+.seed b { font-size: 11px; font-weight: 800; }
+.seed small { font-size: 10px; color: var(--ink-soft); font-weight: 700; }
+.seed.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); transform: translateY(-2px); }
+.seed.locked { filter: grayscale(1); opacity: .6; }
+.seed:active { transform: scale(.94); }
+
+/* --------------------------------- lists --------------------------------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: var(--r-md);
+  background: var(--card-2);
+  border: 2px solid rgba(156, 95, 38, .28);
+  margin-bottom: 8px;
+}
+.row:last-child { margin-bottom: 0; }
+.row .ic {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff, #ffeec9);
+  border: 2px solid rgba(156, 95, 38, .3);
+  display: grid; place-items: center;
+  font-size: 25px;
+  flex-shrink: 0;
+}
+.row .body { flex: 1; min-width: 0; }
+.row .body b { display: block; font-size: 14px; font-weight: 900; }
+.row .body small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 700; line-height: 1.35; }
+.row.locked { opacity: .62; filter: grayscale(.7); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: #fff;
+  border: 2px solid rgba(156, 95, 38, .3);
+  border-radius: 999px;
+  padding: 1px 8px 1px 5px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.chip.miss { background: #ffe4e4; border-color: #eaa; color: #b33; }
+.chip.done { background: #e2ffd9; border-color: #9d9; }
+
+/* pens & machines */
+.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 7px; margin-top: 9px; }
+
+.critter {
+  position: relative;
+  aspect-ratio: 1;
+  border: 2.5px solid rgba(156, 95, 38, .35);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #d6f3a6, #a8dc72);
+  display: grid; place-items: center;
+  font-size: 30px;
+  padding: 0;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
+  transition: transform .1s ease;
+}
+.critter:active { transform: scale(.94); }
+.critter .mark {
+  position: absolute; top: -6px; right: -4px;
+  font-size: 17px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3));
+}
+.critter .tag {
+  position: absolute; bottom: 2px; left: 2px; right: 2px;
+  font-size: 9px; font-weight: 800;
+  background: rgba(0, 0, 0, .45); color: #fff;
+  border-radius: 6px; padding: 1px 0;
+}
+.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); animation: bob 1s ease-in-out infinite; }
+.critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
+.critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
+
+.slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+.slot {
+  position: relative;
+  width: 60px; height: 60px;
+  border-radius: 12px;
+  border: 2.5px dashed rgba(156, 95, 38, .4);
+  background: rgba(255, 255, 255, .45);
+  display: grid; place-items: center;
+  font-size: 25px;
+  padding: 0;
+}
+.slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
+.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); animation: bob 1s ease-in-out infinite; }
+.slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
+.slot .ring {
+  position: absolute; inset: -3px;
+  border-radius: 14px;
+  background: conic-gradient(var(--green) var(--p, 0%), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+}
+
+/* orders */
+.order { border: 2.5px solid var(--wood-dk); border-radius: var(--r-md); background: linear-gradient(180deg, #fffdf6, #fff0d4); padding: 10px; margin-bottom: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.14); }
+.order.wait { opacity: .8; text-align: center; padding: 18px 10px; font-weight: 800; color: var(--ink-soft); }
+.order-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.order-top .who { font-size: 26px; }
+.order-req { display: flex; gap: 6px; flex-wrap: wrap; }
+.req {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 52px;
+  background: #fff;
+  border: 2px solid rgba(156, 95, 38, .3);
+  border-radius: 10px;
+  padding: 4px 6px;
+}
+.req em { font-style: normal; font-size: 22px; line-height: 1; }
+.req b { font-size: 11px; font-weight: 800; }
+.req.miss { background: #ffe9e9; border-color: #e9a; }
+.req.miss b { color: #c33; }
+
+/* shop */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ------------------------------- sheets ---------------------------------- */
+
+.backdrop {
+  position: fixed; inset: 0;
+  background: rgba(30, 18, 6, .5);
+  z-index: 50;
+  animation: fade .18s ease;
+  display: flex; align-items: flex-end;
+}
+@keyframes fade { from { opacity: 0 } }
+
+.sheet {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, var(--card), var(--card-2));
+  border: 3px solid var(--wood-dk);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  padding: 8px 14px calc(18px + var(--sab));
+  max-height: 86dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: rise .24s cubic-bezier(.2, .9, .3, 1);
+}
+@keyframes rise { from { transform: translateY(100%) } }
+
+.sheet-grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, .2); margin: 2px auto 10px; }
+.sheet h2 { margin: 0 0 4px; font-size: 19px; font-weight: 900; }
+.sheet .sub { margin: 0 0 12px; font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepper .num { font-size: 20px; font-weight: 900; min-width: 46px; text-align: center; }
+
+/* ------------------------------- toasts ---------------------------------- */
+
+.toasts {
+  position: fixed;
+  top: calc(var(--sat) + 66px);
+  left: 0; right: 0;
+  z-index: 90;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(46, 30, 14, .93);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, .3);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+  animation: toastIn .22s ease, toastOut .3s ease 1.9s forwards;
+  max-width: 88%;
+  text-align: center;
+}
+.toast.bad { background: rgba(150, 34, 34, .95); }
+@keyframes toastIn { from { transform: translateY(-14px); opacity: 0 } }
+@keyframes toastOut { to { transform: translateY(-10px); opacity: 0 } }
+
+/* floating +coins / +xp text */
+.float {
+  position: fixed;
+  z-index: 80;
+  font-weight: 900;
+  font-size: 17px;
+  color: #fff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, .5);
+  pointer-events: none;
+  animation: floatUp 1s ease forwards;
+}
+@keyframes floatUp {
+  to { transform: translate(-50%, -60px); opacity: 0 }
+}
+
+/* level-up splash */
+.levelup {
+  position: fixed; inset: 0;
+  z-index: 95;
+  display: grid; place-items: center;
+  background: rgba(20, 12, 4, .55);
+  animation: fade .2s ease;
+}
+.levelup .card {
+  background: linear-gradient(180deg, #fff8e2, #ffe2a6);
+  border: 4px solid var(--gold-dk);
+  border-radius: 26px;
+  padding: 22px 26px;
+  text-align: center;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, .25);
+  animation: pop .4s cubic-bezier(.2, 1.5, .4, 1);
+  max-width: 320px;
+}
+@keyframes pop { from { transform: scale(.5); opacity: 0 } }
+.levelup .big { font-size: 54px; line-height: 1; }
+.levelup h2 { margin: 6px 0 2px; font-size: 26px; font-weight: 900; }
+.levelup p { margin: 2px 0 10px; font-weight: 700; color: var(--ink-soft); font-size: 13px; }
+.unlock-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
+
+/* ------------------------------ onboarding ------------------------------- */
+
+.onboard {
+  position: fixed; inset: 0;
+  z-index: 100;
+  display: grid; place-items: center;
+  padding: 20px;
+  padding-top: calc(var(--sat) + 20px);
+  background: linear-gradient(180deg, var(--sky-1), #cdefa4);
+  overflow-y: auto;
+}
+.onboard-card {
+  background: var(--card);
+  border: 4px solid var(--wood-dk);
+  border-radius: 26px;
+  padding: 20px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .2);
+  text-align: center;
+}
+.onboard-logo { font-size: 56px; line-height: 1; }
+.onboard h1 { margin: 4px 0 0; font-size: 30px; font-weight: 900; }
+.onboard .sub { margin: 2px 0 16px; color: var(--ink-soft); font-weight: 700; }
+.fld-label { display: block; text-align: left; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); margin: 10px 2px 5px; }
+.fld {
+  width: 100%;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: #fff;
+  font-size: 16px; /* keeps iOS from zooming the field */
+  font-weight: 700;
+}
+.avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 16px; }
+.av {
+  aspect-ratio: 1;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  font-size: 27px;
+  display: grid; place-items: center;
+  padding: 0;
+}
+.av.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); transform: scale(1.05); }
+
+.muted { color: var(--ink-soft); font-weight: 700; font-size: 12px; }
+.center { text-align: center; }
+.hidden { display: none !important; }
+
+</style>
+
+<div id="app" hidden>
+  <header class="hud" id="hud"></header>
+  <main class="view" id="view"></main>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+
+<!-- First run: name + avatar -->
+<div id="onboard" class="onboard" hidden>
+  <div class="onboard-card">
+    <div class="onboard-logo">🌻</div>
+    <h1>Sunny Acres</h1>
+    <p class="sub">Grow it. Raise it. Sell it.</p>
+
+    <label class="fld-label" for="ob-name">Your farmer's name</label>
+    <input id="ob-name" class="fld" type="text" maxlength="14" placeholder="Farmer" autocomplete="off"
+           autocapitalize="words" spellcheck="false">
+
+    <label class="fld-label">Pick your look</label>
+    <div class="avatar-grid" id="ob-avatars"></div>
+
+    <button class="btn btn-big btn-green" id="ob-start">Start Farming</button>
+  </div>
+</div>
+
+<div id="toasts" class="toasts"></div>
+<div id="sheet-root"></div>
+
+<script>
+/* ---------- js/util.js ---------- */
+const __mod_util = (function () {
+/* Small shared helpers. */
+
+const now = () => Date.now();
+
+function clamp(v, lo, hi) {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+/** 1,234,567 -> "1.23M" so the HUD never overflows on a narrow phone. */
+function fmt(n) {
+  n = Math.floor(n);
+  if (n < 10000) return n.toLocaleString('en-US');
+  if (n < 1e6) return (n / 1e3).toFixed(n < 1e5 ? 1 : 0).replace(/\.0$/, '') + 'K';
+  if (n < 1e9) return (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  return (n / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B';
+}
+
+/** Countdown text: 1h 04m / 4m 30s / 12s */
+function fmtTime(sec) {
+  sec = Math.max(0, Math.ceil(sec));
+  if (sec < 60) return sec + 's';
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  if (m < 60) return `${m}m ${String(s).padStart(2, '0')}s`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${String(m % 60).padStart(2, '0')}m`;
+}
+
+/** Same units, but wordier — used for offline summaries. */
+function fmtSpan(sec) {
+  sec = Math.floor(sec);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  if (h) return `${h} hour${h > 1 ? 's' : ''} ${m} min`;
+  if (m) return `${m} minute${m > 1 ? 's' : ''}`;
+  return `${sec} seconds`;
+}
+
+function el(tag, className, html) {
+  const n = document.createElement(tag);
+  if (className) n.className = className;
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randInt(a, b) {
+  return a + Math.floor(Math.random() * (b - a + 1));
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/** A short buzz on supported hardware. iOS ignores it; harmless there. */
+function haptic(ms = 12) {
+  if (navigator.vibrate) {
+    try { navigator.vibrate(ms); } catch { /* ignore */ }
+  }
+}
+return { clamp, fmt, fmtTime, fmtSpan, el, pick, randInt, uid, haptic, now };
+})();
+
+/* ---------- js/data.js ---------- */
+const __mod_data = (function () {
+/* ==========================================================================
+   data.js — all game content: crops, animals, machines, recipes, upgrades.
+   Tuned so early levels move fast (seconds) and later tiers reward planning.
+   ========================================================================== */
+
+/** Crops live in the SILO. Grow time in seconds. */
+const CROPS = [
+  { id: 'wheat',      name: 'Wheat',      icon: '🌾', level: 1,  seed: 3,   grow: 25,   price: 9,    xp: 1 },
+  { id: 'corn',       name: 'Corn',       icon: '🌽', level: 2,  seed: 8,   grow: 70,   price: 22,   xp: 2 },
+  { id: 'carrot',     name: 'Carrot',     icon: '🥕', level: 4,  seed: 16,  grow: 180,  price: 48,   xp: 4 },
+  { id: 'tomato',     name: 'Tomato',     icon: '🍅', level: 7,  seed: 30,  grow: 420,  price: 92,   xp: 7 },
+  { id: 'strawberry', name: 'Strawberry', icon: '🍓', level: 10, seed: 55,  grow: 900,  price: 175,  xp: 12 },
+  { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 330,  xp: 20 },
+  { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 580,  xp: 32 },
+  { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1050, xp: 50 },
+];
+
+/** Animals live in pens, eat FEED, and drop goods into the BARN. */
+const ANIMALS = [
+  { id: 'chicken', name: 'Chicken', icon: '🐔', level: 3,  cost: 200,   max: 8, feed: 1, cycle: 180,  product: 'egg' },
+  { id: 'cow',     name: 'Cow',     icon: '🐄', level: 6,  cost: 900,   max: 6, feed: 2, cycle: 360,  product: 'milk' },
+  { id: 'pig',     name: 'Pig',     icon: '🐖', level: 12, cost: 2500,  max: 6, feed: 3, cycle: 720,  product: 'bacon' },
+  { id: 'sheep',   name: 'Sheep',   name2: 'Sheep', icon: '🐑', level: 16, cost: 6000,  max: 5, feed: 4, cycle: 1200, product: 'wool' },
+  { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 14000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
+];
+
+/** Goods produced by animals. Stored in the BARN. */
+const ANIMAL_GOODS = [
+  { id: 'egg',   name: 'Egg',   icon: '🥚', price: 30,  xp: 3 },
+  { id: 'milk',  name: 'Milk',  icon: '🥛', price: 70,  xp: 6 },
+  { id: 'bacon', name: 'Bacon', icon: '🥓', price: 140, xp: 11 },
+  { id: 'wool',  name: 'Wool',  icon: '🧶', price: 240, xp: 18 },
+  { id: 'honey', name: 'Honey', icon: '🍯', price: 400, xp: 28 },
+];
+
+/** Crafting stations. Jobs run one after another in a shared queue. */
+const MACHINES = [
+  { id: 'mill',    name: 'Feed Mill',   icon: '🏚️', level: 3,  cost: 0 },
+  { id: 'bakery',  name: 'Bakery',      icon: '🥐', level: 5,  cost: 800 },
+  { id: 'dairy',   name: 'Dairy',       icon: '🧈', level: 8,  cost: 3000 },
+  { id: 'juice',   name: 'Juice Press', icon: '🧃', level: 11, cost: 8000 },
+  { id: 'jam',     name: 'Jam Kitchen', icon: '🫙', level: 15, cost: 20000 },
+  { id: 'grill',   name: 'BBQ Grill',   icon: '🍗', level: 19, cost: 60000 },
+  { id: 'loom',    name: 'Textile Mill',icon: '🧵', level: 23, cost: 150000 },
+  { id: 'winery',  name: 'Winery',      icon: '🍷', level: 25, cost: 320000 },
+];
+
+/** Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`). */
+const RECIPES = [
+  { id: 'feed',    machine: 'mill',   level: 3,  time: 20,  out: 'feed',    qty: 2, in: { wheat: 2, corn: 1 } },
+  { id: 'bread',   machine: 'bakery', level: 5,  time: 45,  out: 'bread',   qty: 1, in: { wheat: 3 } },
+  { id: 'cookie',  machine: 'bakery', level: 9,  time: 120, out: 'cookie',  qty: 1, in: { wheat: 2, egg: 1 } },
+  { id: 'butter',  machine: 'dairy',  level: 8,  time: 100, out: 'butter',  qty: 1, in: { milk: 2 } },
+  { id: 'cheese',  machine: 'dairy',  level: 10, time: 180, out: 'cheese',  qty: 1, in: { milk: 3 } },
+  { id: 'cjuice',  machine: 'juice',  level: 11, time: 150, out: 'cjuice',  qty: 1, in: { carrot: 3 } },
+  { id: 'tjuice',  machine: 'juice',  level: 13, time: 240, out: 'tjuice',  qty: 1, in: { tomato: 3 } },
+  { id: 'jam',     machine: 'jam',    level: 15, time: 300, out: 'jam',     qty: 1, in: { strawberry: 3 } },
+  { id: 'pie',     machine: 'jam',    level: 16, time: 420, out: 'pie',     qty: 1, in: { pumpkin: 2, wheat: 2 } },
+  { id: 'ribs',    machine: 'grill',  level: 19, time: 480, out: 'ribs',    qty: 1, in: { bacon: 2, corn: 2 } },
+  { id: 'burger',  machine: 'grill',  level: 21, time: 600, out: 'burger',  qty: 1, in: { bacon: 1, bread: 1, cheese: 1 } },
+  { id: 'sweater', machine: 'loom',   level: 23, time: 900, out: 'sweater', qty: 1, in: { wool: 3 } },
+  { id: 'hotsauce',machine: 'loom',   level: 24, time: 720, out: 'hotsauce',qty: 1, in: { chili: 2, tomato: 2 } },
+  { id: 'wine',    machine: 'winery', level: 25, time: 1200,out: 'wine',    qty: 1, in: { grape: 3 } },
+];
+
+/** Crafted goods. Stored in the BARN. */
+const CRAFTED = [
+  { id: 'feed',     name: 'Feed',          icon: '🌰', price: 6,    xp: 1 },
+  { id: 'bread',    name: 'Bread',         icon: '🍞', price: 60,   xp: 6 },
+  { id: 'cookie',   name: 'Cookies',       icon: '🍪', price: 185,  xp: 15 },
+  { id: 'butter',   name: 'Butter',        icon: '🧈', price: 190,  xp: 15 },
+  { id: 'cheese',   name: 'Cheese',        icon: '🧀', price: 320,  xp: 24 },
+  { id: 'cjuice',   name: 'Carrot Juice',  icon: '🥤', price: 250,  xp: 19 },
+  { id: 'tjuice',   name: 'Tomato Juice',  icon: '🧃', price: 430,  xp: 31 },
+  { id: 'jam',      name: 'Berry Jam',     icon: '🫙', price: 780,  xp: 48 },
+  { id: 'pie',      name: 'Pumpkin Pie',   icon: '🥧', price: 1150, xp: 66 },
+  { id: 'ribs',     name: 'BBQ Ribs',      icon: '🍖', price: 1250, xp: 72 },
+  { id: 'burger',   name: 'Farm Burger',   icon: '🍔', price: 2300, xp: 120 },
+  { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1600, xp: 92 },
+  { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 1900, xp: 105 },
+  { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 2700, xp: 140 },
+];
+
+/** One flat lookup for anything that can sit in storage or fill an order. */
+const ITEMS = {};
+for (const c of CROPS)         ITEMS[c.id] = { ...c, kind: 'crop' };
+for (const g of ANIMAL_GOODS)  ITEMS[g.id] = { ...g, kind: 'good', level: (ANIMALS.find(a => a.product === g.id) || {}).level || 1 };
+for (const g of CRAFTED)       ITEMS[g.id] = { ...g, kind: 'good', level: (RECIPES.find(r => r.out === g.id) || {}).level || 1 };
+
+/** Permanent upgrades — the "game gets easier as you go" track. */
+const UPGRADES = [
+  { id: 'wateringCan', name: 'Watering Can',  icon: '🪣', level: 5,  cost: 600,    desc: 'Crops grow 10% faster.' },
+  { id: 'autoFeeder',  name: 'Auto Feeder',   icon: '🥫', level: 9,  cost: 4000,   desc: 'Animals feed themselves whenever feed is in the barn.' },
+  { id: 'sprinkler',   name: 'Sprinkler Rig', icon: '💦', level: 12, cost: 18000,  desc: 'Another 20% off every crop timer.' },
+  { id: 'scythe',      name: 'Golden Scythe', icon: '🪄', level: 15, cost: 45000,  desc: 'Everything you sell is worth 25% more.' },
+  { id: 'truck',       name: 'Delivery Truck',icon: '🚚', level: 17, cost: 90000,  desc: 'Order payouts +30%, and orders refresh twice as fast.' },
+  { id: 'tractor',     name: 'Tractor',       icon: '🚜', level: 20, cost: 160000, desc: 'Plant All fills every empty plot in one tap, free of charge.' },
+  { id: 'foreman',     name: 'Farm Foreman',  icon: '🧑‍🔧', level: 24, cost: 400000, desc: 'Craft queues hold 3 more jobs and run 20% faster.' },
+  { id: 'combine',     name: 'Combine',       icon: '🌾', level: 27, cost: 900000, desc: 'Ripe crops harvest themselves while you play.' },
+];
+
+/** Farmer titles, unlocked purely by level. */
+const TITLES = [
+  { level: 1,  name: 'Sprout' },
+  { level: 4,  name: 'Field Hand' },
+  { level: 8,  name: 'Homesteader' },
+  { level: 12, name: 'Rancher' },
+  { level: 16, name: 'Master Grower' },
+  { level: 20, name: 'Estate Owner' },
+  { level: 25, name: 'Agri-Baron' },
+  { level: 30, name: 'Farm Legend' },
+];
+
+const AVATARS = ['🧑‍🌾', '👩‍🌾', '👨‍🌾', '🧔', '👵', '🤠', '🧙', '🐸'];
+
+/* ------------------------------- economy -------------------------------- */
+
+/** Every harvested field yields this many crops. */
+const CROP_YIELD = 2;
+const ORDER_REFRESH = 300;
+
+const START_PLOTS = 6;
+const MAX_PLOTS = 24;
+const START_SILO = 60;
+const START_BARN = 40;
+const BASE_QUEUE = 3;
+const ORDER_SLOTS = 3;
+
+/** XP required to go from `level` to `level + 1`. */
+function xpToNext(level) {
+  return Math.floor(55 * Math.pow(level, 1.55));
+}
+
+/** Coin price of the next field, and the level needed to buy it. */
+function plotCost(owned) {
+  return Math.floor(180 * Math.pow(1.52, owned - START_PLOTS));
+}
+function plotLevel(owned) {
+  return 3 + (owned - START_PLOTS) * 2;
+}
+
+function siloUpgradeCost(cap) {
+  return Math.floor(120 * Math.pow(1.42, (cap - START_SILO) / 25));
+}
+function barnUpgradeCost(cap) {
+  return Math.floor(160 * Math.pow(1.42, (cap - START_BARN) / 15));
+}
+
+const SILO_STEP = 25;
+const BARN_STEP = 15;
+
+/** Gems asked for skipping `sec` of waiting — same curve the big titles use. */
+function speedUpCost(sec) {
+  return Math.max(1, Math.ceil(sec / 90));
+}
+
+function titleFor(level) {
+  let t = TITLES[0];
+  for (const x of TITLES) if (level >= x.level) t = x;
+  return t.name;
+}
+
+function recipesFor(machineId) {
+  return RECIPES.filter(r => r.machine === machineId);
+}
+return { xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, UPGRADES, TITLES, AVATARS, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
+})();
+
+/* ---------- js/audio.js ---------- */
+const __mod_audio = (function () {
+/* Tiny WebAudio blip synth — no asset files, no network, works offline.
+   iOS keeps the context suspended until a real touch, so we resume on first tap. */
+
+let ctx = null;
+let enabled = true;
+
+function setSound(on) { enabled = on; }
+function soundOn() { return enabled; }
+
+function unlockAudio() {
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+}
+
+function blip(freq, dur, type = 'sine', gain = 0.06) {
+  if (!enabled || !ctx || ctx.state !== 'running') return;
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(gain, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+function chord(freqs, dur, type = 'triangle', gain = 0.05) {
+  freqs.forEach((f, i) => setTimeout(() => blip(f, dur, type, gain), i * 70));
+}
+
+const SFX = {
+  plant:   () => blip(430, 0.10, 'triangle'),
+  harvest: () => chord([620, 830], 0.14),
+  coin:    () => chord([880, 1170], 0.13, 'sine', 0.05),
+  buy:     () => chord([520, 700, 900], 0.14),
+  error:   () => blip(150, 0.18, 'sawtooth', 0.04),
+  levelUp: () => chord([523, 659, 784, 1046], 0.30, 'triangle', 0.06),
+  collect: () => chord([700, 950], 0.12),
+  order:   () => chord([600, 800, 1000], 0.16),
+};
+return { setSound, soundOn, unlockAudio, SFX };
+})();
+
+/* ---------- js/state.js ---------- */
+const __mod_state = (function () {
+const D = __mod_data;
+const {now, clamp, uid} = __mod_util;
+/* ==========================================================================
+   state.js — the save file, plus every read/write that touches it.
+   Anything that changes the farm goes through here so saving stays honest.
+   ========================================================================== */
+
+
+
+
+const KEY = 'sunnyacres.save.v1';
+const SAVE_VERSION = 1;
+
+let S = null;
+
+/* --------------------------------- setup -------------------------------- */
+
+function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
+  return {
+    v: SAVE_VERSION,
+    name,
+    avatar,
+    createdAt: now(),
+    lastSeen: now(),
+    coins: 120,
+    gems: 8,
+    xp: 0,
+    level: 1,
+    plots: Array.from({ length: D.START_PLOTS }, () => null),
+    silo: { wheat: 6 },
+    barn: {},
+    siloCap: D.START_SILO,
+    barnCap: D.START_BARN,
+    animals: [],
+    machines: {}, // the Feed Mill is granted free at level 3
+    orders: [],
+    nextOrderAt: 0,
+    upgrades: {},
+    selectedSeed: 'wheat',
+    settings: { sound: true },
+    stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
+  };
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || data.v !== SAVE_VERSION) return null;
+    S = migrate(data);
+    return S;
+  } catch {
+    return null;
+  }
+}
+
+function startNew(name, avatar) {
+  S = freshState(name, avatar);
+  save();
+  return S;
+}
+
+/** Fill in anything a save from an older build of the same version may lack. */
+function migrate(data) {
+  const base = freshState();
+  for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
+  data.settings = { ...base.settings, ...(data.settings || {}) };
+  data.stats = { ...base.stats, ...(data.stats || {}) };
+  return data;
+}
+
+let saveTimer = null;
+function save() {
+  if (!S) return;
+  S.lastSeen = now();
+  try {
+    localStorage.setItem(KEY, JSON.stringify(S));
+  } catch { /* storage full or private mode — keep playing in memory */ }
+}
+
+/** Coalesce the many little writes a tap storm produces. */
+function saveSoon() {
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => { saveTimer = null; save(); }, 800);
+}
+
+function wipe() {
+  localStorage.removeItem(KEY);
+}
+
+/* ------------------------------- storage -------------------------------- */
+
+const isCrop = id => D.ITEMS[id] && D.ITEMS[id].kind === 'crop';
+const store = id => (isCrop(id) ? S.silo : S.barn);
+
+function count(id) {
+  return store(id)[id] || 0;
+}
+
+function siloUsed() {
+  return Object.values(S.silo).reduce((a, b) => a + b, 0);
+}
+function barnUsed() {
+  return Object.values(S.barn).reduce((a, b) => a + b, 0);
+}
+function spaceFor(id) {
+  return isCrop(id) ? S.siloCap - siloUsed() : S.barnCap - barnUsed();
+}
+
+/** Adds up to `qty`, stopping at the storage cap. Returns how many fit. */
+function addItem(id, qty = 1) {
+  const room = Math.max(0, spaceFor(id));
+  const n = Math.min(qty, room);
+  if (n <= 0) return 0;
+  const st = store(id);
+  st[id] = (st[id] || 0) + n;
+  return n;
+}
+
+function removeItem(id, qty = 1) {
+  const st = store(id);
+  const have = st[id] || 0;
+  if (have < qty) return false;
+  st[id] = have - qty;
+  if (st[id] <= 0) delete st[id];
+  return true;
+}
+
+function hasAll(map) {
+  return Object.entries(map).every(([id, q]) => count(id) >= q);
+}
+
+function removeAll(map) {
+  if (!hasAll(map)) return false;
+  for (const [id, q] of Object.entries(map)) removeItem(id, q);
+  return true;
+}
+
+/* ------------------------------- currency ------------------------------- */
+
+function spendCoins(n) {
+  if (S.coins < n) return false;
+  S.coins -= n;
+  return true;
+}
+
+function earnCoins(n) {
+  S.coins += n;
+  S.stats.earned += n;
+}
+
+function spendGems(n) {
+  if (S.gems < n) return false;
+  S.gems -= n;
+  return true;
+}
+
+/* -------------------------------- levels -------------------------------- */
+
+/** Returns the list of levels gained, so the UI can celebrate each one. */
+function addXp(n) {
+  S.xp += n;
+  const gained = [];
+  while (S.xp >= D.xpToNext(S.level)) {
+    S.xp -= D.xpToNext(S.level);
+    S.level += 1;
+    gained.push(S.level);
+    S.coins += S.level * 120;
+    S.gems += S.level % 5 === 0 ? 3 : 1;
+  }
+  return gained;
+}
+
+function levelProgress() {
+  const need = D.xpToNext(S.level);
+  return { have: S.xp, need, pct: clamp(S.xp / need, 0, 1) };
+}
+
+function has(upgradeId) {
+  return !!S.upgrades[upgradeId];
+}
+
+/* --------------------------- derived modifiers -------------------------- */
+
+/** Multiplier applied to every crop timer. */
+function growthMult() {
+  let m = 1;
+  if (has('wateringCan')) m *= 0.9;
+  if (has('sprinkler')) m *= 0.8;
+  return m;
+}
+
+function craftMult() {
+  return has('foreman') ? 0.8 : 1;
+}
+
+function sellMult() {
+  return has('scythe') ? 1.25 : 1;
+}
+
+function orderMult() {
+  return has('truck') ? 1.3 : 1;
+}
+
+function queueCap() {
+  return D.BASE_QUEUE + (has('foreman') ? 3 : 0);
+}
+
+/* -------------------------------- unlocks ------------------------------- */
+
+function unlockedCrops() {
+  return D.CROPS.filter(c => c.level <= S.level);
+}
+
+function unlockedRecipes(machineId) {
+  return D.recipesFor(machineId).filter(r => r.level <= S.level);
+}
+
+function animalsOf(typeId) {
+  return S.animals.filter(a => a.type === typeId);
+}
+
+function addAnimal(typeId) {
+  S.animals.push({ id: uid(), type: typeId, fedAt: 0, readyAt: 0, product: false });
+}
+
+/** Everything the player can currently make — used to build fair orders. */
+function producibleItems() {
+  const ids = new Set();
+  for (const c of D.CROPS) if (c.level <= S.level) ids.add(c.id);
+  for (const a of D.ANIMALS) if (animalsOf(a.id).length) ids.add(a.product);
+  for (const r of D.RECIPES) {
+    const m = S.machines[r.machine];
+    if (m && m.owned && r.level <= S.level && r.out !== 'feed') ids.add(r.out);
+  }
+  return [...ids];
+}
+return { freshState, load, startNew, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, growthMult, craftMult, sellMult, orderMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, get S() { return S; }, isCrop };
+})();
+
+/* ---------- js/game.js ---------- */
+const __mod_game = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const {now, randInt, pick, uid, clamp} = __mod_util;
+const {SFX} = __mod_audio;
+/* ==========================================================================
+   game.js — every player action and the clock that drives the farm.
+   The UI only calls into this file; it never mutates state directly.
+   ========================================================================== */
+
+
+
+
+
+
+/* ------------------------------- events --------------------------------- */
+
+const listeners = {};
+function on(evt, fn) {
+  (listeners[evt] || (listeners[evt] = [])).push(fn);
+}
+function emit(evt, payload) {
+  (listeners[evt] || []).forEach(fn => fn(payload));
+}
+
+/** Standard feedback path: a toast, optionally an error sound. */
+function ok(msg, icon) { emit('toast', { msg, icon }); }
+function fail(msg, icon) { SFX.error(); emit('toast', { msg, icon, bad: true }); }
+
+function gainXp(n) {
+  const levels = St.addXp(n);
+  for (const lv of levels) emit('levelup', lv);
+}
+
+/* -------------------------------- fields -------------------------------- */
+
+function growSeconds(crop) {
+  return Math.max(2, Math.round(crop.grow * St.growthMult()));
+}
+
+function plotState(p) {
+  if (!p) return 'empty';
+  return now() >= p.end ? 'ready' : 'growing';
+}
+
+function plant(i, cropId) {
+  const S = St.S;
+  const crop = D.CROPS.find(c => c.id === cropId);
+  if (!crop) return false;
+  if (crop.level > S.level) { fail(`${crop.name} unlocks at level ${crop.level}`, crop.icon); return false; }
+  if (S.plots[i]) return false;
+  if (!St.spendCoins(crop.seed)) { fail('Not enough coins for seeds', '🪙'); return false; }
+  const t = now();
+  S.plots[i] = { crop: cropId, at: t, end: t + growSeconds(crop) * 1000 };
+  SFX.plant();
+  St.saveSoon();
+  return true;
+}
+
+/** Fills empty plots with the selected seed. The Tractor makes seeds free. */
+function plantAll(cropId) {
+  const S = St.S;
+  const crop = D.CROPS.find(c => c.id === cropId);
+  if (!crop) return 0;
+  if (crop.level > S.level) { fail(`${crop.name} unlocks at level ${crop.level}`, crop.icon); return 0; }
+  const free = St.has('tractor');
+  let planted = 0;
+  for (let i = 0; i < S.plots.length; i++) {
+    if (S.plots[i]) continue;
+    if (!free && S.coins < crop.seed) break;
+    if (!free) S.coins -= crop.seed;
+    const t = now();
+    S.plots[i] = { crop: cropId, at: t, end: t + growSeconds(crop) * 1000 };
+    planted++;
+  }
+  if (planted) { SFX.plant(); ok(`Planted ${planted} × ${crop.name}`, crop.icon); St.saveSoon(); }
+  else if (!free) fail('Not enough coins for seeds', '🪙');
+  else fail('No empty fields', '🌱');
+  return planted;
+}
+
+function harvest(i, quiet = false) {
+  const S = St.S;
+  const p = S.plots[i];
+  if (!p || plotState(p) !== 'ready') return 0;
+  const crop = D.ITEMS[p.crop];
+  const got = St.addItem(p.crop, D.CROP_YIELD);
+  if (got === 0) {
+    if (!quiet) fail('Silo is full — sell some crops', '🌾');
+    return 0;
+  }
+  S.plots[i] = null;
+  S.stats.harvested += got;
+  gainXp(crop.xp);
+  if (!quiet) SFX.harvest();
+  St.saveSoon();
+  return got;
+}
+
+function harvestAll() {
+  const S = St.S;
+  let total = 0, full = false;
+  for (let i = 0; i < S.plots.length; i++) {
+    if (plotState(S.plots[i]) !== 'ready') continue;
+    const got = harvest(i, true);
+    if (got === 0) { full = true; break; }
+    total += got;
+  }
+  if (total) { SFX.harvest(); ok(`Harvested ${total} crops`, '🧺'); }
+  else if (full) fail('Silo is full — sell some crops', '🌾');
+  else fail('Nothing is ripe yet', '⏳');
+  return total;
+}
+
+function speedUpPlot(i) {
+  const S = St.S;
+  const p = S.plots[i];
+  if (!p || plotState(p) === 'ready') return false;
+  const cost = D.speedUpCost((p.end - now()) / 1000);
+  if (!St.spendGems(cost)) { fail(`Need ${cost} 💎`, '💎'); return false; }
+  p.end = now();
+  SFX.collect();
+  St.saveSoon();
+  return true;
+}
+
+/* -------------------------------- animals ------------------------------- */
+
+function buyAnimal(typeId) {
+  const S = St.S;
+  const a = D.ANIMALS.find(x => x.id === typeId);
+  if (!a) return false;
+  if (a.level > S.level) { fail(`Unlocks at level ${a.level}`, a.icon); return false; }
+  if (St.animalsOf(typeId).length >= a.max) { fail(`Your pen is full`, a.icon); return false; }
+  if (!St.spendCoins(a.cost)) { fail('Not enough coins', '🪙'); return false; }
+  St.addAnimal(typeId);
+  SFX.buy();
+  ok(`Welcome, new ${a.name.toLowerCase()}!`, a.icon);
+  St.saveSoon();
+  return true;
+}
+
+function animalState(an) {
+  if (an.product) return 'ready';
+  if (an.readyAt && now() < an.readyAt) return 'working';
+  if (an.readyAt && now() >= an.readyAt) return 'ready';
+  return 'hungry';
+}
+
+function feedAnimal(an, quiet = false) {
+  const type = D.ANIMALS.find(x => x.id === an.type);
+  if (animalState(an) !== 'hungry') return false;
+  if (St.count('feed') < type.feed) {
+    if (!quiet) fail('Out of feed — mill some at the Feed Mill', '🌰');
+    return false;
+  }
+  St.removeItem('feed', type.feed);
+  an.fedAt = now();
+  an.readyAt = now() + type.cycle * 1000;
+  an.product = false;
+  if (!quiet) SFX.plant();
+  St.saveSoon();
+  return true;
+}
+
+function collectAnimal(an, quiet = false) {
+  const S = St.S;
+  const type = D.ANIMALS.find(x => x.id === an.type);
+  if (animalState(an) !== 'ready') return 0;
+  const got = St.addItem(type.product, 1);
+  if (!got) {
+    if (!quiet) fail('Barn is full — sell some goods', '📦');
+    an.product = true;
+    an.readyAt = 0;
+    return 0;
+  }
+  an.product = false;
+  an.readyAt = 0;
+  S.stats.collected += 1;
+  gainXp(D.ITEMS[type.product].xp);
+  if (!quiet) SFX.collect();
+  St.saveSoon();
+  return 1;
+}
+
+function collectAllAnimals() {
+  let n = 0;
+  for (const an of St.S.animals) n += collectAnimal(an, true);
+  if (n) { SFX.collect(); ok(`Collected ${n} goods`, '🧺'); }
+  else fail('Nothing ready to collect', '⏳');
+  return n;
+}
+
+function feedAllAnimals() {
+  let n = 0;
+  for (const an of St.S.animals) if (feedAnimal(an, true)) n++;
+  if (n) { SFX.plant(); ok(`Fed ${n} animals`, '🌰'); }
+  else fail('No hungry animals, or no feed left', '🌰');
+  return n;
+}
+
+function speedUpAnimal(an) {
+  if (animalState(an) !== 'working') return false;
+  const cost = D.speedUpCost((an.readyAt - now()) / 1000);
+  if (!St.spendGems(cost)) { fail(`Need ${cost} 💎`, '💎'); return false; }
+  an.readyAt = now();
+  SFX.collect();
+  St.saveSoon();
+  return true;
+}
+
+/* ------------------------------- machines ------------------------------- */
+
+function buyMachine(id) {
+  const S = St.S;
+  const m = D.MACHINES.find(x => x.id === id);
+  if (!m) return false;
+  if (m.level > S.level) { fail(`Unlocks at level ${m.level}`, m.icon); return false; }
+  if (S.machines[id] && S.machines[id].owned) return false;
+  if (!St.spendCoins(m.cost)) { fail('Not enough coins', '🪙'); return false; }
+  S.machines[id] = { owned: true, queue: [] };
+  SFX.buy();
+  ok(`${m.name} built!`, m.icon);
+  St.saveSoon();
+  return true;
+}
+
+function craftTime(recipe) {
+  return Math.max(2, Math.round(recipe.time * St.craftMult()));
+}
+
+/** Jobs run back to back, so a queued job's end time is fixed when enqueued. */
+function enqueue(machineId, recipeId) {
+  const S = St.S;
+  const m = S.machines[machineId];
+  const r = D.RECIPES.find(x => x.id === recipeId);
+  if (!m || !m.owned || !r) return false;
+  if (r.level > S.level) { fail(`Unlocks at level ${r.level}`, '🔒'); return false; }
+  if (m.queue.length >= St.queueCap()) { fail('Queue is full', '⏳'); return false; }
+  if (!St.hasAll(r.in)) { fail('Missing ingredients', '📦'); return false; }
+  St.removeAll(r.in);
+  const last = m.queue.length ? m.queue[m.queue.length - 1].end : 0;
+  const start = Math.max(now(), last);
+  m.queue.push({ jid: uid(), recipe: r.id, start, end: start + craftTime(r) * 1000 });
+  SFX.buy();
+  St.saveSoon();
+  return true;
+}
+
+function jobReady(job) {
+  return now() >= job.end;
+}
+
+function collectJob(machineId, jid, quiet = false) {
+  const S = St.S;
+  const m = S.machines[machineId];
+  if (!m) return 0;
+  const idx = m.queue.findIndex(j => j.jid === jid);
+  if (idx < 0) return 0;
+  const job = m.queue[idx];
+  if (!jobReady(job)) return 0;
+  const r = D.RECIPES.find(x => x.id === job.recipe);
+  const got = St.addItem(r.out, r.qty);
+  if (!got) { if (!quiet) fail('Barn is full — sell some goods', '📦'); return 0; }
+  m.queue.splice(idx, 1);
+  S.stats.crafted += got;
+  gainXp(D.ITEMS[r.out].xp);
+  if (!quiet) SFX.collect();
+  St.saveSoon();
+  return got;
+}
+
+function collectAllJobs() {
+  const S = St.S;
+  let n = 0;
+  for (const [mid, m] of Object.entries(S.machines)) {
+    if (!m.owned) continue;
+    for (const job of [...m.queue]) if (jobReady(job)) n += collectJob(mid, job.jid, true);
+  }
+  if (n) { SFX.collect(); ok(`Collected ${n} goods`, '🧺'); }
+  return n;
+}
+
+function speedUpJob(machineId, jid) {
+  const m = St.S.machines[machineId];
+  if (!m) return false;
+  const idx = m.queue.findIndex(j => j.jid === jid);
+  if (idx < 0) return false;
+  const job = m.queue[idx];
+  if (jobReady(job)) return false;
+  const cost = D.speedUpCost((job.end - now()) / 1000);
+  if (!St.spendGems(cost)) { fail(`Need ${cost} 💎`, '💎'); return false; }
+  const saved = job.end - now();
+  job.end = now();
+  // Pull every job behind it forward by the same amount.
+  for (let k = idx + 1; k < m.queue.length; k++) {
+    m.queue[k].start -= saved;
+    m.queue[k].end -= saved;
+  }
+  SFX.collect();
+  St.saveSoon();
+  return true;
+}
+
+/* -------------------------------- selling ------------------------------- */
+
+function sellPrice(id) {
+  return Math.max(1, Math.round(D.ITEMS[id].price * St.sellMult()));
+}
+
+function sell(id, qty = 1) {
+  const S = St.S;
+  const have = St.count(id);
+  qty = Math.min(qty, have);
+  if (qty <= 0) return 0;
+  St.removeItem(id, qty);
+  const gold = sellPrice(id) * qty;
+  St.earnCoins(gold);
+  S.stats.sold += qty;
+  SFX.coin();
+  St.saveSoon();
+  return gold;
+}
+
+/* --------------------------------- shop --------------------------------- */
+
+function buyPlot() {
+  const S = St.S;
+  const owned = S.plots.length;
+  if (owned >= D.MAX_PLOTS) { fail('Every field is yours already', '🏆'); return false; }
+  const lv = D.plotLevel(owned);
+  if (S.level < lv) { fail(`Next field unlocks at level ${lv}`, '🔒'); return false; }
+  if (!St.spendCoins(D.plotCost(owned))) { fail('Not enough coins', '🪙'); return false; }
+  S.plots.push(null);
+  SFX.buy();
+  ok('New field cleared!', '🌱');
+  St.saveSoon();
+  return true;
+}
+
+function upgradeSilo() {
+  const S = St.S;
+  if (!St.spendCoins(D.siloUpgradeCost(S.siloCap))) { fail('Not enough coins', '🪙'); return false; }
+  S.siloCap += D.SILO_STEP;
+  SFX.buy();
+  ok(`Silo holds ${S.siloCap} now`, '🛖');
+  St.saveSoon();
+  return true;
+}
+
+function upgradeBarn() {
+  const S = St.S;
+  if (!St.spendCoins(D.barnUpgradeCost(S.barnCap))) { fail('Not enough coins', '🪙'); return false; }
+  S.barnCap += D.BARN_STEP;
+  SFX.buy();
+  ok(`Barn holds ${S.barnCap} now`, '🏠');
+  St.saveSoon();
+  return true;
+}
+
+function buyUpgrade(id) {
+  const S = St.S;
+  const u = D.UPGRADES.find(x => x.id === id);
+  if (!u || S.upgrades[id]) return false;
+  if (S.level < u.level) { fail(`Unlocks at level ${u.level}`, '🔒'); return false; }
+  if (!St.spendCoins(u.cost)) { fail('Not enough coins', '🪙'); return false; }
+  S.upgrades[id] = true;
+  SFX.levelUp();
+  ok(`${u.name} unlocked!`, u.icon);
+  St.saveSoon();
+  return true;
+}
+
+/* -------------------------------- orders -------------------------------- */
+
+function makeOrder() {
+  const S = St.S;
+  const pool = St.producibleItems();
+  if (!pool.length) return null;
+  const kinds = clamp(randInt(1, S.level < 5 ? 1 : S.level < 12 ? 2 : 3), 1, pool.length);
+  const chosen = [];
+  while (chosen.length < kinds) {
+    const id = pick(pool);
+    if (!chosen.includes(id)) chosen.push(id);
+  }
+  const items = {};
+  let coins = 0, xp = 0;
+  for (const id of chosen) {
+    const it = D.ITEMS[id];
+    // Cheap staples are asked for in bulk, expensive goods one or two at a time.
+    const max = it.price < 50 ? 8 : it.price < 300 ? 5 : 3;
+    const q = randInt(1, max);
+    items[id] = q;
+    coins += it.price * q;
+    xp += it.xp * q;
+  }
+  return {
+    oid: uid(),
+    items,
+    coins: Math.round(coins * 1.4 * St.orderMult()),
+    xp: Math.max(3, Math.round(xp * 1.8)),
+    gems: Math.random() < 0.16 ? 1 : 0,
+    createdAt: now(),
+  };
+}
+
+function orderWait() {
+  return D.ORDER_REFRESH * (St.has('truck') ? 0.5 : 1) * 1000;
+}
+
+/** Keeps the board at ORDER_SLOTS entries, each either an order or a timer. */
+function tickOrders() {
+  const S = St.S;
+  if (!Array.isArray(S.orders)) S.orders = [];
+  while (S.orders.length < D.ORDER_SLOTS) S.orders.push({ wait: 0 });
+  S.orders.length = D.ORDER_SLOTS;
+  for (let i = 0; i < S.orders.length; i++) {
+    const slot = S.orders[i];
+    if (slot && slot.oid) continue;
+    const until = slot && slot.wait ? slot.wait : 0;
+    if (now() >= until) {
+      const o = makeOrder();
+      S.orders[i] = o || { wait: now() + 30000 };
+    }
+  }
+}
+
+function canDeliver(o) {
+  return St.hasAll(o.items);
+}
+
+function deliverOrder(oid) {
+  const S = St.S;
+  const i = S.orders.findIndex(o => o && o.oid === oid);
+  if (i < 0) return false;
+  const o = S.orders[i];
+  if (!St.removeAll(o.items)) { fail('You are missing some items', '📦'); return false; }
+  St.earnCoins(o.coins);
+  S.gems += o.gems;
+  S.stats.orders += 1;
+  gainXp(o.xp);
+  S.orders[i] = { wait: now() + orderWait() };
+  SFX.order();
+  ok(`Order delivered! +${o.coins} coins`, '🚚');
+  St.saveSoon();
+  return true;
+}
+
+function declineOrder(oid) {
+  const S = St.S;
+  const i = S.orders.findIndex(o => o && o.oid === oid);
+  if (i < 0) return false;
+  S.orders[i] = { wait: now() + orderWait() * 0.5 };
+  St.saveSoon();
+  return true;
+}
+
+/* --------------------------------- clock -------------------------------- */
+
+/** Runs about once a second, and once on load to settle offline progress. */
+function tick() {
+  const S = St.S;
+  if (!S) return;
+
+  // The Feed Mill comes with the first chicken — no coins asked.
+  if (S.level >= 3 && !(S.machines.mill && S.machines.mill.owned)) {
+    S.machines.mill = { owned: true, queue: [] };
+  }
+
+  tickOrders();
+
+  // Auto Feeder: any hungry animal eats itself as soon as feed exists.
+  if (St.has('autoFeeder')) {
+    for (const an of S.animals) {
+      if (animalState(an) === 'hungry') feedAnimal(an, true);
+    }
+  }
+
+  // Safety net: broke, nothing growing and an empty silo would be a dead end.
+  if (S.coins < D.CROPS[0].seed && S.plots.every(p => !p) && St.siloUsed() === 0) {
+    S.coins += 25;
+    ok('A neighbour dropped off some seed money', '🪙');
+    St.saveSoon();
+  }
+
+  // Combine: ripe fields harvest themselves (silo permitting).
+  if (St.has('combine')) {
+    for (let i = 0; i < S.plots.length; i++) {
+      if (plotState(S.plots[i]) === 'ready') harvest(i, true);
+    }
+  }
+}
+
+/** Marks animals whose timer elapsed while the tab was closed. */
+function settleOffline() {
+  const S = St.S;
+  const away = Math.max(0, (now() - (S.lastSeen || now())) / 1000);
+  let ready = 0;
+  for (const an of S.animals) if (animalState(an) === 'ready') ready++;
+  let ripe = 0;
+  for (const p of S.plots) if (plotState(p) === 'ready') ripe++;
+  let crafts = 0;
+  for (const m of Object.values(S.machines)) {
+    if (!m.owned) continue;
+    for (const j of m.queue) if (jobReady(j)) crafts++;
+  }
+  tick();
+  return { away, ready, ripe, crafts };
+}
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, sellPrice, sell, buyPlot, upgradeSilo, upgradeBarn, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, tick, settleOffline };
+})();
+
+/* ---------- js/ui.js ---------- */
+const __mod_ui = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const G = __mod_game;
+const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic} = __mod_util;
+const {SFX, setSound, soundOn} = __mod_audio;
+/* ==========================================================================
+   ui.js — rendering. Views are rebuilt on any action; per-second changes
+   (timers, progress rings) run through lightweight "tickers" so the DOM
+   isn't thrown away every frame and scroll position survives.
+   ========================================================================== */
+
+
+
+
+
+
+
+const $ = id => document.getElementById(id);
+
+let view = 'farm';
+let tickers = [];
+
+const TABS = [
+  { id: 'farm',    icon: '🌾', label: 'Farm' },
+  { id: 'animals', icon: '🐔', label: 'Animals' },
+  { id: 'craft',   icon: '🏭', label: 'Craft' },
+  { id: 'orders',  icon: '📋', label: 'Orders' },
+  { id: 'shop',    icon: '🛒', label: 'Shop' },
+];
+
+/** Register a function to run every second while the current view is up. */
+function T(fn) { tickers.push(fn); fn(); }
+
+function setView(v) {
+  view = v;
+  render();
+  $('view').scrollTop = 0;
+}
+
+/* ------------------------------ chrome ---------------------------------- */
+
+function render() {
+  tickers = [];
+  renderHud();
+  renderTabs();
+  const host = $('view');
+  host.innerHTML = '';
+  const builder = { farm: farmView, animals: animalsView, craft: craftView, orders: ordersView, shop: shopView }[view];
+  host.appendChild(builder());
+}
+
+/** Called once a second — never rebuilds, only refreshes. */
+function refresh() {
+  for (const fn of tickers) fn();
+  renderHudNumbers();
+  renderTabBadges();
+}
+
+function renderHud() {
+  const S = St.S;
+  const hud = $('hud');
+  hud.innerHTML = '';
+
+  const av = el('button', 'hud-avatar', `${S.avatar}<span class="hud-lvl">LV ${S.level}</span>`);
+  av.onclick = () => { haptic(); profileSheet(); };
+  hud.appendChild(av);
+
+  const mid = el('div', 'hud-mid');
+  mid.appendChild(el('div', 'hud-name', `${S.name} · ${D.titleFor(S.level)}`));
+  const bar = el('div', 'xpbar', '<i></i><span></span>');
+  mid.appendChild(bar);
+  hud.appendChild(mid);
+
+  hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
+  hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
+
+  renderHudNumbers();
+}
+
+function renderHudNumbers() {
+  const S = St.S;
+  const c = $('hud-coins'), g = $('hud-gems');
+  if (c) c.textContent = fmt(S.coins);
+  if (g) g.textContent = fmt(S.gems);
+  const p = St.levelProgress();
+  const fill = document.querySelector('.xpbar > i');
+  const txt = document.querySelector('.xpbar > span');
+  if (fill) fill.style.width = (p.pct * 100).toFixed(1) + '%';
+  if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
+  const lvl = document.querySelector('.hud-lvl');
+  if (lvl) lvl.textContent = 'LV ' + S.level;
+}
+
+function renderTabs() {
+  const bar = $('tabbar');
+  bar.innerHTML = '';
+  for (const t of TABS) {
+    const b = el('button', 'tab' + (t.id === view ? ' on' : ''), `<em>${t.icon}</em>${t.label}`);
+    b.dataset.tab = t.id;
+    b.onclick = () => { haptic(); SFX.plant(); setView(t.id); };
+    bar.appendChild(b);
+  }
+  renderTabBadges();
+}
+
+/** Little red counters that tell you where taps are waiting. */
+function renderTabBadges() {
+  const S = St.S;
+  const counts = {
+    farm: S.plots.filter(p => G.plotState(p) === 'ready').length,
+    animals: S.animals.filter(a => G.animalState(a) === 'ready').length,
+    craft: Object.values(S.machines).reduce(
+      (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
+    orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
+    shop: 0,
+  };
+  for (const t of TABS) {
+    const btn = document.querySelector(`.tab[data-tab="${t.id}"]`);
+    if (!btn) continue;
+    let b = btn.querySelector('.badge');
+    const n = counts[t.id];
+    if (n > 0) {
+      if (!b) { b = el('span', 'badge'); btn.appendChild(b); }
+      b.textContent = n > 99 ? '99+' : n;
+    } else if (b) b.remove();
+  }
+}
+
+/* ------------------------------ shared bits ------------------------------ */
+
+function storageBar(kind) {
+  const S = St.S;
+  const wrap = el('div', 'storage');
+  const isSilo = kind === 'silo';
+  wrap.innerHTML = `<span>${isSilo ? '🛖' : '🏠'}</span><span class="bar"><i></i></span><span class="num"></span>`;
+  const sell = el('button', 'btn btn-sm btn-gold', 'Sell');
+  sell.onclick = () => { haptic(); sellSheet(kind); };
+  wrap.appendChild(sell);
+  T(() => {
+    const used = isSilo ? St.siloUsed() : St.barnUsed();
+    const cap = isSilo ? S.siloCap : S.barnCap;
+    wrap.querySelector('.bar > i').style.width = clamp(used / cap, 0, 1) * 100 + '%';
+    wrap.querySelector('.num').textContent = `${used}/${cap}`;
+    wrap.classList.toggle('full', used >= cap);
+  });
+  return wrap;
+}
+
+function panel(titleHtml, ...children) {
+  const p = el('div', 'panel');
+  if (titleHtml) p.appendChild(el('div', 'panel-head', titleHtml));
+  for (const c of children) if (c) p.appendChild(c);
+  return p;
+}
+
+function lockRow(icon, name, level, note) {
+  const r = el('div', 'row locked');
+  r.innerHTML = `<div class="ic">${icon}</div><div class="body"><b>${name}</b>
+    <small>🔒 Unlocks at level ${level}${note ? ' · ' + note : ''}</small></div>`;
+  return r;
+}
+
+/* --------------------------------- FARM ---------------------------------- */
+
+/** "What am I working towards?" — the next level that actually opens something. */
+function goalPanel() {
+  const S = St.S;
+  let target = 0, unlocks = [];
+  for (let lv = S.level + 1; lv <= S.level + 20; lv++) {
+    const u = unlocksAt(lv);
+    if (u.length) { target = lv; unlocks = u; break; }
+  }
+  if (!target) return null;
+
+  let toGo = D.xpToNext(S.level) - S.xp;
+  for (let lv = S.level + 1; lv < target; lv++) toGo += D.xpToNext(lv);
+
+  const row = el('div', 'row');
+  row.innerHTML = `<div class="ic">🎯</div><div class="body">
+    <b>Next goal: level ${target} · ${fmt(toGo)} XP</b>
+    <div class="chips">${unlocks.map(u => `<span class="chip">${u}</span>`).join('')}</div></div>`;
+  return panel(null, row);
+}
+
+function farmView() {
+  const S = St.S;
+  const frag = document.createDocumentFragment();
+
+  const goal = goalPanel();
+  if (goal) frag.appendChild(goal);
+
+  /* fields */
+  const head = `<em>🌱</em>Fields<span class="spacer"></span>`;
+  const tools = el('div', 'btn-row');
+  tools.style.marginBottom = '10px';
+
+  const hb = el('button', 'btn btn-sm btn-green', '🧺 Harvest All');
+  hb.onclick = () => { haptic(); G.harvestAll(); render(); };
+  const pb = el('button', 'btn btn-sm btn-gold', '🌱 Plant All');
+  pb.onclick = () => { haptic(); G.plantAll(S.selectedSeed); render(); };
+  tools.append(hb, pb);
+
+  const grid = el('div', 'fields');
+  S.plots.forEach((p, i) => grid.appendChild(plotTile(i)));
+
+  const fieldsPanel = panel(head, storageBar('silo'), tools, grid);
+  frag.appendChild(fieldsPanel);
+
+  /* seed strip */
+  const strip = el('div', 'seeds');
+  for (const c of D.CROPS) {
+    const locked = c.level > S.level;
+    const b = el('button', 'seed' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
+      `<em>${c.icon}</em><b>${c.name}</b><small>${locked ? 'Lv ' + c.level : '🪙' + c.seed}</small>
+       <small>${locked ? '🔒' : fmtTime(G.growSeconds(c))}</small>`);
+    b.onclick = () => {
+      haptic();
+      if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
+      S.selectedSeed = c.id;
+      St.saveSoon();
+      render();
+    };
+    strip.appendChild(b);
+  }
+  frag.appendChild(panel(`<em>🌰</em>Seed Shop`, strip,
+    el('div', 'muted', `Tap a seed, then tap a field to plant it. Each field yields ${D.CROP_YIELD} crops.`)));
+
+  /* land expansion teaser */
+  if (S.plots.length < D.MAX_PLOTS) {
+    const owned = S.plots.length;
+    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
+    const row = el('div', 'row');
+    row.innerHTML = `<div class="ic">🚧</div><div class="body"><b>Clear a new field</b>
+      <small>${S.level >= lv ? 'Ready to clear' : `Needs level ${lv}`} · Field ${owned + 1} of ${D.MAX_PLOTS}</small></div>`;
+    const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
+    b.disabled = S.level < lv;
+    b.onclick = () => { haptic(); G.buyPlot(); render(); };
+    row.appendChild(b);
+    frag.appendChild(panel(null, row));
+  }
+
+  return frag;
+}
+
+function plotTile(i) {
+  const S = St.S;
+  const b = el('button', 'plot');
+  b.onclick = () => {
+    haptic();
+    const p = St.S.plots[i];
+    const state = G.plotState(p);
+    if (state === 'empty') { if (G.plant(i, St.S.selectedSeed)) render(); }
+    else if (state === 'ready') { G.harvest(i); render(); }
+    else speedSheet('field', () => { if (G.speedUpPlot(i)) render(); }, (St.S.plots[i].end - now()) / 1000, D.ITEMS[St.S.plots[i].crop]);
+  };
+
+  T(() => {
+    const p = St.S.plots[i];
+    const state = G.plotState(p);
+    b.className = 'plot ' + (state === 'empty' ? 'empty' : state);
+    if (state === 'empty') { b.innerHTML = ''; return; }
+    const crop = D.ITEMS[p.crop];
+    const total = p.end - p.at;
+    const pct = clamp((now() - p.at) / total, 0, 1);
+    const left = (p.end - now()) / 1000;
+    if (!b.dataset.crop || b.dataset.crop !== p.crop || !b.querySelector('.crop')) {
+      b.innerHTML = `<span class="crop">${crop.icon}</span>
+                     <span class="tag"></span><span class="growbar"><i></i></span>`;
+      b.dataset.crop = p.crop;
+    }
+    // Seedling grows into a full plant as the timer runs down.
+    const scale = 0.42 + 0.58 * pct;
+    b.querySelector('.crop').style.transform = `scale(${scale.toFixed(2)})`;
+    b.querySelector('.growbar > i').style.width = (pct * 100).toFixed(1) + '%';
+    b.querySelector('.tag').textContent = state === 'ready' ? 'TAP!' : fmtTime(left);
+  });
+  return b;
+}
+
+/* -------------------------------- ANIMALS -------------------------------- */
+
+function animalsView() {
+  const S = St.S;
+  const frag = document.createDocumentFragment();
+
+  const bar = el('div', 'btn-row');
+  bar.style.marginBottom = '10px';
+  const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect All');
+  cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
+  const fb = el('button', 'btn btn-sm btn-gold', '🌰 Feed All');
+  fb.onclick = () => { haptic(); G.feedAllAnimals(); render(); };
+  bar.append(cb, fb);
+
+  const feedNote = el('div', 'muted');
+  T(() => {
+    feedNote.textContent = `Feed in barn: ${St.count('feed')} 🌰` +
+      (St.has('autoFeeder') ? ' · Auto Feeder is running' : ' · Mill more at the Feed Mill');
+  });
+
+  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`, storageBar('barn'), bar, feedNote));
+
+  const soon = [];
+  for (const type of D.ANIMALS) {
+    if (type.level > S.level) { soon.push(lockRow(type.icon, type.name2 || type.name + 's', type.level)); continue; }
+    const mine = St.animalsOf(type.id);
+    const head = `<em>${type.icon}</em>${type.name2 || type.name + 's'}<span class="spacer"></span>
+      <span class="muted">${mine.length}/${type.max}</span>`;
+    const info = el('div', 'muted',
+      `Eats ${type.feed} 🌰 → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
+    const pen = el('div', 'pen-grid');
+
+    for (const an of mine) pen.appendChild(critterTile(an, type));
+
+    if (mine.length < type.max) {
+      const add = el('button', 'critter add', `<span>＋</span><span class="tag">🪙${fmt(type.cost)}</span>`);
+      add.onclick = () => { haptic(); G.buyAnimal(type.id); render(); };
+      pen.appendChild(add);
+    }
+    frag.appendChild(panel(head, info, pen));
+  }
+  if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
+  return frag;
+}
+
+function critterTile(an, type) {
+  const b = el('button', 'critter');
+  b.onclick = () => {
+    haptic();
+    const st = G.animalState(an);
+    if (st === 'hungry') { G.feedAnimal(an); render(); }
+    else if (st === 'ready') { G.collectAnimal(an); render(); }
+    else speedSheet(type.name.toLowerCase(), () => { if (G.speedUpAnimal(an)) render(); }, (an.readyAt - now()) / 1000, D.ITEMS[type.product]);
+  };
+  T(() => {
+    const st = G.animalState(an);
+    b.className = 'critter ' + st;
+    const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
+    const tag = st === 'ready' ? 'TAP!' : st === 'hungry' ? 'Feed' : fmtTime((an.readyAt - now()) / 1000);
+    b.innerHTML = `<span>${type.icon}</span>${mark ? `<span class="mark">${mark}</span>` : ''}<span class="tag">${tag}</span>`;
+  });
+  return b;
+}
+
+/* --------------------------------- CRAFT --------------------------------- */
+
+function craftView() {
+  const S = St.S;
+  const frag = document.createDocumentFragment();
+
+  const top = panel(`<em>🏭</em>Workshops<span class="spacer"></span>`, storageBar('barn'));
+  const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect Everything');
+  cb.style.marginTop = '8px';
+  cb.onclick = () => { haptic(); G.collectAllJobs(); render(); };
+  top.appendChild(cb);
+  frag.appendChild(top);
+
+  const soon = [];
+  for (const m of D.MACHINES) {
+    const owned = S.machines[m.id] && S.machines[m.id].owned;
+    if (m.level > S.level && !owned) {
+      soon.push(lockRow(m.icon, m.name, m.level,
+        D.recipesFor(m.id).map(r => D.ITEMS[r.out].icon).join(' ')));
+      continue;
+    }
+
+    if (!owned) {
+      const row = el('div', 'row');
+      row.innerHTML = `<div class="ic">${m.icon}</div><div class="body"><b>${m.name}</b>
+        <small>Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}</small></div>`;
+      const b = el('button', 'btn btn-sm btn-green', `🔨 ${fmt(m.cost)}`);
+      b.disabled = S.coins < m.cost;
+      b.onclick = () => { haptic(); G.buyMachine(m.id); render(); };
+      row.appendChild(b);
+      frag.appendChild(panel(null, row));
+      continue;
+    }
+
+    frag.appendChild(machinePanel(m));
+  }
+  if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
+  return frag;
+}
+
+function machinePanel(m) {
+  const S = St.S;
+  const head = `<em>${m.icon}</em>${m.name}<span class="spacer"></span>`;
+  const slots = el('div', 'slots');
+  const list = el('div');
+  list.style.marginTop = '10px';
+
+  const cap = St.queueCap();
+  for (let i = 0; i < cap; i++) slots.appendChild(slotTile(m.id, i));
+
+  for (const r of D.recipesFor(m.id)) {
+    const out = D.ITEMS[r.out];
+    const locked = r.level > S.level;
+    const row = el('div', 'row' + (locked ? ' locked' : ''));
+    const ing = el('div', 'chips');
+    row.innerHTML = `<div class="ic">${out.icon}</div>`;
+    const body = el('div', 'body');
+    body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
+      <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
+    body.appendChild(ing);
+    row.appendChild(body);
+
+    const btn = el('button', 'btn btn-sm btn-green', '🔨 Make');
+    btn.onclick = () => { haptic(); G.enqueue(m.id, r.id); render(); };
+    row.appendChild(btn);
+
+    T(() => {
+      ing.innerHTML = '';
+      for (const [id, q] of Object.entries(r.in)) {
+        const have = St.count(id);
+        ing.appendChild(el('span', 'chip ' + (have >= q ? 'done' : 'miss'),
+          have >= q ? `${D.ITEMS[id].icon} ×${q}` : `${D.ITEMS[id].icon} ${have}/${q}`));
+      }
+      const full = S.machines[m.id].queue.length >= St.queueCap();
+      btn.disabled = locked || full || !St.hasAll(r.in);
+      btn.textContent = full ? '⏳ Full' : '🔨 Make';
+    });
+    list.appendChild(row);
+  }
+  return panel(head, slots, list);
+}
+
+function slotTile(machineId, i) {
+  const b = el('button', 'slot');
+  b.onclick = () => {
+    const m = St.S.machines[machineId];
+    const job = m.queue[i];
+    if (!job) return;
+    haptic();
+    if (G.jobReady(job)) { G.collectJob(machineId, job.jid); render(); }
+    else {
+      const r = D.RECIPES.find(x => x.id === job.recipe);
+      speedSheet(D.ITEMS[r.out].name, () => { if (G.speedUpJob(machineId, job.jid)) render(); },
+        (job.end - now()) / 1000, D.ITEMS[r.out]);
+    }
+  };
+  T(() => {
+    const m = St.S.machines[machineId];
+    const job = m.queue[i];
+    if (!job) { b.className = 'slot'; b.innerHTML = '<span style="opacity:.35">＋</span>'; return; }
+    const r = D.RECIPES.find(x => x.id === job.recipe);
+    const out = D.ITEMS[r.out];
+    const ready = G.jobReady(job);
+    b.className = 'slot ' + (ready ? 'done' : 'busy');
+    const total = Math.max(1, job.end - job.start);
+    const pct = clamp((now() - job.start) / total, 0, 1) * 100;
+    b.innerHTML = `<span class="ring" style="--p:${pct.toFixed(0)}%"></span><span>${out.icon}</span>
+      <span class="tag">${ready ? 'TAP!' : fmtTime((job.end - now()) / 1000)}</span>`;
+  });
+  return b;
+}
+
+/* -------------------------------- ORDERS --------------------------------- */
+
+const CUSTOMERS = ['👨‍🍳', '👵', '🧑‍🎤', '👮', '🧑‍🏫', '👨‍🔧', '🧕', '🧑‍🚀', '💁', '🧙'];
+
+function ordersView() {
+  const S = St.S;
+  const frag = document.createDocumentFragment();
+  const p = panel(`<em>📋</em>Order Board<span class="spacer"></span>`);
+  p.appendChild(el('div', 'muted',
+    'Fill a crate to earn far more than selling piece by piece. Decline anything you cannot make — a new order arrives sooner.'));
+  frag.appendChild(p);
+
+  S.orders.forEach((o, i) => {
+    if (!o || !o.oid) {
+      const w = el('div', 'order wait');
+      T(() => {
+        const left = ((o && o.wait ? o.wait : 0) - now()) / 1000;
+        w.innerHTML = `🚚 New order in ${fmtTime(Math.max(0, left))}`;
+      });
+      frag.appendChild(w);
+      return;
+    }
+    frag.appendChild(orderCard(o, i));
+  });
+  return frag;
+}
+
+function orderCard(o, i) {
+  const card = el('div', 'order');
+  const face = CUSTOMERS[(o.oid.charCodeAt(0) + i) % CUSTOMERS.length];
+  const top = el('div', 'order-top');
+  top.innerHTML = `<span class="who">${face}</span>
+    <div class="body" style="flex:1"><b>Order #${o.oid.slice(0, 4).toUpperCase()}</b>
+      <small class="muted">🪙 ${fmt(o.coins)} · +${o.xp} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
+  card.appendChild(top);
+
+  const reqs = el('div', 'order-req');
+  card.appendChild(reqs);
+
+  const btns = el('div', 'btn-row');
+  btns.style.marginTop = '10px';
+  const deliver = el('button', 'btn btn-sm btn-green', '🚚 Deliver');
+  deliver.onclick = () => { haptic(); G.deliverOrder(o.oid); render(); };
+  const decline = el('button', 'btn btn-sm', '✖️ Decline');
+  decline.style.flex = '0 0 auto';
+  decline.onclick = () => { haptic(); G.declineOrder(o.oid); render(); };
+  btns.append(deliver, decline);
+  card.appendChild(btns);
+
+  T(() => {
+    reqs.innerHTML = '';
+    for (const [id, q] of Object.entries(o.items)) {
+      const have = St.count(id);
+      const r = el('div', 'req' + (have >= q ? '' : ' miss'));
+      r.innerHTML = `<em>${D.ITEMS[id].icon}</em><b>${Math.min(have, q)}/${q}</b>`;
+      reqs.appendChild(r);
+    }
+    deliver.disabled = !G.canDeliver(o);
+  });
+  return card;
+}
+
+/* --------------------------------- SHOP ---------------------------------- */
+
+function shopView() {
+  const S = St.S;
+  const frag = document.createDocumentFragment();
+
+  /* market */
+  const market = panel(`<em>💰</em>Market`);
+  market.appendChild(el('div', 'muted', 'Sell straight from storage at market price.'));
+  const mrow = el('div', 'btn-row');
+  mrow.style.marginTop = '8px';
+  const s1 = el('button', 'btn btn-sm btn-gold', '🛖 Sell Crops');
+  s1.onclick = () => { haptic(); sellSheet('silo'); };
+  const s2 = el('button', 'btn btn-sm btn-gold', '🏠 Sell Goods');
+  s2.onclick = () => { haptic(); sellSheet('barn'); };
+  mrow.append(s1, s2);
+  market.appendChild(mrow);
+  if (St.has('scythe')) market.appendChild(el('div', 'muted', '🪄 Golden Scythe: +25% on every sale.'));
+  frag.appendChild(market);
+
+  /* land */
+  const land = panel(`<em>🚜</em>Land`);
+  if (S.plots.length >= D.MAX_PLOTS) {
+    land.appendChild(el('div', 'muted', '🏆 You own every field on Sunny Acres.'));
+  } else {
+    const owned = S.plots.length;
+    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
+    land.appendChild(buyRow('🚧', `Field ${owned + 1}`,
+      `${owned} of ${D.MAX_PLOTS} fields cleared`, cost, S.level < lv ? lv : 0,
+      () => { G.buyPlot(); render(); }));
+  }
+  frag.appendChild(land);
+
+  /* storage */
+  const store = panel(`<em>📦</em>Storage`);
+  store.appendChild(buyRow('🛖', `Silo +${D.SILO_STEP}`,
+    `Holds ${S.siloCap} crops now`, D.siloUpgradeCost(S.siloCap), 0,
+    () => { G.upgradeSilo(); render(); }));
+  store.appendChild(buyRow('🏠', `Barn +${D.BARN_STEP}`,
+    `Holds ${S.barnCap} goods now`, D.barnUpgradeCost(S.barnCap), 0,
+    () => { G.upgradeBarn(); render(); }));
+  frag.appendChild(store);
+
+  /* upgrades */
+  const up = panel(`<em>⭐</em>Farm Upgrades`);
+  up.appendChild(el('div', 'muted', 'Permanent boosts. Each one takes work off your hands for good.'));
+  for (const u of D.UPGRADES) {
+    if (S.upgrades[u.id]) {
+      const r = el('div', 'row');
+      r.innerHTML = `<div class="ic">${u.icon}</div><div class="body"><b>${u.name}</b><small>${u.desc}</small></div>
+        <span class="chip done">✔ Owned</span>`;
+      up.appendChild(r);
+    } else {
+      up.appendChild(buyRow(u.icon, u.name, u.desc, u.cost, S.level < u.level ? u.level : 0,
+        () => { G.buyUpgrade(u.id); render(); }));
+    }
+  }
+  frag.appendChild(up);
+  return frag;
+}
+
+function buyRow(icon, name, desc, cost, needLevel, onBuy) {
+  const S = St.S;
+  const r = el('div', 'row' + (needLevel ? ' locked' : ''));
+  r.innerHTML = `<div class="ic">${icon}</div><div class="body"><b>${name}</b>
+    <small>${needLevel ? '🔒 Unlocks at level ' + needLevel : desc}</small></div>`;
+  const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
+  b.disabled = !!needLevel || S.coins < cost;
+  b.onclick = () => { haptic(); onBuy(); };
+  r.appendChild(b);
+  return r;
+}
+
+/* -------------------------------- sheets --------------------------------- */
+
+function openSheet(build) {
+  const root = $('sheet-root');
+  const back = el('div', 'backdrop');
+  const sheet = el('div', 'sheet');
+  sheet.appendChild(el('div', 'sheet-grab'));
+  const close = () => { back.remove(); };
+  build(sheet, close);
+  back.appendChild(sheet);
+  back.onclick = e => { if (e.target === back) close(); };
+  root.appendChild(back);
+  return close;
+}
+
+function sellSheet(kind) {
+  const S = St.S;
+  openSheet((sheet, close) => {
+    const isSilo = kind === 'silo';
+    sheet.appendChild(el('h2', null, isSilo ? '🛖 Sell Crops' : '🏠 Sell Goods'));
+    sheet.appendChild(el('p', 'sub', 'Tap to sell. Orders pay much better — check the board first.'));
+
+    const list = el('div');
+    const build = () => {
+      list.innerHTML = '';
+      const stock = isSilo ? S.silo : S.barn;
+      const ids = Object.keys(stock).filter(id => stock[id] > 0);
+      if (!ids.length) {
+        list.appendChild(el('div', 'muted center', 'Nothing in here yet.'));
+        return;
+      }
+      ids.sort((a, b) => D.ITEMS[a].price - D.ITEMS[b].price);
+      for (const id of ids) {
+        const it = D.ITEMS[id];
+        const n = stock[id];
+        const row = el('div', 'row');
+        row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
+          <small>🪙 ${fmt(G.sellPrice(id))} each</small></div>`;
+        const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
+        const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
+        one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
+        all.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, n)) + ' 🪙'); build(); refresh(); };
+        row.append(one, all);
+        list.appendChild(row);
+      }
+    };
+    build();
+    sheet.appendChild(list);
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
+    done.style.marginTop = '10px';
+    done.onclick = () => { close(); render(); };
+    sheet.appendChild(done);
+  });
+}
+
+function speedSheet(what, action, secLeft, item) {
+  openSheet((sheet, close) => {
+    const cost = D.speedUpCost(secLeft);
+    sheet.appendChild(el('h2', null, `${item ? item.icon : '⏳'} Still ${fmtTime(secLeft)}`));
+    sheet.appendChild(el('p', 'sub', `Spend gems to finish this ${what} right now.`));
+    const go = el('button', 'btn btn-big btn-blue', `💎 ${cost} — Finish Now`);
+    go.onclick = () => { action(); close(); };
+    sheet.appendChild(go);
+    const nope = el('button', 'btn btn-big', 'Wait it out');
+    nope.style.marginTop = '8px';
+    nope.onclick = close;
+    sheet.appendChild(nope);
+  });
+}
+
+function profileSheet() {
+  const S = St.S;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, `${S.avatar} ${S.name}`));
+    sheet.appendChild(el('p', 'sub', `${D.titleFor(S.level)} · Level ${S.level}`));
+
+    const next = D.TITLES.find(t => t.level > S.level);
+    const stats = el('div', 'panel');
+    stats.style.margin = '0 0 10px';
+    stats.innerHTML = `
+      <div class="row"><div class="ic">🧺</div><div class="body"><b>${fmt(S.stats.harvested)}</b><small>Crops harvested</small></div></div>
+      <div class="row"><div class="ic">🥚</div><div class="body"><b>${fmt(S.stats.collected)}</b><small>Animal goods collected</small></div></div>
+      <div class="row"><div class="ic">🏭</div><div class="body"><b>${fmt(S.stats.crafted)}</b><small>Goods crafted</small></div></div>
+      <div class="row"><div class="ic">🚚</div><div class="body"><b>${fmt(S.stats.orders)}</b><small>Orders delivered</small></div></div>
+      <div class="row"><div class="ic">🪙</div><div class="body"><b>${fmt(S.stats.earned)}</b><small>Coins earned all-time</small></div></div>
+      ${next ? `<div class="row"><div class="ic">🎖️</div><div class="body"><b>${next.name}</b><small>Next title, at level ${next.level}</small></div></div>` : ''}`;
+    sheet.appendChild(stats);
+
+    /* avatar swap */
+    sheet.appendChild(el('div', 'fld-label', 'Change your look'));
+    const grid = el('div', 'avatar-grid');
+    for (const a of D.AVATARS) {
+      const b = el('button', 'av' + (a === S.avatar ? ' on' : ''), a);
+      b.onclick = () => { S.avatar = a; St.save(); close(); render(); };
+      grid.appendChild(b);
+    }
+    sheet.appendChild(grid);
+
+    const snd = el('button', 'btn btn-big', '');
+    const paint = () => { snd.textContent = soundOn() ? '🔊 Sound: On' : '🔇 Sound: Off'; };
+    paint();
+    snd.onclick = () => {
+      S.settings.sound = !S.settings.sound;
+      setSound(S.settings.sound);
+      St.save();
+      paint();
+    };
+    sheet.appendChild(snd);
+
+    const reset = el('button', 'btn btn-big btn-red', '🗑️ Start a new farm');
+    reset.style.marginTop = '8px';
+    reset.onclick = () => confirmSheet('Start over?',
+      'Your farm, coins and levels are erased for good.', () => { St.wipe(); location.reload(); });
+    sheet.appendChild(reset);
+
+    const done = el('button', 'btn btn-big btn-blue', 'Close');
+    done.style.marginTop = '8px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+function confirmSheet(title, body, onYes) {
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, title));
+    sheet.appendChild(el('p', 'sub', body));
+    const yes = el('button', 'btn btn-big btn-red', 'Yes, do it');
+    yes.onclick = () => { close(); onYes(); };
+    const no = el('button', 'btn btn-big', 'Cancel');
+    no.style.marginTop = '8px';
+    no.onclick = close;
+    sheet.append(yes, no);
+  });
+}
+
+/* ------------------------------- feedback -------------------------------- */
+
+function toast(msg, icon, bad) {
+  const t = el('div', 'toast' + (bad ? ' bad' : ''), `${icon ? icon + ' ' : ''}${msg}`);
+  $('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 2300);
+}
+
+function floatText(e, text) {
+  const f = el('div', 'float', text);
+  const x = e && e.clientX ? e.clientX : innerWidth / 2;
+  const y = e && e.clientY ? e.clientY : innerHeight / 2;
+  f.style.left = x + 'px';
+  f.style.top = y + 'px';
+  f.style.transform = 'translate(-50%, 0)';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+}
+
+/** What the player just earned the right to do. */
+function unlocksAt(level) {
+  const out = [];
+  for (const c of D.CROPS) if (c.level === level) out.push(`${c.icon} ${c.name}`);
+  for (const a of D.ANIMALS) if (a.level === level) out.push(`${a.icon} ${a.name}`);
+  for (const m of D.MACHINES) if (m.level === level) out.push(`${m.icon} ${m.name}`);
+  for (const r of D.RECIPES) if (r.level === level && !D.MACHINES.some(m => m.level === level && m.id === r.machine)) {
+    out.push(`${D.ITEMS[r.out].icon} ${D.ITEMS[r.out].name}`);
+  }
+  for (const u of D.UPGRADES) if (u.level === level) out.push(`${u.icon} ${u.name}`);
+  const owned = St.S.plots.length;
+  if (owned < D.MAX_PLOTS && D.plotLevel(owned) === level) out.push('🚧 New field');
+  return out;
+}
+
+function levelUpSplash(level) {
+  SFX.levelUp();
+  const wrap = el('div', 'levelup');
+  const card = el('div', 'card');
+  const unlocks = unlocksAt(level);
+  const newTitle = D.titleFor(level) !== D.titleFor(level - 1);
+  card.innerHTML = `<div class="big">🎉</div><h2>Level ${level}!</h2>
+    <p>${newTitle ? `You are now a ${D.titleFor(level)} · ` : ''}+🪙${fmt(level * 120)} · +💎${level % 5 === 0 ? 3 : 1}</p>
+    ${unlocks.length ? `<div class="unlock-list">${unlocks.map(u => `<span class="chip">${u}</span>`).join('')}</div>` : ''}`;
+  const b = el('button', 'btn btn-big btn-green', 'Nice!');
+  b.onclick = () => { wrap.remove(); render(); };
+  card.appendChild(b);
+  wrap.appendChild(card);
+  wrap.onclick = e => { if (e.target === wrap) { wrap.remove(); render(); } };
+  document.body.appendChild(wrap);
+}
+
+function welcomeBack(info) {
+  if (info.away < 120) return;
+  const bits = [];
+  if (info.ripe) bits.push(`${info.ripe} field${info.ripe > 1 ? 's' : ''} ripened`);
+  if (info.ready) bits.push(`${info.ready} animal${info.ready > 1 ? 's' : ''} produced`);
+  if (info.crafts) bits.push(`${info.crafts} craft${info.crafts > 1 ? 's' : ''} finished`);
+  if (!bits.length) return;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '👋 Welcome back!'));
+    sheet.appendChild(el('p', 'sub', `You were away for ${fmtSpan(info.away)}.`));
+    const list = el('div');
+    for (const b of bits) {
+      const r = el('div', 'row');
+      r.innerHTML = `<div class="ic">✅</div><div class="body"><b>${b}</b></div>`;
+      list.appendChild(r);
+    }
+    sheet.appendChild(list);
+    const go = el('button', 'btn btn-big btn-green', 'Back to the farm');
+    go.style.marginTop = '10px';
+    go.onclick = close;
+    sheet.appendChild(go);
+  });
+}
+return { setView, render, refresh, openSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
+})();
+
+/* ---------- js/main.js ---------- */
+const __mod_main = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const G = __mod_game;
+const UI = __mod_ui;
+const {setSound, unlockAudio} = __mod_audio;
+/* ==========================================================================
+   main.js — boot, onboarding, and the once-a-second heartbeat.
+   ========================================================================== */
+
+
+
+
+
+
+
+const $ = id => document.getElementById(id);
+
+/* ------------------------------ onboarding ------------------------------- */
+
+function showOnboarding() {
+  const ob = $('onboard');
+  ob.hidden = false;
+  let avatar = D.AVATARS[0];
+
+  const grid = $('ob-avatars');
+  D.AVATARS.forEach((a, i) => {
+    const b = document.createElement('button');
+    b.className = 'av' + (i === 0 ? ' on' : '');
+    b.type = 'button';
+    b.textContent = a;
+    b.onclick = () => {
+      avatar = a;
+      [...grid.children].forEach(c => c.classList.toggle('on', c === b));
+    };
+    grid.appendChild(b);
+  });
+
+  $('ob-start').onclick = () => {
+    unlockAudio();
+    const name = ($('ob-name').value || '').trim().slice(0, 14) || 'Farmer';
+    St.startNew(name, avatar);
+    ob.hidden = true;
+    boot();
+  };
+}
+
+/* --------------------------------- boot ---------------------------------- */
+
+function boot() {
+  const S = St.S;
+  setSound(S.settings.sound !== false);
+  $('app').hidden = false;
+
+  G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
+  G.on('levelup', lv => UI.levelUpSplash(lv));
+
+  const info = G.settleOffline();
+  UI.render();
+  UI.welcomeBack(info);
+
+  // Heartbeat: advance the world, then repaint the cheap bits.
+  setInterval(() => {
+    G.tick();
+    UI.refresh();
+  }, 1000);
+
+  // Timers are all timestamp-based, so a backgrounded tab catches up instantly.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) St.save();
+    else { G.tick(); UI.render(); }
+  });
+  window.addEventListener('pagehide', St.save);
+  window.addEventListener('blur', St.save);
+
+  // iOS only starts audio inside a user gesture.
+  document.addEventListener('pointerdown', unlockAudio, { once: true });
+
+  // Kill the pull-to-refresh / rubber-band bounce on the game surface.
+  document.addEventListener('touchmove', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+}
+
+/* --------------------------------- start --------------------------------- */
+
+if (St.load()) boot();
+else showOnboarding();
+return {  };
+})();
+</script>
+</body>
+</html>

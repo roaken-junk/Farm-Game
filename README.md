@@ -11,22 +11,32 @@ CSS and ES modules. Your farm saves to the phone itself.
 
 ## Play it on your iPhone
 
-1. **Turn on GitHub Pages** — repo *Settings → Pages → Build and deployment →
-   Source: **GitHub Actions***. The included workflow publishes on every push
-   to the game branch.
-2. Open the published URL in **Safari** on your phone.
-3. Tap **Share → Add to Home Screen**. It then launches full-screen with its own
-   icon, no browser chrome, and works without signal.
+**Open the link, and that's it.** The game is published here:
 
-Prefer to try it on a laptop first? From the repo root:
+> https://claude.ai/code/artifact/2dd99825-f20d-4082-bfce-d65aa0cb1aca
+
+Open it in Safari on your phone and start farming. Nothing to install, nothing
+to configure. Your farm saves on the phone, so come back to the same link.
+
+### Other ways to run it
+
+**Add it to your home screen.** In Safari, tap *Share → Add to Home Screen*. It
+then opens full-screen like a real app, with no browser bar.
+
+**One file, no internet.** `dist/sunny-acres.html` is the whole game in a single
+file — CSS, code and icon inlined. Double-click it, AirDrop it to your phone,
+email it to yourself, drop it on any web host. It needs no server at all.
+
+**The multi-file version** (`index.html` + `js/`) needs a real web server,
+because browsers refuse to load ES modules from `file://`:
 
 ```sh
-npx http-server -p 8080 -c-1
-# then open http://localhost:8080 — use the browser's device toolbar for a phone-sized view
+npx http-server -p 8080 -c-1     # then open http://localhost:8080
 ```
 
-An `index.html` opened straight off the disk (`file://`) will **not** work —
-ES modules need a real server. Any static server will do.
+**GitHub Pages**, if you want your own URL: repo *Settings → Pages → Build and
+deployment → Source: **GitHub Actions***. The included workflow does the rest,
+and that version installs to the home screen with its proper icon.
 
 ## How to play
 
@@ -82,6 +92,13 @@ js/audio.js             WebAudio blips (no asset files)
 js/util.js              formatting helpers
 sw.js                   offline cache
 scripts/make-icons.mjs  regenerates icons/*.png
+scripts/build-single.mjs bundles everything into dist/
+```
+
+`dist/` is generated — rebuild it after any change to the game:
+
+```sh
+node scripts/build-single.mjs
 ```
 
 Tuning the game means editing `js/data.js` — grow times, prices, XP curve,
