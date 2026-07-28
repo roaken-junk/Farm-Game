@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#1d1038;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px}
+.c{background:radial-gradient(circle at 50% 35%,#43296b,#1a0f30);border-radius:10px;position:relative}
+.c b{position:absolute;bottom:2px;left:0;right:0;text-align:center;color:#fff;font:700 11px sans-serif}
+canvas{width:100%;display:block}
+</style></head><body>
+<script type="module">
+import { HEROES } from '../src/data/heroes.js';
+import { drawPortrait, drawBust } from '../src/art/characters.js';
+const W=220,H=300,dpr=2;
+for (const h of HEROES){
+  const d=document.createElement('div');d.className='c';
+  const c=document.createElement('canvas');c.width=W*dpr;c.height=H*dpr;
+  d.appendChild(c);const b=document.createElement('b');b.textContent=h.name;d.appendChild(b);
+  document.body.appendChild(d);
+  const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  drawPortrait(ctx,h.id,W,H,0,{pad:0.08});
+}
+for (const h of HEROES){
+  const d=document.createElement('div');d.className='c';
+  const c=document.createElement('canvas');c.width=W*dpr;c.height=W*dpr;
+  d.appendChild(c);document.body.appendChild(d);
+  const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.translate(W/2,W*0.62);drawBust(ctx,h.id,W*0.9,0);
+}
+window.__ready=true;
+</script></body></html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sakura Smash 桜スマッシュ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="description" content="Sakura Smash - a physics brawler with an original Japanese anime art style. Fling your heroes, smash your rivals, climb the trophy ladder." />
+<meta name="theme-color" content="#160c2c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Sakura Smash" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/icon-180.png" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ BOOT / LOADING ============ -->
+  <section class="screen boot active" id="screen-boot">
+    <div class="boot-inner">
+      <canvas id="boot-crest" width="220" height="220"></canvas>
+      <h1 class="logo"><span class="logo-jp">桜</span>SAKURA<em>SMASH</em></h1>
+      <p class="boot-tag">スマッシュ・ヒーローズ</p>
+      <div class="boot-bar"><i></i></div>
+      <button class="btn btn-primary btn-tap" id="btn-tap-start" hidden>TAP TO START<small>タップして開始</small></button>
+    </div>
+  </section>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen home" id="screen-home">
+    <header class="topbar">
+      <div class="player-chip">
+        <canvas class="avatar" id="home-avatar" width="96" height="96"></canvas>
+        <div class="player-meta">
+          <strong id="home-name">Sensei</strong>
+          <span class="league-line"><i class="league-dot"></i><span id="home-league">Sakura League</span></span>
+        </div>
+      </div>
+      <div class="currencies">
+        <div class="cur cur-trophy"><i>🏆</i><span id="cur-trophies">0</span></div>
+        <div class="cur cur-gold"><i>🪙</i><span id="cur-gold">0</span></div>
+        <div class="cur cur-gem"><i>💠</i><span id="cur-gems">0</span></div>
+      </div>
+    </header>
+
+    <div class="home-body">
+      <div class="home-stage">
+        <canvas id="home-hero" width="520" height="620"></canvas>
+        <div class="stage-glow"></div>
+        <div class="home-hero-name">
+          <strong id="home-hero-title">—</strong>
+          <span id="home-hero-sub">—</span>
+        </div>
+      </div>
+
+      <div class="battle-actions">
+        <button class="btn btn-primary btn-battle" id="btn-battle">
+          <span class="jp">対戦</span>BATTLE
+          <small id="battle-sub">Sakura Courtyard</small>
+        </button>
+        <div class="mini-actions">
+          <button class="btn btn-ghost" id="btn-versus"><span class="jp">二人</span>PASS &amp; PLAY</button>
+          <button class="btn btn-ghost" id="btn-practice"><span class="jp">練習</span>PRACTICE</button>
+        </div>
+      </div>
+
+      <div class="chest-row" id="chest-row"></div>
+    </div>
+
+    <nav class="tabbar">
+      <button class="tab active" data-goto="home"><i>⛩️</i><span>Home</span></button>
+      <button class="tab" data-goto="team"><i>🗡️</i><span>Team</span></button>
+      <button class="tab" data-goto="collection"><i>🎴</i><span>Heroes</span></button>
+      <button class="tab" data-goto="shop"><i>🏮</i><span>Shop</span></button>
+      <button class="tab" data-goto="settings"><i>⚙️</i><span>More</span></button>
+    </nav>
+  </section>
+
+  <!-- ============ TEAM ============ -->
+  <section class="screen sub" id="screen-team">
+    <header class="subbar">
+      <button class="icon-btn back" data-back>‹</button>
+      <h2><span class="jp">編成</span>YOUR TEAM</h2>
+      <div class="power-chip">POWER <b id="team-power">0</b></div>
+    </header>
+    <div class="scroll">
+      <p class="hint">Tap a slot, then pick a hero. Four heroes enter the arena.</p>
+      <div class="team-slots" id="team-slots"></div>
+      <h3 class="section-title"><span class="jp">控え</span>ROSTER</h3>
+      <div class="hero-grid" id="team-roster"></div>
+    </div>
+  </section>
+
+  <!-- ============ COLLECTION ============ -->
+  <section class="screen sub" id="screen-collection">
+    <header class="subbar">
+      <button class="icon-btn back" data-back>‹</button>
+      <h2><span class="jp">英雄</span>HEROES</h2>
+      <div class="power-chip" id="collection-count">0/0</div>
+    </header>
+    <div class="scroll">
+      <div class="hero-grid big" id="collection-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ HERO DETAIL ============ -->
+  <section class="screen sub hero-detail" id="screen-hero">
+    <header class="subbar">
+      <button class="icon-btn back" data-back>‹</button>
+      <h2 id="hero-detail-name">HERO</h2>
+      <div class="power-chip" id="hero-detail-rarity">—</div>
+    </header>
+    <div class="scroll" id="hero-detail-body"></div>
+  </section>
+
+  <!-- ============ SHOP ============ -->
+  <section class="screen sub" id="screen-shop">
+    <header class="subbar">
+      <button class="icon-btn back" data-back>‹</button>
+      <h2><span class="jp">商店</span>SHOP</h2>
+      <div class="power-chip"><i>💠</i> <b id="shop-gems">0</b></div>
+    </header>
+    <div class="scroll" id="shop-body"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="screen sub" id="screen-settings">
+    <header class="subbar">
+      <button class="icon-btn back" data-back>‹</button>
+      <h2><span class="jp">設定</span>MORE</h2>
+      <div class="power-chip">v1.0</div>
+    </header>
+    <div class="scroll" id="settings-body"></div>
+  </section>
+
+  <!-- ============ BATTLE ============ -->
+  <section class="screen battle" id="screen-battle">
+    <canvas id="arena"></canvas>
+
+    <div class="battle-ui">
+      <div class="team-bar top" id="bar-foe"></div>
+      <div class="turn-banner" id="turn-banner"><b></b><small></small></div>
+      <div class="team-bar bottom" id="bar-you"></div>
+      <div class="turn-timer"><i id="turn-timer-fill"></i></div>
+      <button class="icon-btn pause" id="btn-pause">II</button>
+      <div class="combo-pop" id="combo-pop"></div>
+    </div>
+
+    <div class="overlay" id="battle-overlay" hidden></div>
+  </section>
+
+  <!-- ============ MODAL LAYER ============ -->
+  <div class="modal-layer" id="modal-layer" hidden></div>
+  <div class="toast-layer" id="toast-layer"></div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
