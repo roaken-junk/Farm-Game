@@ -20,56 +20,67 @@ function setProgress(v) {
 }
 
 async function boot() {
-  const stopCrest = initBootCrest();
+  let stopCrest = () => {};
+  try { stopCrest = initBootCrest(); } catch (err) { console.warn('crest failed', err); }
   setProgress(0.15);
 
-  ensureStarter();
-  setProgress(0.35);
+  // Each screen is initialised independently. One broken subsystem should cost
+  // you that screen, never the ability to start the game.
+  const steps = [
+    ['profile', () => ensureStarter()],
+    ['battle', () => initBattle()],
+    ['home', () => initHome({
+      onBattle: () => startBattle('ladder'),
+      onVersus: () => modal({
+        title: 'PASS & PLAY', jp: 'ふたりで',
+        body: '<p>Two players, one phone. You take the bottom team, your friend takes the top. Hand the phone over when the banner changes.</p>',
+        actions: [
+          { label: 'CANCEL' },
+          { label: 'START', cls: 'btn-gold', onClick: () => startBattle('versus') },
+        ],
+      }),
+      onPractice: () => startBattle('practice'),
+    })],
+    ['team', () => initTeam()],
+    ['collection', () => initCollection()],
+    ['hero', () => initHeroDetail()],
+    ['shop', () => initShop()],
+    ['settings', () => initSettings()],
+    ['nav', () => {
+      $$('.tab').forEach((t) => {
+        tapFx(t);
+        t.onclick = () => {
+          const target = t.dataset.goto;
+          if (target === 'home') goRoot('home');
+          else { goRoot('home'); go(target); }
+        };
+      });
+      $$('[data-back]').forEach((b) => {
+        tapFx(b);
+        b.onclick = () => { sfx('back'); back(); };
+      });
+    }],
+    ['audio-prefs', () => {
+      const p = load();
+      setAudioPrefs({ music: p.settings.music, sfx: p.settings.sfx });
+    }],
+    ['currencies', () => updateCurrencies()],
+  ];
 
-  initBattle();
-  initHome({
-    onBattle: () => startBattle('ladder'),
-    onVersus: () => modal({
-      title: 'PASS & PLAY', jp: 'ふたりで',
-      body: '<p>Two players, one phone. You take the bottom team, your friend takes the top. Hand the phone over when the banner changes.</p>',
-      actions: [
-        { label: 'CANCEL' },
-        { label: 'START', cls: 'btn-gold', onClick: () => startBattle('versus') },
-      ],
-    }),
-    onPractice: () => startBattle('practice'),
+  const failed = [];
+  steps.forEach(([name, fn], i) => {
+    try { fn(); } catch (err) {
+      failed.push(name);
+      console.error(`init "${name}" failed`, err);
+    }
+    setProgress(0.15 + 0.85 * ((i + 1) / steps.length));
   });
-  initTeam();
-  initCollection();
-  initHeroDetail();
-  initShop();
-  initSettings();
-  setProgress(0.7);
-
-  // tab bar + back buttons
-  $$('.tab').forEach((t) => {
-    tapFx(t);
-    t.onclick = () => {
-      const target = t.dataset.goto;
-      if (target === 'home') goRoot('home');
-      else { goRoot('home'); go(target); }
-    };
-  });
-  $$('[data-back]').forEach((b) => {
-    tapFx(b);
-    b.onclick = () => { sfx('back'); back(); };
-  });
-
-  const p = load();
-  setAudioPrefs({ music: p.settings.music, sfx: p.settings.sfx });
-  updateCurrencies();
-  setProgress(1);
 
   // wait for the first paint of the home canvas before revealing the tap prompt
   await new Promise((r) => setTimeout(r, 420));
-  const tap = $('#btn-tap-start');
-  tap.hidden = false;
-  tap.onclick = () => {
+
+  const start = () => {
+    if (!$('#screen-boot').classList.contains('active')) return;
     // Audio is optional. Getting into the game is not.
     try {
       initAudio();
@@ -91,6 +102,28 @@ async function boot() {
       }
     } catch { /* intro is cosmetic */ }
   };
+
+  const tap = $('#btn-tap-start');
+  tap.hidden = false;
+  tap.onclick = start;
+  // The whole splash is the target. The button can end up below the fold in a
+  // short frame, and "tap to start" should mean anywhere.
+  $('#screen-boot').addEventListener('pointerup', start);
+
+  if (failed.length) {
+    console.warn('some screens failed to initialise:', failed.join(', '));
+    bootWarning(`Some screens failed to load (${failed.join(', ')}). The game will still start.`);
+  }
+}
+
+function bootWarning(text) {
+  const inner = document.querySelector('.boot-inner');
+  if (!inner) return;
+  const msg = document.createElement('p');
+  msg.className = 'boot-tag';
+  msg.style.cssText = 'letter-spacing:0;color:#ff8a8a;max-width:280px;text-align:center;line-height:1.5;margin-top:8px';
+  msg.textContent = text;
+  inner.appendChild(msg);
 }
 
 function showIntro() {
@@ -139,12 +172,5 @@ if ('serviceWorker' in navigator) {
 boot().catch((err) => {
   // A dead loading bar tells the player nothing. Surface the reason.
   console.error('boot failed', err);
-  const inner = document.querySelector('.boot-inner');
-  if (inner) {
-    const msg = document.createElement('p');
-    msg.className = 'boot-tag';
-    msg.style.cssText = 'letter-spacing:0;color:#ff8a8a;max-width:280px;text-align:center;line-height:1.5';
-    msg.textContent = `Could not start: ${err && err.message ? err.message : err}`;
-    inner.appendChild(msg);
-  }
+  bootWarning(`Could not start: ${err && err.message ? err.message : err}`);
 });

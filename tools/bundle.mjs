@@ -134,7 +134,12 @@ const __req = (id) => {
 };
 `;
 
+// The host page owns <head>, so we cannot put a viewport meta there. WebKit
+// honours one found in the body, and without it a host that has not set its own
+// lays the game out at a default width and scales it up — which pushes the
+// start button off the bottom of the screen.
 const out = `<title>Sakura Smash 桜スマッシュ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <style>
 ${css}
 </style>
