@@ -41,6 +41,7 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     upgrades: {},
     selectedSeed: 'wheat',
     settings: { sound: true },
+    boosts: {},                                  // boost id -> expiry timestamp
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
@@ -131,6 +132,7 @@ function migrate(data) {
   data.settings = { ...base.settings, ...(data.settings || {}) };
   data.stats = { ...base.stats, ...(data.stats || {}) };
   data.goals = data.goals || {};
+  data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
   return data;
 }
@@ -248,24 +250,50 @@ export function has(upgradeId) {
 
 /* --------------------------- derived modifiers -------------------------- */
 
-/** Multiplier applied to every crop timer. */
+/** Seconds left on a boost, or 0. */
+export function boostLeft(id) {
+  const end = (S.boosts || {})[id] || 0;
+  return Math.max(0, (end - now()) / 1000);
+}
+
+export function boostsRunning() {
+  return D.BOOSTS.filter(b => boostLeft(b.id) > 0);
+}
+
+/** Combined multiplier for one effect across every running boost. */
+export function boostMult(effect) {
+  let m = 1;
+  for (const b of D.BOOSTS) if (b.effect === effect && boostLeft(b.id) > 0) m *= b.mult;
+  return m;
+}
+
+/** Multiplier applied to every crop timer. Lower is faster. */
 export function growthMult() {
   let m = 1;
   if (has('wateringCan')) m *= 0.9;
   if (has('sprinkler')) m *= 0.8;
-  return m;
+  return m / boostMult('grow');
 }
 
 export function craftMult() {
-  return has('foreman') ? 0.8 : 1;
+  return (has('foreman') ? 0.8 : 1) / boostMult('craft');
+}
+
+/** Animal cycles shorten the same way crops do. */
+export function animalMult() {
+  return 1 / boostMult('animal');
 }
 
 export function sellMult() {
-  return has('scythe') ? 1.25 : 1;
+  return (has('scythe') ? 1.25 : 1) * boostMult('sell');
 }
 
 export function orderMult() {
-  return has('truck') ? 1.3 : 1;
+  return (has('truck') ? 1.3 : 1) * boostMult('order');
+}
+
+export function xpMult() {
+  return boostMult('xp');
 }
 
 export function queueCap() {

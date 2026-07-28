@@ -77,6 +77,7 @@ button, input { font: inherit; color: inherit; }
 /* --------------------------------- HUD ----------------------------------- */
 
 .hud {
+  flex-wrap: wrap;
   padding: calc(var(--sat) + 8px) 12px 8px;
   background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
   backdrop-filter: blur(6px);
@@ -726,4 +727,346 @@ button, input { font: inherit; color: inherit; }
   border-radius: 10px;
   width: 34px; height: 34px;
   font-size: 15px;
+}
+
+/* =============================== farm map ================================= */
+
+.view.flush { padding: 0; overflow: hidden; display: flex; }
+
+.map-wrap {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.map-canvas { position: relative; }
+
+.map {
+  position: relative;
+  transform-origin: top left;
+  /* mown stripes, a little sun in the top corner */
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .35), transparent 45%),
+    repeating-linear-gradient(90deg, #7cc94a 0 44px, #74c144 44px 88px);
+}
+
+.map-path {
+  position: absolute;
+  left: 0; right: 0;
+  top: 540px;
+  height: 52px;
+  background: repeating-linear-gradient(90deg, #e6cfa2 0 18px, #dec69a 18px 36px);
+  border-top: 3px solid #c9ab77;
+  border-bottom: 3px solid #c9ab77;
+}
+
+.map-pond {
+  position: absolute;
+  left: 486px; top: 1024px;
+  width: 190px; height: 120px;
+  border-radius: 50% 46% 52% 48%;
+  background: radial-gradient(circle at 35% 30%, #b8ecff, #56b9e8 70%);
+  border: 4px solid #8fd3ee;
+  box-shadow: inset 0 6px 10px rgba(255, 255, 255, .5);
+}
+
+.map-decor {
+  position: absolute;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
+  pointer-events: none;
+  animation: sway 4s ease-in-out infinite;
+}
+@keyframes sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2deg) } }
+
+/* ---- buildings ---- */
+
+.mp-bldg {
+  position: absolute;
+  width: 132px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform .1s ease;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .25));
+}
+.mp-bldg:active { transform: scale(.95); }
+
+.mp-bldg .roof {
+  width: 118px;
+  height: 40px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--roof) 78%, white), var(--roof));
+  background: var(--roof);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.mp-bldg .body {
+  width: 96px;
+  height: 62px;
+  margin-top: -2px;
+  background: linear-gradient(180deg, #fffaef, #f2e2c2);
+  border: 3px solid var(--wood-dk);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  display: grid;
+  place-items: center;
+}
+.mp-bldg .face { font-size: 32px; line-height: 1; }
+.mp-bldg .sign {
+  margin-top: 5px;
+  background: var(--wood);
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 8px;
+  padding: 1px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #4a2c0c;
+  white-space: nowrap;
+}
+.mp-bldg .ping {
+  position: absolute;
+  top: 26px; right: 8px;
+  min-width: 22px; height: 22px;
+  border-radius: 11px;
+  background: var(--red);
+  border: 2.5px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  display: grid; place-items: center;
+  padding: 0 4px;
+  animation: bob .9s ease-in-out infinite;
+}
+
+/* ---- fields ---- */
+
+.mp-plot {
+  position: absolute;
+  padding: 0;
+  border: 3px solid #7d5730;
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, .10) 0 3px, transparent 3px 14px),
+    linear-gradient(180deg, #b5794a, #8a5a30);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .18);
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  transition: transform .1s ease;
+}
+.mp-plot:active { transform: scale(.95); }
+
+.mp-plot .seedme { font-size: 26px; font-weight: 900; color: rgba(255, 255, 255, .45); }
+.mp-plot .sprout {
+  font-size: 34px;
+  line-height: 1;
+  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
+}
+.mp-plot.ready { border-color: #ffd45e; }
+.mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
+
+.mp-plot .grow {
+  position: absolute;
+  left: 6px; right: 6px; bottom: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .35);
+  overflow: hidden;
+}
+.mp-plot .grow > i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #ffe07a, #8ce35a);
+}
+.mp-plot.ready .grow { display: none; }
+
+.mp-plot .bubble {
+  position: absolute;
+  top: -16px; left: 50%;
+  transform: translateX(-50%);
+  background: #fffaef;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 999px;
+  padding: 0 7px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 19px;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+}
+.mp-plot .bubble.pop {
+  background: #fff3c4;
+  border-color: var(--gold-dk);
+  font-size: 15px;
+  animation: bob .8s ease-in-out infinite;
+}
+
+.mp-plot.wild {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .16);
+  box-shadow: none;
+}
+.mp-plot.wild .wildtag { font-size: 26px; opacity: .8; }
+
+/* ---- pens ---- */
+
+.mp-pen {
+  position: absolute;
+  border: 4px dashed #b8834a;
+  border-radius: 16px;
+  background: rgba(255, 246, 214, .45);
+  padding: 16px 6px 6px;
+}
+.mp-pen.locked { opacity: .75; filter: grayscale(.6); }
+
+.mp-pen .pen-sign {
+  position: absolute;
+  top: -13px; left: 8px;
+  background: var(--wood);
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 20px;
+  color: #4a2c0c;
+  white-space: nowrap;
+}
+
+.pen-yard {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  height: 100%;
+  overflow: hidden;
+}
+.pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
+
+.critter-m {
+  position: relative;
+  width: 44px; height: 44px;
+  border: 0;
+  padding: 0;
+  background: none;
+  font-size: 28px;
+  line-height: 1;
+}
+/* Only the animal wanders and turns around — flipping the button would
+   mirror its timer and product badge too. */
+.critter-m .beast {
+  display: block;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .28));
+  animation: graze 3.2s ease-in-out infinite;
+}
+.critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
+.critter-m .mark {
+  position: absolute;
+  top: -4px; right: -2px;
+  font-size: 15px;
+  background: #fffaef;
+  border: 2px solid var(--wood-dk);
+  border-radius: 50%;
+  padding: 1px;
+  line-height: 1;
+}
+.critter-m .tick {
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0, 0, 0, .5);
+  border-radius: 6px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.critter-m.add {
+  border: 3px dashed rgba(122, 74, 30, .55);
+  border-radius: 12px;
+  font-size: 20px;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, .45);
+}
+@keyframes graze {
+  0%, 100% { transform: translateX(0) }
+  25% { transform: translateX(4px) }
+  50% { transform: translateX(0) scaleX(-1) }
+  75% { transform: translateX(-4px) scaleX(-1) }
+}
+
+/* ---- floating seed bar over the map ---- */
+
+.mapcol {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.seedbar {
+  flex-shrink: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 8px calc(7px + var(--sab));
+  background: linear-gradient(180deg, rgba(255, 250, 239, .82), var(--card));
+  border-top: 3px solid var(--wood-dk);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.seedbar .strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
+.seedbar .strip::-webkit-scrollbar { display: none; }
+
+.seedchip {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 54px;
+  padding: 3px 2px 2px;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 11px;
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  font-size: 22px;
+  line-height: 1.1;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+}
+.seedchip small { font-size: 9px; font-weight: 800; color: var(--ink-soft); }
+.seedchip.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); }
+.seedchip.locked { filter: grayscale(1); opacity: .55; }
+
+/* boosts in the HUD */
+.boostbar {
+  width: 100%;
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  margin-top: 6px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.boostbar::-webkit-scrollbar { display: none; }
+.boostchip {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255, 255, 255, .9);
+  border: 2px solid var(--green-dk);
+  border-radius: 999px;
+  padding: 1px 9px 1px 6px;
+  font-size: 11px;
+  font-weight: 900;
 }

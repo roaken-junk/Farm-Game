@@ -94,6 +94,7 @@ button, input { font: inherit; color: inherit; }
 /* --------------------------------- HUD ----------------------------------- */
 
 .hud {
+  flex-wrap: wrap;
   padding: calc(var(--sat) + 8px) 12px 8px;
   background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
   backdrop-filter: blur(6px);
@@ -745,6 +746,348 @@ button, input { font: inherit; color: inherit; }
   font-size: 15px;
 }
 
+/* =============================== farm map ================================= */
+
+.view.flush { padding: 0; overflow: hidden; display: flex; }
+
+.map-wrap {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.map-canvas { position: relative; }
+
+.map {
+  position: relative;
+  transform-origin: top left;
+  /* mown stripes, a little sun in the top corner */
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .35), transparent 45%),
+    repeating-linear-gradient(90deg, #7cc94a 0 44px, #74c144 44px 88px);
+}
+
+.map-path {
+  position: absolute;
+  left: 0; right: 0;
+  top: 540px;
+  height: 52px;
+  background: repeating-linear-gradient(90deg, #e6cfa2 0 18px, #dec69a 18px 36px);
+  border-top: 3px solid #c9ab77;
+  border-bottom: 3px solid #c9ab77;
+}
+
+.map-pond {
+  position: absolute;
+  left: 486px; top: 1024px;
+  width: 190px; height: 120px;
+  border-radius: 50% 46% 52% 48%;
+  background: radial-gradient(circle at 35% 30%, #b8ecff, #56b9e8 70%);
+  border: 4px solid #8fd3ee;
+  box-shadow: inset 0 6px 10px rgba(255, 255, 255, .5);
+}
+
+.map-decor {
+  position: absolute;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
+  pointer-events: none;
+  animation: sway 4s ease-in-out infinite;
+}
+@keyframes sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2deg) } }
+
+/* ---- buildings ---- */
+
+.mp-bldg {
+  position: absolute;
+  width: 132px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform .1s ease;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .25));
+}
+.mp-bldg:active { transform: scale(.95); }
+
+.mp-bldg .roof {
+  width: 118px;
+  height: 40px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--roof) 78%, white), var(--roof));
+  background: var(--roof);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.mp-bldg .body {
+  width: 96px;
+  height: 62px;
+  margin-top: -2px;
+  background: linear-gradient(180deg, #fffaef, #f2e2c2);
+  border: 3px solid var(--wood-dk);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  display: grid;
+  place-items: center;
+}
+.mp-bldg .face { font-size: 32px; line-height: 1; }
+.mp-bldg .sign {
+  margin-top: 5px;
+  background: var(--wood);
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 8px;
+  padding: 1px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #4a2c0c;
+  white-space: nowrap;
+}
+.mp-bldg .ping {
+  position: absolute;
+  top: 26px; right: 8px;
+  min-width: 22px; height: 22px;
+  border-radius: 11px;
+  background: var(--red);
+  border: 2.5px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  display: grid; place-items: center;
+  padding: 0 4px;
+  animation: bob .9s ease-in-out infinite;
+}
+
+/* ---- fields ---- */
+
+.mp-plot {
+  position: absolute;
+  padding: 0;
+  border: 3px solid #7d5730;
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, .10) 0 3px, transparent 3px 14px),
+    linear-gradient(180deg, #b5794a, #8a5a30);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .18);
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  transition: transform .1s ease;
+}
+.mp-plot:active { transform: scale(.95); }
+
+.mp-plot .seedme { font-size: 26px; font-weight: 900; color: rgba(255, 255, 255, .45); }
+.mp-plot .sprout {
+  font-size: 34px;
+  line-height: 1;
+  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
+}
+.mp-plot.ready { border-color: #ffd45e; }
+.mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
+
+.mp-plot .grow {
+  position: absolute;
+  left: 6px; right: 6px; bottom: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .35);
+  overflow: hidden;
+}
+.mp-plot .grow > i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #ffe07a, #8ce35a);
+}
+.mp-plot.ready .grow { display: none; }
+
+.mp-plot .bubble {
+  position: absolute;
+  top: -16px; left: 50%;
+  transform: translateX(-50%);
+  background: #fffaef;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 999px;
+  padding: 0 7px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 19px;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+}
+.mp-plot .bubble.pop {
+  background: #fff3c4;
+  border-color: var(--gold-dk);
+  font-size: 15px;
+  animation: bob .8s ease-in-out infinite;
+}
+
+.mp-plot.wild {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .16);
+  box-shadow: none;
+}
+.mp-plot.wild .wildtag { font-size: 26px; opacity: .8; }
+
+/* ---- pens ---- */
+
+.mp-pen {
+  position: absolute;
+  border: 4px dashed #b8834a;
+  border-radius: 16px;
+  background: rgba(255, 246, 214, .45);
+  padding: 16px 6px 6px;
+}
+.mp-pen.locked { opacity: .75; filter: grayscale(.6); }
+
+.mp-pen .pen-sign {
+  position: absolute;
+  top: -13px; left: 8px;
+  background: var(--wood);
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 20px;
+  color: #4a2c0c;
+  white-space: nowrap;
+}
+
+.pen-yard {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  height: 100%;
+  overflow: hidden;
+}
+.pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
+
+.critter-m {
+  position: relative;
+  width: 44px; height: 44px;
+  border: 0;
+  padding: 0;
+  background: none;
+  font-size: 28px;
+  line-height: 1;
+}
+/* Only the animal wanders and turns around — flipping the button would
+   mirror its timer and product badge too. */
+.critter-m .beast {
+  display: block;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .28));
+  animation: graze 3.2s ease-in-out infinite;
+}
+.critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
+.critter-m .mark {
+  position: absolute;
+  top: -4px; right: -2px;
+  font-size: 15px;
+  background: #fffaef;
+  border: 2px solid var(--wood-dk);
+  border-radius: 50%;
+  padding: 1px;
+  line-height: 1;
+}
+.critter-m .tick {
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0, 0, 0, .5);
+  border-radius: 6px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.critter-m.add {
+  border: 3px dashed rgba(122, 74, 30, .55);
+  border-radius: 12px;
+  font-size: 20px;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, .45);
+}
+@keyframes graze {
+  0%, 100% { transform: translateX(0) }
+  25% { transform: translateX(4px) }
+  50% { transform: translateX(0) scaleX(-1) }
+  75% { transform: translateX(-4px) scaleX(-1) }
+}
+
+/* ---- floating seed bar over the map ---- */
+
+.mapcol {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.seedbar {
+  flex-shrink: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 8px calc(7px + var(--sab));
+  background: linear-gradient(180deg, rgba(255, 250, 239, .82), var(--card));
+  border-top: 3px solid var(--wood-dk);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.seedbar .strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
+.seedbar .strip::-webkit-scrollbar { display: none; }
+
+.seedchip {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 54px;
+  padding: 3px 2px 2px;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: 11px;
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  font-size: 22px;
+  line-height: 1.1;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+}
+.seedchip small { font-size: 9px; font-weight: 800; color: var(--ink-soft); }
+.seedchip.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); }
+.seedchip.locked { filter: grayscale(1); opacity: .55; }
+
+/* boosts in the HUD */
+.boostbar {
+  width: 100%;
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  margin-top: 6px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.boostbar::-webkit-scrollbar { display: none; }
+.boostchip {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255, 255, 255, .9);
+  border: 2px solid var(--green-dk);
+  border-radius: 999px;
+  padding: 1px 9px 1px 6px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
 </style>
 
 <div id="app" hidden>
@@ -979,6 +1322,32 @@ for (const c of CROPS)         ITEMS[c.id] = { ...c, kind: 'crop' };
 for (const g of ANIMAL_GOODS)  ITEMS[g.id] = { ...g, kind: 'good', level: (ANIMALS.find(a => a.product === g.id) || {}).level || 1 };
 for (const g of CRAFTED)       ITEMS[g.id] = { ...g, kind: 'good', level: (RECIPES.find(r => r.out === g.id) || {}).level || 1 };
 
+/**
+ * Timed boosts, bought over and over. These are the profit levers: buying a
+ * Market Day before dumping a full silo is meant to be the smart play.
+ * `effect` is what the rest of the game multiplies by.
+ */
+const BOOSTS = [
+  { id: 'coffee', name: 'Farmhand Coffee', icon: '☕', effect: 'grow',   mult: 2,
+    mins: 30, coins: 2500,  level: 3,
+    desc: 'Crops ripen twice as fast for 30 minutes.' },
+  { id: 'market', name: 'Market Day',      icon: '💰', effect: 'sell',   mult: 1.5,
+    mins: 20, coins: 5000,  level: 5,
+    desc: 'Everything sells for +50% for 20 minutes.' },
+  { id: 'feast',  name: 'Feed Frenzy',     icon: '🌟', effect: 'animal', mult: 2,
+    mins: 30, coins: 7500,  level: 7,
+    desc: 'Animals produce twice as fast for 30 minutes.' },
+  { id: 'rush',   name: 'Rush Order',      icon: '⚡', effect: 'craft',  mult: 2,
+    mins: 30, coins: 12000, level: 9,
+    desc: 'Workshops craft twice as fast for 30 minutes.' },
+  { id: 'school', name: 'Farm School',     icon: '📘', effect: 'xp',     mult: 2,
+    mins: 30, gems: 6,      level: 6,
+    desc: 'Double XP from everything for 30 minutes.' },
+  { id: 'clover', name: 'Lucky Clover',    icon: '🍀', effect: 'order',  mult: 1.5,
+    mins: 20, gems: 8,      level: 8,
+    desc: 'Order payouts +50% for 20 minutes.' },
+];
+
 /** Permanent upgrades — the "game gets easier as you go" track. */
 const UPGRADES = [
   { id: 'wateringCan', name: 'Watering Can',  icon: '🪣', level: 5,  cost: 600,    desc: 'Crops grow 10% faster.' },
@@ -1102,7 +1471,7 @@ function titleFor(level) {
 function recipesFor(machineId) {
   return RECIPES.filter(r => r.machine === machineId);
 }
-return { goalReward, marketMult, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
+return { goalReward, marketMult, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, BOOSTS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
 })();
 
 /* ---------- js/audio.js ---------- */
@@ -1204,6 +1573,7 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     upgrades: {},
     selectedSeed: 'wheat',
     settings: { sound: true },
+    boosts: {},                                  // boost id -> expiry timestamp
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
@@ -1294,6 +1664,7 @@ function migrate(data) {
   data.settings = { ...base.settings, ...(data.settings || {}) };
   data.stats = { ...base.stats, ...(data.stats || {}) };
   data.goals = data.goals || {};
+  data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
   return data;
 }
@@ -1411,24 +1782,50 @@ function has(upgradeId) {
 
 /* --------------------------- derived modifiers -------------------------- */
 
-/** Multiplier applied to every crop timer. */
+/** Seconds left on a boost, or 0. */
+function boostLeft(id) {
+  const end = (S.boosts || {})[id] || 0;
+  return Math.max(0, (end - now()) / 1000);
+}
+
+function boostsRunning() {
+  return D.BOOSTS.filter(b => boostLeft(b.id) > 0);
+}
+
+/** Combined multiplier for one effect across every running boost. */
+function boostMult(effect) {
+  let m = 1;
+  for (const b of D.BOOSTS) if (b.effect === effect && boostLeft(b.id) > 0) m *= b.mult;
+  return m;
+}
+
+/** Multiplier applied to every crop timer. Lower is faster. */
 function growthMult() {
   let m = 1;
   if (has('wateringCan')) m *= 0.9;
   if (has('sprinkler')) m *= 0.8;
-  return m;
+  return m / boostMult('grow');
 }
 
 function craftMult() {
-  return has('foreman') ? 0.8 : 1;
+  return (has('foreman') ? 0.8 : 1) / boostMult('craft');
+}
+
+/** Animal cycles shorten the same way crops do. */
+function animalMult() {
+  return 1 / boostMult('animal');
 }
 
 function sellMult() {
-  return has('scythe') ? 1.25 : 1;
+  return (has('scythe') ? 1.25 : 1) * boostMult('sell');
 }
 
 function orderMult() {
-  return has('truck') ? 1.3 : 1;
+  return (has('truck') ? 1.3 : 1) * boostMult('order');
+}
+
+function xpMult() {
+  return boostMult('xp');
 }
 
 function queueCap() {
@@ -1464,7 +1861,7 @@ function producibleItems() {
   }
   return [...ids];
 }
-return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, growthMult, craftMult, sellMult, orderMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop };
+return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, boostLeft, boostsRunning, boostMult, growthMult, craftMult, animalMult, sellMult, orderMult, xpMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop };
 })();
 
 /* ---------- js/game.js ---------- */
@@ -1498,7 +1895,7 @@ function ok(msg, icon) { emit('toast', { msg, icon }); }
 function fail(msg, icon) { SFX.error(); emit('toast', { msg, icon, bad: true }); }
 
 function gainXp(n) {
-  const levels = St.addXp(n);
+  const levels = St.addXp(Math.round(n * St.xpMult()));
   for (const lv of levels) emit('levelup', lv);
 }
 
@@ -1626,7 +2023,7 @@ function feedAnimal(an, quiet = false) {
   }
   St.removeItem('feed', type.feed);
   an.fedAt = now();
-  an.readyAt = now() + type.cycle * 1000;
+  an.readyAt = now() + Math.max(1, Math.round(type.cycle * St.animalMult())) * 1000;
   an.product = false;
   if (!quiet) SFX.plant();
   St.saveSoon();
@@ -1842,6 +2239,26 @@ function upgradeBarn() {
   return true;
 }
 
+/** Boosts stack in time: buying one that's already running extends it. */
+function buyBoost(id) {
+  const S = St.S;
+  const b = D.BOOSTS.find(x => x.id === id);
+  if (!b) return false;
+  if (S.level < b.level) { fail(`Unlocks at level ${b.level}`, '🔒'); return false; }
+  if (b.gems) {
+    if (!St.spendGems(b.gems)) { fail(`Need ${b.gems} 💎`, '💎'); return false; }
+  } else if (!St.spendCoins(b.coins)) {
+    fail('Not enough coins', '🪙');
+    return false;
+  }
+  const from = Math.max(now(), S.boosts[id] || 0);
+  S.boosts[id] = from + b.mins * 60000;
+  SFX.levelUp();
+  ok(`${b.name} is running!`, b.icon);
+  St.saveSoon();
+  return true;
+}
+
 function buyUpgrade(id) {
   const S = St.S;
   const u = D.UPGRADES.find(x => x.id === id);
@@ -2005,6 +2422,8 @@ function tick() {
     S.machines.mill = { owned: true, queue: [] };
   }
 
+  for (const [id, end] of Object.entries(S.boosts)) if (end <= now()) delete S.boosts[id];
+
   tickOrders();
 
   // Auto Feeder: any hungry animal eats itself as soon as feed exists.
@@ -2045,7 +2464,248 @@ function settleOffline() {
   tick();
   return { away, ready, ripe, crafts };
 }
-return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, dailyReady, claimDaily, tick, settleOffline, goalsReady };
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, dailyReady, claimDaily, tick, settleOffline, goalsReady };
+})();
+
+/* ---------- js/map.js ---------- */
+const __mod_map = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const G = __mod_game;
+const {el, fmt, fmtTime, now, clamp, haptic} = __mod_util;
+/* ==========================================================================
+   map.js — the farm as a place you can look at.
+
+   A scrollable world of absolutely-positioned pieces: fields you plant and
+   harvest by tapping the soil, pens with the animals standing in them, and
+   buildings you walk your finger over to open. ui.js owns the panels; this
+   file owns the scene and calls back when something is tapped.
+   ========================================================================== */
+
+
+
+
+
+
+/* ------------------------------- layout ---------------------------------- */
+
+const WORLD_W = 720;
+const WORLD_H = 1180;
+
+const PLOT_W = 96, PLOT_H = 78, PLOT_GAP = 8;
+const FIELD = { x: 48, y: 208, cols: 6 };
+
+/** Pens sit under the fields, two rows of them. */
+const PEN_SPOTS = {
+  chicken: { x: 40,  y: 604, w: 200, h: 132 },
+  duck:    { x: 260, y: 604, w: 190, h: 132 },
+  cow:     { x: 470, y: 604, w: 210, h: 132 },
+  pig:     { x: 40,  y: 754, w: 200, h: 132 },
+  goat:    { x: 260, y: 754, w: 190, h: 132 },
+  sheep:   { x: 470, y: 754, w: 210, h: 132 },
+  bee:     { x: 470, y: 100, w: 190, h: 92 },
+};
+
+const BUILDINGS = [
+  { id: 'silo',   name: 'Silo',      icon: '🛖', x: 46,  y: 60,  roof: '#8ec8f0' },
+  { id: 'barn',   name: 'Barn',      icon: '🏠', x: 190, y: 60,  roof: '#e2685f' },
+  { id: 'works',  name: 'Workshops', icon: '🏭', x: 46,  y: 924, roof: '#b79bd8' },
+  { id: 'orders', name: 'Orders',    icon: '📋', x: 205, y: 924, roof: '#f09ac0' },
+  { id: 'store',  name: 'Store',     icon: '🛒', x: 364, y: 924, roof: '#f2c14e' },
+  { id: 'goals',  name: 'Goals',     icon: '🏆', x: 523, y: 924, roof: '#7fd6a5' },
+];
+
+/** Purely decorative scenery, so the land doesn't read as a spreadsheet. */
+const DECOR = [
+  { icon: '🌳', x: 655, y: 40,  s: 44 }, { icon: '🌳', x: 12,  y: 520, s: 40 },
+  { icon: '🌳', x: 668, y: 520, s: 40 }, { icon: '🌲', x: 640, y: 880, s: 38 },
+  { icon: '🌻', x: 300, y: 176, s: 22 }, { icon: '🌷', x: 26,  y: 180, s: 20 },
+  { icon: '🪨', x: 660, y: 700, s: 26 }, { icon: '🐦', x: 350, y: 44,  s: 20 },
+  { icon: '🦋', x: 120, y: 560, s: 20 }, { icon: '🌼', x: 690, y: 300, s: 20 },
+];
+
+function plotPos(i) {
+  const c = i % FIELD.cols, r = Math.floor(i / FIELD.cols);
+  return { x: FIELD.x + c * (PLOT_W + PLOT_GAP), y: FIELD.y + r * (PLOT_H + PLOT_GAP) };
+}
+
+/* -------------------------------- build ---------------------------------- */
+
+/**
+ * @param T      register a per-second updater (from ui.js)
+ * @param open   open(kind, arg) — 'sell-silo' | 'sell-barn' | tab ids | 'plot'
+ */
+function farmMap({ T, open }) {
+  const wrap = el('div', 'map-wrap');
+  const canvas = el('div', 'map-canvas');
+  const world = el('div', 'map');
+  world.style.width = WORLD_W + 'px';
+  world.style.height = WORLD_H + 'px';
+  canvas.appendChild(world);
+  wrap.appendChild(canvas);
+
+  // Scale the farm down so its full width fits the phone, but never so far
+  // that a field stops being a comfortable tap target.
+  const fit = () => {
+    const z = clamp((wrap.clientWidth || 390) / WORLD_W, 0.46, 1);
+    world.style.transform = `scale(${z})`;
+    canvas.style.width = Math.round(WORLD_W * z) + 'px';
+    canvas.style.height = Math.round(WORLD_H * z) + 'px';
+  };
+  requestAnimationFrame(fit);
+  addEventListener('resize', fit);
+  T(fit);
+
+  world.appendChild(el('div', 'map-pond'));
+  world.appendChild(el('div', 'map-path'));
+
+  for (const d of DECOR) {
+    const n = el('div', 'map-decor', d.icon);
+    n.style.cssText = `left:${d.x}px;top:${d.y}px;font-size:${d.s}px`;
+    world.appendChild(n);
+  }
+
+  /* ------------------------------ buildings ------------------------------ */
+  for (const b of BUILDINGS) {
+    const node = el('button', 'mp-bldg');
+    node.style.left = b.x + 'px';
+    node.style.top = b.y + 'px';
+    node.innerHTML =
+      `<span class="roof" style="--roof:${b.roof}"></span>
+       <span class="body"><span class="face">${b.icon}</span></span>
+       <span class="sign">${b.name}</span>
+       <span class="ping" hidden></span>`;
+    node.onclick = () => { haptic(); open(b.id); };
+    world.appendChild(node);
+
+    const ping = node.querySelector('.ping');
+    T(() => {
+      const n = buildingAlert(b.id);
+      ping.hidden = !n;
+      ping.textContent = n > 99 ? '99+' : n;
+    });
+  }
+
+  /* -------------------------------- fields ------------------------------- */
+  const fieldsWrap = el('div', 'mp-fields');
+  world.appendChild(fieldsWrap);
+  const plotNodes = [];
+
+  const layFields = () => {
+    fieldsWrap.innerHTML = '';
+    plotNodes.length = 0;
+    for (let i = 0; i < D.MAX_PLOTS; i++) {
+      const p = plotPos(i);
+      const owned = i < St.S.plots.length;
+      const node = el('button', 'mp-plot' + (owned ? '' : ' wild'));
+      node.style.cssText = `left:${p.x}px;top:${p.y}px;width:${PLOT_W}px;height:${PLOT_H}px`;
+      node.onclick = () => { haptic(); open(owned ? 'plot' : 'land', i); };
+      fieldsWrap.appendChild(node);
+      plotNodes.push(owned ? node : null);
+      if (!owned) node.innerHTML = '<span class="wildtag">🌿</span>';
+    }
+  };
+  layFields();
+
+  T(() => {
+    // A bought field can appear mid-session; rebuild the block when it does.
+    if (plotNodes.filter(Boolean).length !== St.S.plots.length) layFields();
+
+    for (let i = 0; i < plotNodes.length; i++) {
+      const node = plotNodes[i];
+      if (!node) continue;
+      const plot = St.S.plots[i];
+      const state = G.plotState(plot);
+      node.className = 'mp-plot ' + state;
+      if (state === 'empty') { node.innerHTML = '<span class="seedme">+</span>'; continue; }
+
+      const crop = D.ITEMS[plot.crop];
+      const total = Math.max(1, plot.end - plot.at);
+      const pct = clamp((now() - plot.at) / total, 0, 1);
+      if (node.dataset.crop !== plot.crop) {
+        node.dataset.crop = plot.crop;
+        node.innerHTML = `<span class="sprout">${crop.icon}</span>
+                          <span class="bubble"></span>
+                          <span class="grow"><i></i></span>`;
+      }
+      node.querySelector('.sprout').style.transform = `scale(${(0.45 + 0.55 * pct).toFixed(2)})`;
+      node.querySelector('.grow > i').style.width = (pct * 100).toFixed(1) + '%';
+      node.querySelector('.bubble').textContent =
+        state === 'ready' ? crop.icon : fmtTime((plot.end - now()) / 1000);
+      node.querySelector('.bubble').className = 'bubble' + (state === 'ready' ? ' pop' : '');
+    }
+  });
+
+  /* --------------------------------- pens -------------------------------- */
+  for (const type of D.ANIMALS) {
+    const spot = PEN_SPOTS[type.id];
+    if (!spot) continue;
+    const pen = el('div', 'mp-pen');
+    pen.style.cssText = `left:${spot.x}px;top:${spot.y}px;width:${spot.w}px;height:${spot.h}px`;
+    pen.innerHTML = `<span class="pen-sign">${type.icon} ${type.name2 || type.name + 's'}</span>
+                     <div class="pen-yard"></div>`;
+    world.appendChild(pen);
+    const yard = pen.querySelector('.pen-yard');
+
+    T(() => {
+      const locked = type.level > St.S.level;
+      pen.classList.toggle('locked', locked);
+      if (locked) {
+        if (yard.dataset.mode !== 'lock') {
+          yard.dataset.mode = 'lock';
+          yard.innerHTML = `<span class="pen-lock">🔒 Lv ${type.level}</span>`;
+        }
+        return;
+      }
+
+      const mine = St.animalsOf(type.id);
+      const want = mine.length + (mine.length < type.max ? 1 : 0);
+      if (yard.dataset.mode !== 'live' || yard.children.length !== want) {
+        yard.dataset.mode = 'live';
+        yard.innerHTML = '';
+        mine.forEach((an, idx) => {
+          const a = el('button', 'critter-m');
+          a.style.animationDelay = (idx * 0.37).toFixed(2) + 's';
+          a.onclick = () => { haptic(); open('animal', { type: type.id, idx }); };
+          yard.appendChild(a);
+        });
+        if (mine.length < type.max) {
+          const add = el('button', 'critter-m add', `<span>＋</span>`);
+          add.onclick = () => { haptic(); open('buy-animal', type.id); };
+          yard.appendChild(add);
+        }
+      }
+
+      mine.forEach((an, idx) => {
+        const a = yard.children[idx];
+        if (!a) return;
+        const st = G.animalState(an);
+        a.className = 'critter-m ' + st;
+        const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '🌰' : '';
+        a.innerHTML = `<span class="beast">${type.icon}</span>` +
+          (mark ? `<span class="mark">${mark}</span>` : '') +
+          (st === 'working' ? `<span class="tick">${fmtTime((an.readyAt - now()) / 1000)}</span>` : '');
+      });
+    });
+  }
+
+  return wrap;
+}
+
+/** Red-dot count for a building: what's waiting for a tap inside it. */
+function buildingAlert(id) {
+  const S = St.S;
+  if (id === 'works') {
+    return Object.values(S.machines)
+      .reduce((n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0);
+  }
+  if (id === 'orders') return (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length;
+  if (id === 'goals') return G.goalsReady() + (G.dailyReady() ? 1 : 0);
+  if (id === 'silo') return St.siloUsed() >= S.siloCap ? 1 : 0;
+  if (id === 'barn') return St.barnUsed() >= S.barnCap ? 1 : 0;
+  return 0;
+}
+return { plotPos, farmMap, WORLD_W, WORLD_H };
 })();
 
 /* ---------- js/ui.js ---------- */
@@ -2053,6 +2713,7 @@ const __mod_ui = (function () {
 const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
+const {farmMap} = __mod_map;
 const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic} = __mod_util;
 const {SFX, setSound, soundOn} = __mod_audio;
 /* ==========================================================================
@@ -2060,6 +2721,7 @@ const {SFX, setSound, soundOn} = __mod_audio;
    (timers, progress rings) run through lightweight "tickers" so the DOM
    isn't thrown away every frame and scroll position survives.
    ========================================================================== */
+
 
 
 
@@ -2098,6 +2760,7 @@ function render() {
   renderTabs();
   const host = $('view');
   host.innerHTML = '';
+  host.classList.toggle('flush', view === 'farm');
   const builder = { farm: farmView, animals: animalsView, craft: craftView,
                     orders: ordersView, goals: goalsView, shop: shopView }[view];
   host.appendChild(builder());
@@ -2127,6 +2790,7 @@ function renderHud() {
 
   hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
   hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
+  hud.appendChild(el('div', 'boostbar', ''));
 
   renderHudNumbers();
 }
@@ -2143,6 +2807,19 @@ function renderHudNumbers() {
   if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
   const lvl = document.querySelector('.hud-lvl');
   if (lvl) lvl.textContent = 'LV ' + S.level;
+
+  const bar = document.querySelector('.boostbar');
+  if (bar) {
+    const live = St.boostsRunning();
+    bar.hidden = !live.length;
+    const want = live.map(b => `${b.id}:${Math.ceil(St.boostLeft(b.id))}`).join('|');
+    if (bar.dataset.sig !== want) {
+      bar.dataset.sig = want;
+      bar.innerHTML = live
+        .map(b => `<span class="boostchip">${b.icon} ${fmtTime(St.boostLeft(b.id))}</span>`)
+        .join('');
+    }
+  }
 }
 
 function renderTabs() {
@@ -2238,63 +2915,116 @@ function goalPanel() {
 }
 
 function farmView() {
-  const S = St.S;
   const frag = document.createDocumentFragment();
+  const col = el('div', 'mapcol');
 
-  const goal = goalPanel();
-  if (goal) frag.appendChild(goal);
+  col.appendChild(farmMap({ T, open: mapTap }));
+  col.appendChild(seedBar());
+  frag.appendChild(col);
+  return frag;
+}
 
-  /* fields */
-  const head = `<em>🌱</em>Fields<span class="spacer"></span>`;
-  const tools = el('div', 'btn-row');
-  tools.style.marginBottom = '10px';
+/** Everything the map can hand back to us. */
+function mapTap(kind, arg) {
+  const S = St.S;
+  if (kind === 'plot') {
+    const i = arg;
+    const state = G.plotState(S.plots[i]);
+    if (state === 'empty') G.plant(i, S.selectedSeed);
+    else if (state === 'ready') G.harvest(i);
+    else {
+      speedSheet('field', () => { if (G.speedUpPlot(i)) render(); },
+        (S.plots[i].end - now()) / 1000, D.ITEMS[S.plots[i].crop]);
+      return;
+    }
+    refresh();
+    return;
+  }
 
-  const hb = el('button', 'btn btn-sm btn-green', '🧺 Harvest All');
-  hb.onclick = () => { haptic(); G.harvestAll(); render(); };
-  const pb = el('button', 'btn btn-sm btn-gold', '🌱 Plant All');
-  pb.onclick = () => { haptic(); G.plantAll(S.selectedSeed); render(); };
-  tools.append(hb, pb);
+  if (kind === 'land') { landSheet(); return; }
 
-  const grid = el('div', 'fields');
-  S.plots.forEach((p, i) => grid.appendChild(plotTile(i)));
+  if (kind === 'animal') {
+    const an = St.animalsOf(arg.type)[arg.idx];
+    if (!an) return;
+    const st = G.animalState(an);
+    if (st === 'hungry') G.feedAnimal(an);
+    else if (st === 'ready') G.collectAnimal(an);
+    else {
+      speedSheet(arg.type, () => { if (G.speedUpAnimal(an)) render(); },
+        (an.readyAt - now()) / 1000, D.ITEMS[D.ANIMALS.find(a => a.id === arg.type).product]);
+      return;
+    }
+    refresh();
+    return;
+  }
 
-  const fieldsPanel = panel(head, storageBar('silo'), tools, grid);
-  frag.appendChild(fieldsPanel);
+  if (kind === 'buy-animal') {
+    const t = D.ANIMALS.find(a => a.id === arg);
+    if (t.level > S.level) { SFX.error(); toast(`${t.name}s unlock at level ${t.level}`, '🔒', true); return; }
+    G.buyAnimal(arg);
+    render();
+    return;
+  }
 
-  /* seed strip */
-  const strip = el('div', 'seeds');
+  if (kind === 'silo') { sellSheet('silo'); return; }
+  if (kind === 'barn') { sellSheet('barn'); return; }
+  if (kind === 'works') { setView('craft'); return; }
+  if (kind === 'orders') { setView('orders'); return; }
+  if (kind === 'goals') { setView('goals'); return; }
+  if (kind === 'store') { setView('shop'); return; }
+}
+
+/** Clearing the next field, from the overgrown patches on the map. */
+function landSheet() {
+  const S = St.S;
+  if (S.plots.length >= D.MAX_PLOTS) { toast('Every field is yours', '🏆'); return; }
+  const cost = D.plotCost(S.plots.length), lv = D.plotLevel(S.plots.length);
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '🚧 Clear this patch'));
+    sheet.appendChild(el('p', 'sub',
+      S.level >= lv ? `Field ${S.plots.length + 1} of ${D.MAX_PLOTS}.`
+                    : `You need to reach level ${lv} before clearing this one.`));
+    const go = el('button', 'btn btn-big btn-green', `🪙 ${fmt(cost)} — Clear it`);
+    go.disabled = S.level < lv || S.coins < cost;
+    go.onclick = () => { G.buyPlot(); close(); render(); };
+    sheet.appendChild(go);
+    const no = el('button', 'btn btn-big', 'Not yet');
+    no.style.marginTop = '8px';
+    no.onclick = close;
+    sheet.appendChild(no);
+  });
+}
+
+/** The seed rack pinned under the map, plus the two bulk buttons. */
+function seedBar() {
+  const S = St.S;
+  const bar = el('div', 'seedbar');
+
+  const harvestBtn = el('button', 'btn btn-sm btn-green', '🧺');
+  harvestBtn.title = 'Harvest all';
+  harvestBtn.onclick = () => { haptic(); G.harvestAll(); refresh(); };
+
+  const strip = el('div', 'strip');
   for (const c of D.CROPS) {
     const locked = c.level > S.level;
-    const b = el('button', 'seed' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
-      `<em>${c.icon}</em><b>${c.name}</b><small>${locked ? 'Lv ' + c.level : '🪙' + c.seed}</small>
-       <small>${locked ? '🔒' : fmtTime(G.growSeconds(c))}</small>`);
-    b.onclick = () => {
+    const chip = el('button', 'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
+      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>`);
+    chip.onclick = () => {
       haptic();
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
       St.saveSoon();
       render();
     };
-    strip.appendChild(b);
-  }
-  frag.appendChild(panel(`<em>🌰</em>Seed Shop`, strip,
-    el('div', 'muted', `Tap a seed, then tap a field to plant it. Each field yields ${D.CROP_YIELD} crops.`)));
-
-  /* land expansion teaser */
-  if (S.plots.length < D.MAX_PLOTS) {
-    const owned = S.plots.length;
-    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
-    const row = el('div', 'row');
-    row.innerHTML = `<div class="ic">🚧</div><div class="body"><b>Clear a new field</b>
-      <small>${S.level >= lv ? 'Ready to clear' : `Needs level ${lv}`} · Field ${owned + 1} of ${D.MAX_PLOTS}</small></div>`;
-    const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
-    b.disabled = S.level < lv;
-    b.onclick = () => { haptic(); G.buyPlot(); render(); };
-    row.appendChild(b);
-    frag.appendChild(panel(null, row));
+    strip.appendChild(chip);
   }
 
-  return frag;
+  const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
+  plantBtn.title = 'Plant all';
+  plantBtn.onclick = () => { haptic(); G.plantAll(S.selectedSeed); refresh(); };
+
+  bar.append(harvestBtn, strip, plantBtn);
+  return bar;
 }
 
 function plotTile(i) {
@@ -2654,6 +3384,26 @@ function shopView() {
     market.appendChild(chips);
   }
   frag.appendChild(market);
+
+  /* boosts — the profit levers */
+  const boosts = panel(`<em>⚡</em>Boosts`);
+  boosts.appendChild(el('div', 'muted',
+    'Buy one before a big harvest or a full-silo sell-off. Buying again adds more time.'));
+  for (const b of D.BOOSTS) {
+    const left = St.boostLeft(b.id);
+    const locked = S.level < b.level;
+    const cost = b.gems ? `💎 ${b.gems}` : `🪙 ${fmt(b.coins)}`;
+    const row = el('div', 'row' + (locked ? ' locked' : ''));
+    row.innerHTML = `<div class="ic">${b.icon}</div><div class="body"><b>${b.name}</b>
+      <small>${locked ? `🔒 Unlocks at level ${b.level}` : b.desc}</small></div>`;
+    const btn = el('button', 'btn btn-sm ' + (left ? 'btn-green' : 'btn-gold'),
+      left ? `⏳ ${fmtTime(left)}` : cost);
+    btn.disabled = locked || (b.gems ? S.gems < b.gems : S.coins < b.coins);
+    btn.onclick = () => { haptic(); G.buyBoost(b.id); render(); };
+    row.appendChild(btn);
+    boosts.appendChild(row);
+  }
+  frag.appendChild(boosts);
 
   /* land */
   const land = panel(`<em>🚜</em>Land`);

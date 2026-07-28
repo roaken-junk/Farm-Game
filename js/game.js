@@ -23,7 +23,7 @@ function ok(msg, icon) { emit('toast', { msg, icon }); }
 function fail(msg, icon) { SFX.error(); emit('toast', { msg, icon, bad: true }); }
 
 function gainXp(n) {
-  const levels = St.addXp(n);
+  const levels = St.addXp(Math.round(n * St.xpMult()));
   for (const lv of levels) emit('levelup', lv);
 }
 
@@ -151,7 +151,7 @@ export function feedAnimal(an, quiet = false) {
   }
   St.removeItem('feed', type.feed);
   an.fedAt = now();
-  an.readyAt = now() + type.cycle * 1000;
+  an.readyAt = now() + Math.max(1, Math.round(type.cycle * St.animalMult())) * 1000;
   an.product = false;
   if (!quiet) SFX.plant();
   St.saveSoon();
@@ -367,6 +367,26 @@ export function upgradeBarn() {
   return true;
 }
 
+/** Boosts stack in time: buying one that's already running extends it. */
+export function buyBoost(id) {
+  const S = St.S;
+  const b = D.BOOSTS.find(x => x.id === id);
+  if (!b) return false;
+  if (S.level < b.level) { fail(`Unlocks at level ${b.level}`, '🔒'); return false; }
+  if (b.gems) {
+    if (!St.spendGems(b.gems)) { fail(`Need ${b.gems} 💎`, '💎'); return false; }
+  } else if (!St.spendCoins(b.coins)) {
+    fail('Not enough coins', '🪙');
+    return false;
+  }
+  const from = Math.max(now(), S.boosts[id] || 0);
+  S.boosts[id] = from + b.mins * 60000;
+  SFX.levelUp();
+  ok(`${b.name} is running!`, b.icon);
+  St.saveSoon();
+  return true;
+}
+
 export function buyUpgrade(id) {
   const S = St.S;
   const u = D.UPGRADES.find(x => x.id === id);
@@ -529,6 +549,8 @@ export function tick() {
   if (S.level >= 3 && !(S.machines.mill && S.machines.mill.owned)) {
     S.machines.mill = { owned: true, queue: [] };
   }
+
+  for (const [id, end] of Object.entries(S.boosts)) if (end <= now()) delete S.boosts[id];
 
   tickOrders();
 

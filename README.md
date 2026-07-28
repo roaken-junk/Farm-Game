@@ -40,14 +40,19 @@ and that version installs to the home screen with its proper icon.
 
 ## How to play
 
+The **Farm tab is a map of your land** — fields, animal pens, the silo, barn,
+workshops and store all sit on it. Tap the thing itself: soil to sow, a ripe
+crop to pull it, a hungry animal to feed it, a building to go inside. Red dots
+appear over anything waiting on you.
+
 | Tab | What you do there |
 | --- | --- |
-| 🌾 **Farm** | Pick a seed, tap a field to plant. Tap again when it says **TAP!** to harvest. |
+| 🌾 **Farm** | The map. Plant and harvest by tapping soil; the seed rack sits under it. |
 | 🐔 **Animals** | Buy animals, feed them, collect eggs, milk, bacon, wool and honey. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
 | 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
-| 🛒 **Shop** | Sell from storage, clear new fields, expand the silo and barn, buy upgrades. |
+| 🛒 **Shop** | Boosts, the market, land, storage and permanent upgrades. |
 
 The core loop: **grow → process → sell/deliver → level up → unlock more**.
 
@@ -61,6 +66,24 @@ The core loop: **grow → process → sell/deliver → level up → unlock more*
   holding a full silo until it swings green is worth real money.
 - **Goals and the daily bonus** pay out on top of everything else. The streak
   resets if you skip a day and maxes out at seven.
+
+### Boosts
+
+The shop sells six timed boosts — these are the profit levers, and buying one
+again just adds more time to the clock:
+
+| Boost | Effect | Runs for |
+| --- | --- | --- |
+| ☕ Farmhand Coffee | Crops ripen 2x faster | 30 min |
+| 💰 Market Day | Everything sells for +50% | 20 min |
+| 🌟 Feed Frenzy | Animals produce 2x faster | 30 min |
+| ⚡ Rush Order | Workshops craft 2x faster | 30 min |
+| 📘 Farm School | Double XP | 30 min |
+| 🍀 Lucky Clover | Order payouts +50% | 20 min |
+
+They stack with each other and with the permanent upgrades, and anything
+running shows a countdown in the top bar. The play is to line them up: brew a
+Market Day, then dump a silo that's already swung green.
 
 Timers are stored as timestamps, so crops keep growing and machines keep
 working while the app is closed.
@@ -103,7 +126,8 @@ css/style.css           all styling
 js/data.js              crops, animals, recipes, upgrades, economy curves
 js/state.js             the save file and every read/write against it
 js/game.js              player actions + the world clock
-js/ui.js                views and rendering
+js/map.js               the farm map: fields, pens, buildings, decoration
+js/ui.js                views, panels and sheets
 js/main.js              boot, onboarding, heartbeat
 js/audio.js             WebAudio blips (no asset files)
 js/util.js              formatting helpers

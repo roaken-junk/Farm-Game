@@ -7,6 +7,7 @@
 import * as D from './data.js';
 import * as St from './state.js';
 import * as G from './game.js';
+import { farmMap } from './map.js';
 import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic } from './util.js';
 import { SFX, setSound, soundOn } from './audio.js';
 
@@ -41,6 +42,7 @@ export function render() {
   renderTabs();
   const host = $('view');
   host.innerHTML = '';
+  host.classList.toggle('flush', view === 'farm');
   const builder = { farm: farmView, animals: animalsView, craft: craftView,
                     orders: ordersView, goals: goalsView, shop: shopView }[view];
   host.appendChild(builder());
@@ -70,6 +72,7 @@ function renderHud() {
 
   hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
   hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
+  hud.appendChild(el('div', 'boostbar', ''));
 
   renderHudNumbers();
 }
@@ -86,6 +89,19 @@ function renderHudNumbers() {
   if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
   const lvl = document.querySelector('.hud-lvl');
   if (lvl) lvl.textContent = 'LV ' + S.level;
+
+  const bar = document.querySelector('.boostbar');
+  if (bar) {
+    const live = St.boostsRunning();
+    bar.hidden = !live.length;
+    const want = live.map(b => `${b.id}:${Math.ceil(St.boostLeft(b.id))}`).join('|');
+    if (bar.dataset.sig !== want) {
+      bar.dataset.sig = want;
+      bar.innerHTML = live
+        .map(b => `<span class="boostchip">${b.icon} ${fmtTime(St.boostLeft(b.id))}</span>`)
+        .join('');
+    }
+  }
 }
 
 function renderTabs() {
@@ -181,63 +197,116 @@ function goalPanel() {
 }
 
 function farmView() {
-  const S = St.S;
   const frag = document.createDocumentFragment();
+  const col = el('div', 'mapcol');
 
-  const goal = goalPanel();
-  if (goal) frag.appendChild(goal);
+  col.appendChild(farmMap({ T, open: mapTap }));
+  col.appendChild(seedBar());
+  frag.appendChild(col);
+  return frag;
+}
 
-  /* fields */
-  const head = `<em>🌱</em>Fields<span class="spacer"></span>`;
-  const tools = el('div', 'btn-row');
-  tools.style.marginBottom = '10px';
+/** Everything the map can hand back to us. */
+function mapTap(kind, arg) {
+  const S = St.S;
+  if (kind === 'plot') {
+    const i = arg;
+    const state = G.plotState(S.plots[i]);
+    if (state === 'empty') G.plant(i, S.selectedSeed);
+    else if (state === 'ready') G.harvest(i);
+    else {
+      speedSheet('field', () => { if (G.speedUpPlot(i)) render(); },
+        (S.plots[i].end - now()) / 1000, D.ITEMS[S.plots[i].crop]);
+      return;
+    }
+    refresh();
+    return;
+  }
 
-  const hb = el('button', 'btn btn-sm btn-green', '🧺 Harvest All');
-  hb.onclick = () => { haptic(); G.harvestAll(); render(); };
-  const pb = el('button', 'btn btn-sm btn-gold', '🌱 Plant All');
-  pb.onclick = () => { haptic(); G.plantAll(S.selectedSeed); render(); };
-  tools.append(hb, pb);
+  if (kind === 'land') { landSheet(); return; }
 
-  const grid = el('div', 'fields');
-  S.plots.forEach((p, i) => grid.appendChild(plotTile(i)));
+  if (kind === 'animal') {
+    const an = St.animalsOf(arg.type)[arg.idx];
+    if (!an) return;
+    const st = G.animalState(an);
+    if (st === 'hungry') G.feedAnimal(an);
+    else if (st === 'ready') G.collectAnimal(an);
+    else {
+      speedSheet(arg.type, () => { if (G.speedUpAnimal(an)) render(); },
+        (an.readyAt - now()) / 1000, D.ITEMS[D.ANIMALS.find(a => a.id === arg.type).product]);
+      return;
+    }
+    refresh();
+    return;
+  }
 
-  const fieldsPanel = panel(head, storageBar('silo'), tools, grid);
-  frag.appendChild(fieldsPanel);
+  if (kind === 'buy-animal') {
+    const t = D.ANIMALS.find(a => a.id === arg);
+    if (t.level > S.level) { SFX.error(); toast(`${t.name}s unlock at level ${t.level}`, '🔒', true); return; }
+    G.buyAnimal(arg);
+    render();
+    return;
+  }
 
-  /* seed strip */
-  const strip = el('div', 'seeds');
+  if (kind === 'silo') { sellSheet('silo'); return; }
+  if (kind === 'barn') { sellSheet('barn'); return; }
+  if (kind === 'works') { setView('craft'); return; }
+  if (kind === 'orders') { setView('orders'); return; }
+  if (kind === 'goals') { setView('goals'); return; }
+  if (kind === 'store') { setView('shop'); return; }
+}
+
+/** Clearing the next field, from the overgrown patches on the map. */
+function landSheet() {
+  const S = St.S;
+  if (S.plots.length >= D.MAX_PLOTS) { toast('Every field is yours', '🏆'); return; }
+  const cost = D.plotCost(S.plots.length), lv = D.plotLevel(S.plots.length);
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '🚧 Clear this patch'));
+    sheet.appendChild(el('p', 'sub',
+      S.level >= lv ? `Field ${S.plots.length + 1} of ${D.MAX_PLOTS}.`
+                    : `You need to reach level ${lv} before clearing this one.`));
+    const go = el('button', 'btn btn-big btn-green', `🪙 ${fmt(cost)} — Clear it`);
+    go.disabled = S.level < lv || S.coins < cost;
+    go.onclick = () => { G.buyPlot(); close(); render(); };
+    sheet.appendChild(go);
+    const no = el('button', 'btn btn-big', 'Not yet');
+    no.style.marginTop = '8px';
+    no.onclick = close;
+    sheet.appendChild(no);
+  });
+}
+
+/** The seed rack pinned under the map, plus the two bulk buttons. */
+function seedBar() {
+  const S = St.S;
+  const bar = el('div', 'seedbar');
+
+  const harvestBtn = el('button', 'btn btn-sm btn-green', '🧺');
+  harvestBtn.title = 'Harvest all';
+  harvestBtn.onclick = () => { haptic(); G.harvestAll(); refresh(); };
+
+  const strip = el('div', 'strip');
   for (const c of D.CROPS) {
     const locked = c.level > S.level;
-    const b = el('button', 'seed' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
-      `<em>${c.icon}</em><b>${c.name}</b><small>${locked ? 'Lv ' + c.level : '🪙' + c.seed}</small>
-       <small>${locked ? '🔒' : fmtTime(G.growSeconds(c))}</small>`);
-    b.onclick = () => {
+    const chip = el('button', 'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
+      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>`);
+    chip.onclick = () => {
       haptic();
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
       St.saveSoon();
       render();
     };
-    strip.appendChild(b);
-  }
-  frag.appendChild(panel(`<em>🌰</em>Seed Shop`, strip,
-    el('div', 'muted', `Tap a seed, then tap a field to plant it. Each field yields ${D.CROP_YIELD} crops.`)));
-
-  /* land expansion teaser */
-  if (S.plots.length < D.MAX_PLOTS) {
-    const owned = S.plots.length;
-    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
-    const row = el('div', 'row');
-    row.innerHTML = `<div class="ic">🚧</div><div class="body"><b>Clear a new field</b>
-      <small>${S.level >= lv ? 'Ready to clear' : `Needs level ${lv}`} · Field ${owned + 1} of ${D.MAX_PLOTS}</small></div>`;
-    const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
-    b.disabled = S.level < lv;
-    b.onclick = () => { haptic(); G.buyPlot(); render(); };
-    row.appendChild(b);
-    frag.appendChild(panel(null, row));
+    strip.appendChild(chip);
   }
 
-  return frag;
+  const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
+  plantBtn.title = 'Plant all';
+  plantBtn.onclick = () => { haptic(); G.plantAll(S.selectedSeed); refresh(); };
+
+  bar.append(harvestBtn, strip, plantBtn);
+  return bar;
 }
 
 function plotTile(i) {
@@ -597,6 +666,26 @@ function shopView() {
     market.appendChild(chips);
   }
   frag.appendChild(market);
+
+  /* boosts — the profit levers */
+  const boosts = panel(`<em>⚡</em>Boosts`);
+  boosts.appendChild(el('div', 'muted',
+    'Buy one before a big harvest or a full-silo sell-off. Buying again adds more time.'));
+  for (const b of D.BOOSTS) {
+    const left = St.boostLeft(b.id);
+    const locked = S.level < b.level;
+    const cost = b.gems ? `💎 ${b.gems}` : `🪙 ${fmt(b.coins)}`;
+    const row = el('div', 'row' + (locked ? ' locked' : ''));
+    row.innerHTML = `<div class="ic">${b.icon}</div><div class="body"><b>${b.name}</b>
+      <small>${locked ? `🔒 Unlocks at level ${b.level}` : b.desc}</small></div>`;
+    const btn = el('button', 'btn btn-sm ' + (left ? 'btn-green' : 'btn-gold'),
+      left ? `⏳ ${fmtTime(left)}` : cost);
+    btn.disabled = locked || (b.gems ? S.gems < b.gems : S.coins < b.coins);
+    btn.onclick = () => { haptic(); G.buyBoost(b.id); render(); };
+    row.appendChild(btn);
+    boosts.appendChild(row);
+  }
+  frag.appendChild(boosts);
 
   /* land */
   const land = panel(`<em>🚜</em>Land`);

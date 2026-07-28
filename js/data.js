@@ -121,6 +121,32 @@ for (const c of CROPS)         ITEMS[c.id] = { ...c, kind: 'crop' };
 for (const g of ANIMAL_GOODS)  ITEMS[g.id] = { ...g, kind: 'good', level: (ANIMALS.find(a => a.product === g.id) || {}).level || 1 };
 for (const g of CRAFTED)       ITEMS[g.id] = { ...g, kind: 'good', level: (RECIPES.find(r => r.out === g.id) || {}).level || 1 };
 
+/**
+ * Timed boosts, bought over and over. These are the profit levers: buying a
+ * Market Day before dumping a full silo is meant to be the smart play.
+ * `effect` is what the rest of the game multiplies by.
+ */
+export const BOOSTS = [
+  { id: 'coffee', name: 'Farmhand Coffee', icon: '☕', effect: 'grow',   mult: 2,
+    mins: 30, coins: 2500,  level: 3,
+    desc: 'Crops ripen twice as fast for 30 minutes.' },
+  { id: 'market', name: 'Market Day',      icon: '💰', effect: 'sell',   mult: 1.5,
+    mins: 20, coins: 5000,  level: 5,
+    desc: 'Everything sells for +50% for 20 minutes.' },
+  { id: 'feast',  name: 'Feed Frenzy',     icon: '🌟', effect: 'animal', mult: 2,
+    mins: 30, coins: 7500,  level: 7,
+    desc: 'Animals produce twice as fast for 30 minutes.' },
+  { id: 'rush',   name: 'Rush Order',      icon: '⚡', effect: 'craft',  mult: 2,
+    mins: 30, coins: 12000, level: 9,
+    desc: 'Workshops craft twice as fast for 30 minutes.' },
+  { id: 'school', name: 'Farm School',     icon: '📘', effect: 'xp',     mult: 2,
+    mins: 30, gems: 6,      level: 6,
+    desc: 'Double XP from everything for 30 minutes.' },
+  { id: 'clover', name: 'Lucky Clover',    icon: '🍀', effect: 'order',  mult: 1.5,
+    mins: 20, gems: 8,      level: 8,
+    desc: 'Order payouts +50% for 20 minutes.' },
+];
+
 /** Permanent upgrades — the "game gets easier as you go" track. */
 export const UPGRADES = [
   { id: 'wateringCan', name: 'Watering Can',  icon: '🪣', level: 5,  cost: 600,    desc: 'Crops grow 10% faster.' },
