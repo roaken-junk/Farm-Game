@@ -35,7 +35,6 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     nextOrderAt: 0,
     upgrades: {},
     selectedSeed: 'wheat',
-    pos: { x: 6, y: 12 },   // where the farmer is standing
     settings: { sound: true },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
