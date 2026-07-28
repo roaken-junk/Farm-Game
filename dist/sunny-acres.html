@@ -15,40 +15,28 @@
 <body>
 <style>
 /* ==========================================================================
-   Sunny Acres — phone-first styling.
-   Chunky rounded cards, thick outlines and warm colours, in the mould of the
-   big mobile farm games. Everything is CSS/emoji; no image or font downloads.
+   Sunny Acres — the handheld the game lives in.
+   The screen is a 160x144 canvas; everything here is the plastic around it,
+   in the grey-beige and burgundy of the original hardware.
    ========================================================================== */
 
 :root {
-  --sky-1: #86d3f5;
-  --sky-2: #c8ecff;
-  --grass: #74c045;
-  --grass-dk: #4e9a2c;
-  --soil: #a06a3c;
-  --soil-dk: #6f4520;
-  --wood: #d99a55;
-  --wood-dk: #9c5f26;
-  --card: #fffaef;
-  --card-2: #fff3dc;
-  --ink: #4a3520;
-  --ink-soft: #8a6f52;
-  --gold: #ffc42e;
-  --gold-dk: #d38f00;
-  --gem: #47c9ff;
-  --red: #ef5a5a;
-  --green: #57c04b;
-  --green-dk: #3d9134;
-  --shadow: 0 3px 0 rgba(0, 0, 0, .18);
-  --r-lg: 20px;
-  --r-md: 14px;
+  --shell: #cbc6b8;
+  --shell-dk: #b3ae9f;
+  --shell-lt: #ded9cb;
+  --bezel: #58604f;
+  --bezel-dk: #3f4639;
+  --screen-off: #9bbc0f;
+  --btn: #8e2f5a;
+  --btn-dk: #6b2143;
+  --dpad: #2f2f38;
+  --dpad-dk: #1b1b22;
+  --ink: #4a4a45;
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-/* `display: flex/grid` on #app and .onboard would otherwise beat [hidden]. */
 [hidden] { display: none !important; }
 
 html, body {
@@ -57,642 +45,343 @@ html, body {
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
+  background: #6f6a5e;
 }
 
 body {
-  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
-               "Segoe UI", system-ui, sans-serif;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   color: var(--ink);
-  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 45%, #dff3c4 100%);
   -webkit-user-select: none;
   user-select: none;
   -webkit-text-size-adjust: 100%;
 }
 
-button, input { font: inherit; color: inherit; }
+button { font: inherit; color: inherit; border: 0; background: none; }
 
-/* ------------------------------ app frame -------------------------------- */
+/* -------------------------------- device --------------------------------- */
 
-#app {
+.device {
   display: flex;
   flex-direction: column;
-  height: 100vh;   /* fallback for older iOS */
+  align-items: center;
   height: 100dvh;
-  max-width: 620px;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 460px;
   margin: 0 auto;
+  padding: calc(var(--sat) + 8px) 12px calc(var(--sab) + 8px);
+  gap: 8px;
+  background: linear-gradient(160deg, var(--shell-lt), var(--shell) 30%, var(--shell-dk));
 }
 
-.view {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 10px 12px calc(18px + var(--sab));
+/* screen ---------------------------------------------------------------- */
+
+.bezel {
+  width: 100%;
+  background: linear-gradient(160deg, var(--bezel), var(--bezel-dk));
+  /* the one asymmetric curve that makes it read as a Game Boy */
+  border-radius: 10px 10px 44px 10px;
+  padding: 14px 16px 20px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .45), 0 2px 0 rgba(255, 255, 255, .35);
+  flex-shrink: 0;
 }
 
-/* --------------------------------- HUD ----------------------------------- */
-
-.hud {
-  padding: calc(var(--sat) + 8px) 12px 8px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+.bezel-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 6px;
+  margin-bottom: 7px;
+  font-size: 7px;
+  letter-spacing: .14em;
+  color: #b9c0ae;
 }
-
-.hud-avatar {
-  width: 46px; height: 46px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
-  display: grid; place-items: center;
-  font-size: 24px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
-  padding: 0;
-  position: relative;
+.bezel-label::before,
+.bezel-label::after {
+  content: '';
+  flex: 1;
+  height: 3px;
+  border-top: 1px solid #7d3f6a;
+  border-bottom: 1px solid #2f3fa0;
 }
+.bezel-label span { white-space: nowrap; }
 
-.hud-lvl {
-  position: absolute;
-  bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--green);
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 0 5px;
-  line-height: 14px;
-  white-space: nowrap;
-}
-
-.hud-mid { flex: 1; min-width: 0; }
-
-.hud-name {
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.xpbar {
-  height: 12px;
-  background: rgba(0, 0, 0, .22);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #fff;
-  margin-top: 3px;
-  position: relative;
-}
-.xpbar > i {
+#screen {
   display: block;
-  height: 100%;
-  background: linear-gradient(180deg, #b6ff6e, var(--green-dk));
-  border-radius: 6px 0 0 6px;
-  transition: width .35s ease;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 160 / 144;
+  background: var(--screen-off);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 2px;
 }
-.xpbar > span {
-  position: absolute; inset: 0;
-  font-size: 9px; font-weight: 800; color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
-  display: grid; place-items: center;
-  letter-spacing: .2px;
+
+.brand {
+  align-self: flex-start;
+  margin: 2px 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: .02em;
+  color: #3a3f6b;
+  flex-shrink: 0;
+}
+.brand span {
+  font-size: 8px;
+  font-style: normal;
+  letter-spacing: .18em;
+  margin-left: 5px;
+  color: var(--ink);
+}
+
+/* controls -------------------------------------------------------------- */
+
+.pads {
+  flex: 1;
+  width: 100%;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+}
+
+.dpad {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  flex-shrink: 0;
+}
+
+.d {
+  position: absolute;
+  width: 44px;
+  height: 46px;
+  background: linear-gradient(180deg, #3c3c48, var(--dpad));
+  box-shadow: 0 3px 0 var(--dpad-dk);
+  transition: transform .05s, box-shadow .05s;
+}
+.d::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0; height: 0;
+  border: 7px solid transparent;
+  transform: translate(-50%, -50%);
+}
+.up    { left: 44px; top: 0;    border-radius: 8px 8px 0 0; }
+.down  { left: 44px; top: 86px; border-radius: 0 0 8px 8px; }
+.left  { left: 0;    top: 43px; border-radius: 8px 0 0 8px; }
+.right { left: 88px; top: 43px; border-radius: 0 8px 8px 0; }
+
+.up::after    { border-bottom-color: #8b8b99; margin-top: -4px; }
+.down::after  { border-top-color: #8b8b99;    margin-top: 4px; }
+.left::after  { border-right-color: #8b8b99;  margin-left: -4px; }
+.right::after { border-left-color: #8b8b99;   margin-left: 4px; }
+
+.d-hub {
+  position: absolute;
+  left: 44px; top: 43px;
+  width: 44px; height: 46px;
+  background: var(--dpad);
+  pointer-events: none;
+}
+.d-hub::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #4a4a58, #26262e);
+}
+
+.d.on { transform: translateY(3px); box-shadow: 0 0 0 var(--dpad-dk); }
+
+.ab {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transform: rotate(-20deg);
+  padding-right: 4px;
+}
+
+.rb {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #a8447190, #8e2f5a);
+  background: linear-gradient(180deg, #a84471, var(--btn));
+  box-shadow: 0 4px 0 var(--btn-dk);
+  color: #f0dfe8;
+  font-size: 17px;
+  font-weight: 700;
+  transition: transform .05s, box-shadow .05s;
+}
+.rb.on { transform: translateY(4px); box-shadow: 0 0 0 var(--btn-dk); }
+
+.startrow {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-shrink: 0;
+  padding-bottom: 4px;
 }
 
 .pill {
-  display: flex; align-items: center; gap: 4px;
-  background: var(--card);
-  border: 2.5px solid var(--wood-dk);
+  transform: rotate(-20deg);
+  padding: 7px 20px;
   border-radius: 999px;
-  padding: 4px 10px 4px 6px;
-  font-weight: 800;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
-}
-.pill em { font-style: normal; font-size: 15px; }
-
-/* -------------------------------- tabbar --------------------------------- */
-
-.tabbar {
-  display: flex;
-  background: linear-gradient(180deg, var(--wood), #c07b36);
-  border-top: 3px solid var(--wood-dk);
-  padding-bottom: var(--sab);
-  flex-shrink: 0;
-}
-
-.tab {
-  flex: 1;
-  border: 0;
-  background: none;
-  padding: 7px 0 9px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: #52300f;
+  background: linear-gradient(180deg, #8f8a7d, #6f6a5e);
+  box-shadow: 0 3px 0 #4f4b42;
+  color: #e6e2d6;
   font-size: 10px;
-  font-weight: 800;
-  position: relative;
-  transition: transform .12s ease;
+  letter-spacing: .16em;
+  transition: transform .05s, box-shadow .05s;
 }
-.tab em { font-style: normal; font-size: 22px; line-height: 1; filter: saturate(.75) opacity(.75); }
-.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
-.tab.on em { filter: none; transform: translateY(-2px) scale(1.12); }
-.tab:active { transform: scale(.94); }
+.pill.on { transform: rotate(-20deg) translateY(3px); box-shadow: 0 0 0 #4f4b42; }
 
-.tab .badge {
-  position: absolute;
-  top: 3px; right: 50%;
-  margin-right: -22px;
-  min-width: 17px; height: 17px;
-  border-radius: 9px;
-  background: var(--red);
-  border: 2px solid #fff;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  display: grid; place-items: center;
-  padding: 0 3px;
+/* Short screens: shrink the controls before the screen gives up any size. */
+@media (max-height: 700px) {
+  .dpad { width: 108px; height: 108px; }
+  .d { width: 36px; height: 38px; }
+  .up, .down { left: 36px; }
+  .down { top: 70px; }
+  .left, .right { top: 35px; }
+  .right { left: 72px; }
+  .d-hub { left: 36px; top: 35px; width: 36px; height: 38px; }
+  .rb { width: 52px; height: 52px; font-size: 15px; }
+  .pads { min-height: 120px; }
 }
-
-/* -------------------------------- pieces --------------------------------- */
-
-.panel {
-  background: var(--card);
-  border: 3px solid var(--wood-dk);
-  border-radius: var(--r-lg);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, .16);
-  padding: 12px;
-  margin-bottom: 12px;
-}
-
-.panel-head {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0 0 10px;
-  font-size: 15px;
-  font-weight: 900;
-}
-.panel-head .spacer { flex: 1; }
-.panel-head em { font-style: normal; font-size: 20px; }
-
-.section-title {
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .6px;
-  text-transform: uppercase;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
-  margin: 4px 2px 8px;
-}
-
-.btn {
-  border: 2.5px solid var(--wood-dk);
-  background: linear-gradient(180deg, #fff, var(--card-2));
-  color: var(--ink);
-  border-radius: 12px;
-  padding: 9px 12px;
-  font-weight: 800;
-  font-size: 14px;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, .18);
-  transition: transform .1s ease, box-shadow .1s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 40px;
-}
-.btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0, 0, 0, .18); }
-.btn[disabled] { opacity: .5; filter: grayscale(.6); }
-
-.btn-green { background: linear-gradient(180deg, #86dd6e, var(--green)); border-color: var(--green-dk); color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
-.btn-gold  { background: linear-gradient(180deg, #ffdc73, var(--gold)); border-color: var(--gold-dk); }
-.btn-blue  { background: linear-gradient(180deg, #8fe2ff, #35b7ea); border-color: #1c86b3; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
-.btn-red   { background: linear-gradient(180deg, #ff8e8e, var(--red)); border-color: #c33; color: #fff; }
-.btn-sm    { padding: 6px 10px; font-size: 12px; min-height: 32px; border-radius: 10px; }
-.btn-big   { width: 100%; padding: 14px; font-size: 17px; border-radius: 16px; }
-.btn-row   { display: flex; gap: 8px; }
-.btn-row > .btn { flex: 1; }
-
-.storage {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 800; color: var(--ink-soft);
-}
-.storage .bar {
-  flex: 1; height: 10px;
-  background: rgba(0, 0, 0, .12);
-  border-radius: 6px; overflow: hidden;
-}
-.storage .bar > i {
-  display: block; height: 100%;
-  background: linear-gradient(180deg, #ffd777, var(--gold-dk));
-  transition: width .3s ease;
-}
-.storage.full .bar > i { background: linear-gradient(180deg, #ff9a9a, #d33); }
-
-/* --------------------------------- farm ---------------------------------- */
-
-.fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-  gap: 8px;
-}
-
-.plot {
-  position: relative;
-  aspect-ratio: 1;
-  border: 0;
-  padding: 0;
-  border-radius: var(--r-md);
-  background:
-    repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px),
-    linear-gradient(180deg, var(--soil), var(--soil-dk));
-  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .16);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  transition: transform .1s ease;
-}
-.plot:active { transform: scale(.95); }
-
-.plot .crop {
-  font-size: 34px;
-  line-height: 1;
-  transition: transform .5s cubic-bezier(.2, 1.4, .4, 1), opacity .3s;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
-}
-.plot.empty::after {
-  content: '＋';
-  font-size: 26px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, .45);
-}
-.plot.ready { background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px), linear-gradient(180deg, #b98450, #7d5227); }
-.plot.ready .crop { animation: bob .9s ease-in-out infinite; }
-.plot.ready::before {
-  content: '';
-  position: absolute; inset: -30%;
-  background: radial-gradient(circle, rgba(255, 240, 150, .55), transparent 62%);
-  animation: pulse 1.6s ease-in-out infinite;
-}
-.plot.locked { filter: grayscale(1) brightness(.75); }
-
-.plot .tag {
-  position: absolute;
-  bottom: 8px; left: 4px; right: 4px;
-  background: rgba(0, 0, 0, .5);
-  color: #fff;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 0;
-  text-align: center;
-  backdrop-filter: blur(2px);
-}
-.plot .growbar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 4px;
-  background: rgba(0, 0, 0, .3);
-}
-.plot .growbar > i {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, #ffe07a, #8ce35a);
-}
-
-@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
-@keyframes pulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
-
-/* seed picker strip */
-.seeds {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 2px 2px 6px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.seeds::-webkit-scrollbar { display: none; }
-
-.seed {
-  flex: 0 0 auto;
-  width: 74px;
-  border: 2.5px solid var(--wood-dk);
-  border-radius: var(--r-md);
-  background: linear-gradient(180deg, #fff, var(--card-2));
-  padding: 6px 4px 5px;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  transition: transform .1s ease;
-}
-.seed em { font-style: normal; font-size: 26px; line-height: 1.1; }
-.seed b { font-size: 11px; font-weight: 800; }
-.seed small { font-size: 10px; color: var(--ink-soft); font-weight: 700; }
-.seed.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); transform: translateY(-2px); }
-.seed.locked { filter: grayscale(1); opacity: .6; }
-.seed:active { transform: scale(.94); }
-
-/* --------------------------------- lists --------------------------------- */
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: var(--r-md);
-  background: var(--card-2);
-  border: 2px solid rgba(156, 95, 38, .28);
-  margin-bottom: 8px;
-}
-.row:last-child { margin-bottom: 0; }
-.row .ic {
-  width: 46px; height: 46px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #fff, #ffeec9);
-  border: 2px solid rgba(156, 95, 38, .3);
-  display: grid; place-items: center;
-  font-size: 25px;
-  flex-shrink: 0;
-}
-.row .body { flex: 1; min-width: 0; }
-.row .body b { display: block; font-size: 14px; font-weight: 900; }
-.row .body small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 700; line-height: 1.35; }
-.row.locked { opacity: .62; filter: grayscale(.7); }
-
-.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
-.chip {
-  display: inline-flex; align-items: center; gap: 3px;
-  background: #fff;
-  border: 2px solid rgba(156, 95, 38, .3);
-  border-radius: 999px;
-  padding: 1px 8px 1px 5px;
-  font-size: 11px;
-  font-weight: 800;
-}
-.chip.miss { background: #ffe4e4; border-color: #eaa; color: #b33; }
-.chip.done { background: #e2ffd9; border-color: #9d9; }
-
-/* pens & machines */
-.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 7px; margin-top: 9px; }
-
-.critter {
-  position: relative;
-  aspect-ratio: 1;
-  border: 2.5px solid rgba(156, 95, 38, .35);
-  border-radius: var(--r-md);
-  background: linear-gradient(180deg, #d6f3a6, #a8dc72);
-  display: grid; place-items: center;
-  font-size: 30px;
-  padding: 0;
-  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
-  transition: transform .1s ease;
-}
-.critter:active { transform: scale(.94); }
-.critter .mark {
-  position: absolute; top: -6px; right: -4px;
-  font-size: 17px;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3));
-}
-.critter .tag {
-  position: absolute; bottom: 2px; left: 2px; right: 2px;
-  font-size: 9px; font-weight: 800;
-  background: rgba(0, 0, 0, .45); color: #fff;
-  border-radius: 6px; padding: 1px 0;
-}
-.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); animation: bob 1s ease-in-out infinite; }
-.critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
-.critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
-
-.slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
-.slot {
-  position: relative;
-  width: 60px; height: 60px;
-  border-radius: 12px;
-  border: 2.5px dashed rgba(156, 95, 38, .4);
-  background: rgba(255, 255, 255, .45);
-  display: grid; place-items: center;
-  font-size: 25px;
-  padding: 0;
-}
-.slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
-.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); animation: bob 1s ease-in-out infinite; }
-.slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
-.slot .ring {
-  position: absolute; inset: -3px;
-  border-radius: 14px;
-  background: conic-gradient(var(--green) var(--p, 0%), transparent 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
-}
-
-/* orders */
-.order { border: 2.5px solid var(--wood-dk); border-radius: var(--r-md); background: linear-gradient(180deg, #fffdf6, #fff0d4); padding: 10px; margin-bottom: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.14); }
-.order.wait { opacity: .8; text-align: center; padding: 18px 10px; font-weight: 800; color: var(--ink-soft); }
-.order-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.order-top .who { font-size: 26px; }
-.order-req { display: flex; gap: 6px; flex-wrap: wrap; }
-.req {
-  display: flex; flex-direction: column; align-items: center;
-  min-width: 52px;
-  background: #fff;
-  border: 2px solid rgba(156, 95, 38, .3);
-  border-radius: 10px;
-  padding: 4px 6px;
-}
-.req em { font-style: normal; font-size: 22px; line-height: 1; }
-.req b { font-size: 11px; font-weight: 800; }
-.req.miss { background: #ffe9e9; border-color: #e9a; }
-.req.miss b { color: #c33; }
-
-/* shop */
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-/* ------------------------------- sheets ---------------------------------- */
-
-.backdrop {
-  position: fixed; inset: 0;
-  background: rgba(30, 18, 6, .5);
-  z-index: 50;
-  animation: fade .18s ease;
-  display: flex; align-items: flex-end;
-}
-@keyframes fade { from { opacity: 0 } }
-
-.sheet {
-  width: 100%;
-  max-width: 620px;
-  margin: 0 auto;
-  background: linear-gradient(180deg, var(--card), var(--card-2));
-  border: 3px solid var(--wood-dk);
-  border-bottom: 0;
-  border-radius: 24px 24px 0 0;
-  padding: 8px 14px calc(18px + var(--sab));
-  max-height: 86dvh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  animation: rise .24s cubic-bezier(.2, .9, .3, 1);
-}
-@keyframes rise { from { transform: translateY(100%) } }
-
-.sheet-grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, .2); margin: 2px auto 10px; }
-.sheet h2 { margin: 0 0 4px; font-size: 19px; font-weight: 900; }
-.sheet .sub { margin: 0 0 12px; font-size: 13px; color: var(--ink-soft); font-weight: 700; }
-
-.stepper { display: flex; align-items: center; gap: 10px; }
-.stepper .num { font-size: 20px; font-weight: 900; min-width: 46px; text-align: center; }
-
-/* ------------------------------- toasts ---------------------------------- */
-
-.toasts {
-  position: fixed;
-  top: calc(var(--sat) + 66px);
-  left: 0; right: 0;
-  z-index: 90;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  pointer-events: none;
-}
-.toast {
-  background: rgba(46, 30, 14, .93);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, .3);
-  border-radius: 999px;
-  padding: 7px 15px;
-  font-size: 13px;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
-  animation: toastIn .22s ease, toastOut .3s ease 1.9s forwards;
-  max-width: 88%;
-  text-align: center;
-}
-.toast.bad { background: rgba(150, 34, 34, .95); }
-@keyframes toastIn { from { transform: translateY(-14px); opacity: 0 } }
-@keyframes toastOut { to { transform: translateY(-10px); opacity: 0 } }
-
-/* floating +coins / +xp text */
-.float {
-  position: fixed;
-  z-index: 80;
-  font-weight: 900;
-  font-size: 17px;
-  color: #fff;
-  text-shadow: 0 2px 3px rgba(0, 0, 0, .5);
-  pointer-events: none;
-  animation: floatUp 1s ease forwards;
-}
-@keyframes floatUp {
-  to { transform: translate(-50%, -60px); opacity: 0 }
-}
-
-/* level-up splash */
-.levelup {
-  position: fixed; inset: 0;
-  z-index: 95;
-  display: grid; place-items: center;
-  background: rgba(20, 12, 4, .55);
-  animation: fade .2s ease;
-}
-.levelup .card {
-  background: linear-gradient(180deg, #fff8e2, #ffe2a6);
-  border: 4px solid var(--gold-dk);
-  border-radius: 26px;
-  padding: 22px 26px;
-  text-align: center;
-  box-shadow: 0 8px 0 rgba(0, 0, 0, .25);
-  animation: pop .4s cubic-bezier(.2, 1.5, .4, 1);
-  max-width: 320px;
-}
-@keyframes pop { from { transform: scale(.5); opacity: 0 } }
-.levelup .big { font-size: 54px; line-height: 1; }
-.levelup h2 { margin: 6px 0 2px; font-size: 26px; font-weight: 900; }
-.levelup p { margin: 2px 0 10px; font-weight: 700; color: var(--ink-soft); font-size: 13px; }
-.unlock-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
 
 /* ------------------------------ onboarding ------------------------------- */
 
 .onboard {
-  position: fixed; inset: 0;
-  z-index: 100;
-  display: grid; place-items: center;
-  padding: 20px;
-  padding-top: calc(var(--sat) + 20px);
-  background: linear-gradient(180deg, var(--sky-1), #cdefa4);
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  padding-top: calc(var(--sat) + 16px);
+  background: linear-gradient(160deg, var(--shell-lt), var(--shell-dk));
   overflow-y: auto;
 }
-.onboard-card {
-  background: var(--card);
-  border: 4px solid var(--wood-dk);
-  border-radius: 26px;
-  padding: 20px;
-  width: 100%; max-width: 380px;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, .2);
-  text-align: center;
-}
-.onboard-logo { font-size: 56px; line-height: 1; }
-.onboard h1 { margin: 4px 0 0; font-size: 30px; font-weight: 900; }
-.onboard .sub { margin: 2px 0 16px; color: var(--ink-soft); font-weight: 700; }
-.fld-label { display: block; text-align: left; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); margin: 10px 2px 5px; }
-.fld {
+
+.ob-screen {
   width: 100%;
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 12px;
-  padding: 11px 12px;
-  background: #fff;
-  font-size: 16px; /* keeps iOS from zooming the field */
-  font-weight: 700;
+  max-width: 360px;
+  background: var(--screen-off);
+  border: 12px solid var(--bezel);
+  border-radius: 8px 8px 34px 8px;
+  padding: 18px 16px 20px;
+  text-align: center;
+  color: #0f380f;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .3);
 }
-.avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 16px; }
+
+.ob-logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-shadow: 2px 2px 0 #8bac0f;
+}
+.ob-sub {
+  margin: 4px 0 18px;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: #306230;
+}
+
+.ob-label {
+  display: block;
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: .14em;
+  margin: 12px 2px 5px;
+  color: #306230;
+}
+
+.ob-field {
+  width: 100%;
+  border: 3px solid #0f380f;
+  border-radius: 0;
+  padding: 10px;
+  background: #9bbc0f;
+  color: #0f380f;
+  font-family: inherit;
+  font-size: 16px;          /* keeps iOS from zooming the field */
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ob-field::placeholder { color: #6d8a2a; }
+
+.avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .av {
   aspect-ratio: 1;
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fff, var(--card-2));
-  font-size: 27px;
-  display: grid; place-items: center;
-  padding: 0;
+  border: 3px solid #306230;
+  background: #8bac0f;
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+  filter: grayscale(1) sepia(1) hue-rotate(35deg) saturate(2);
 }
-.av.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); transform: scale(1.05); }
+.av.on { border-color: #0f380f; background: #9bbc0f; filter: none; }
 
-.muted { color: var(--ink-soft); font-weight: 700; font-size: 12px; }
-.center { text-align: center; }
-.hidden { display: none !important; }
+.ob-start {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border: 3px solid #0f380f;
+  background: #8bac0f;
+  color: #0f380f;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+.ob-start:active { background: #0f380f; color: #9bbc0f; }
 
 </style>
 
-<div id="app" hidden>
-  <header class="hud" id="hud"></header>
-  <main class="view" id="view"></main>
-  <nav class="tabbar" id="tabbar"></nav>
-</div>
+<div id="device" class="device" hidden>
+  <div class="bezel">
+    <div class="bezel-label"><span>DOT MATRIX WITH STEREO SOUND</span></div>
+    <canvas id="screen" width="160" height="144"></canvas>
+  </div>
 
-<!-- First run: name + avatar -->
-<div id="onboard" class="onboard" hidden>
-  <div class="onboard-card">
-    <div class="onboard-logo">🌻</div>
-    <h1>Sunny Acres</h1>
-    <p class="sub">Grow it. Raise it. Sell it.</p>
+  <div class="brand">SUNNY ACRES<span>FARM SYSTEM</span></div>
 
-    <label class="fld-label" for="ob-name">Your farmer's name</label>
-    <input id="ob-name" class="fld" type="text" maxlength="14" placeholder="Farmer" autocomplete="off"
-           autocapitalize="words" spellcheck="false">
+  <div class="pads">
+    <div class="dpad">
+      <button type="button" class="d up" data-key="up" aria-label="Up"></button>
+      <button type="button" class="d left" data-key="left" aria-label="Left"></button>
+      <button type="button" class="d right" data-key="right" aria-label="Right"></button>
+      <button type="button" class="d down" data-key="down" aria-label="Down"></button>
+      <span class="d-hub"></span>
+    </div>
+    <div class="ab">
+      <button type="button" class="rb" data-key="b" aria-label="B">B</button>
+      <button type="button" class="rb" data-key="a" aria-label="A">A</button>
+    </div>
+  </div>
 
-    <label class="fld-label">Pick your look</label>
-    <div class="avatar-grid" id="ob-avatars"></div>
-
-    <button class="btn btn-big btn-green" id="ob-start">Start Farming</button>
+  <div class="startrow">
+    <button type="button" class="pill" data-key="start" aria-label="Start">START</button>
   </div>
 </div>
 
-<div id="toasts" class="toasts"></div>
-<div id="sheet-root"></div>
+<div id="onboard" class="onboard" hidden>
+  <div class="ob-screen">
+    <div class="ob-logo">SUNNY ACRES</div>
+    <p class="ob-sub">A FARM IN FOUR SHADES OF GREEN</p>
+
+    <label class="ob-label" for="ob-name">FARMER NAME</label>
+    <input id="ob-name" class="ob-field" type="text" maxlength="10" placeholder="FARMER"
+           autocomplete="off" autocapitalize="characters" spellcheck="false">
+
+    <label class="ob-label">PICK A FACE</label>
+    <div class="avatar-grid" id="ob-avatars"></div>
+
+    <button type="button" class="ob-start" id="ob-start">PRESS START</button>
+  </div>
+</div>
 
 <script>
 /* ---------- js/util.js ---------- */
@@ -1026,6 +715,7 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     nextOrderAt: 0,
     upgrades: {},
     selectedSeed: 'wheat',
+    pos: { x: 6, y: 12 },   // where the farmer is standing
     settings: { sound: true },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
@@ -1226,6 +916,633 @@ function producibleItems() {
   return [...ids];
 }
 return { freshState, load, startNew, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, growthMult, craftMult, sellMult, orderMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, get S() { return S; }, isCrop };
+})();
+
+/* ---------- js/gfx.js ---------- */
+const __mod_gfx = (function () {
+/* ==========================================================================
+   gfx.js — the Game Boy layer: 4-shade palette, a 5x7 bitmap font, the farmer
+   sprite, procedural terrain tiles, and a baker that turns an emoji into a
+   4-colour sprite so every crop and good gets art without hand-pixelling 30
+   icons.
+   ========================================================================== */
+
+/** Original DMG panel, darkest to lightest. Index into this everywhere. */
+const PAL = ['#0f380f', '#306230', '#8bac0f', '#9bbc0f'];
+const DARK = 0, MID = 1, LITE = 2, PALE = 3;
+
+const TILE = 16;
+const SCREEN_W = 160;
+const SCREEN_H = 144;
+
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.imageSmoothingEnabled = false;
+  return c;
+}
+
+/* --------------------------------- font ---------------------------------- */
+/* 5 wide, 7 tall, one string per row. Uppercase only — Gen 1 item and place
+   names were all caps, and it halves the glyph count. */
+
+const G = {
+  A: '.###./#...#/#...#/#####/#...#/#...#/#...#',
+  B: '####./#...#/#...#/####./#...#/#...#/####.',
+  C: '.###./#...#/#..../#..../#..../#...#/.###.',
+  D: '####./#...#/#...#/#...#/#...#/#...#/####.',
+  E: '#####/#..../#..../####./#..../#..../#####',
+  F: '#####/#..../#..../####./#..../#..../#....',
+  G: '.###./#...#/#..../#.###/#...#/#...#/.###.',
+  H: '#...#/#...#/#...#/#####/#...#/#...#/#...#',
+  I: '.###./..#../..#../..#../..#../..#../.###.',
+  J: '..###/...#./...#./...#./...#./#..#./.##..',
+  K: '#...#/#..#./#.#../##.../#.#../#..#./#...#',
+  L: '#..../#..../#..../#..../#..../#..../#####',
+  M: '#...#/##.##/#.#.#/#...#/#...#/#...#/#...#',
+  N: '#...#/##..#/#.#.#/#..##/#...#/#...#/#...#',
+  O: '.###./#...#/#...#/#...#/#...#/#...#/.###.',
+  P: '####./#...#/#...#/####./#..../#..../#....',
+  Q: '.###./#...#/#...#/#...#/#.#.#/#..#./.##.#',
+  R: '####./#...#/#...#/####./#.#../#..#./#...#',
+  S: '.####/#..../#..../.###./....#/....#/####.',
+  T: '#####/..#../..#../..#../..#../..#../..#..',
+  U: '#...#/#...#/#...#/#...#/#...#/#...#/.###.',
+  V: '#...#/#...#/#...#/#...#/#...#/.#.#./..#..',
+  W: '#...#/#...#/#...#/#.#.#/#.#.#/##.##/#...#',
+  X: '#...#/#...#/.#.#./..#../.#.#./#...#/#...#',
+  Y: '#...#/#...#/.#.#./..#../..#../..#../..#..',
+  Z: '#####/....#/...#./..#../.#.../#..../#####',
+  0: '.###./#...#/#..##/#.#.#/##..#/#...#/.###.',
+  1: '..#../.##../..#../..#../..#../..#../.###.',
+  2: '.###./#...#/....#/...#./..#../.#.../#####',
+  3: '#####/...#./..#../...#./....#/#...#/.###.',
+  4: '...#./..##./.#.#./#..#./#####/...#./...#.',
+  5: '#####/#..../####./....#/....#/#...#/.###.',
+  6: '..##./.#.../#..../####./#...#/#...#/.###.',
+  7: '#####/....#/...#./..#../.#.../.#.../.#...',
+  8: '.###./#...#/#...#/.###./#...#/#...#/.###.',
+  9: '.###./#...#/#...#/.####/....#/...#./.##..',
+  ' ': '...../...../...../...../...../...../.....',
+  '.': '...../...../...../...../...../.##../.##..',
+  ',': '...../...../...../...../.##../.##../.#...',
+  '!': '..#../..#../..#../..#../..#../...../..#..',
+  '?': '.###./#...#/....#/...#./..#../...../..#..',
+  ':': '...../.##../.##../...../.##../.##../.....',
+  '-': '...../...../...../#####/...../...../.....',
+  "'": '..#../..#../...../...../...../...../.....',
+  '/': '....#/...#./..#../..#../.#.../#..../.....',
+  '(': '...#./..#../.#.../.#.../.#.../..#../...#.',
+  ')': '.#.../..#../...#./...#./...#./..#../.#...',
+  '+': '...../..#../..#../#####/..#../..#../.....',
+  '*': '...../#...#/.#.#./..#../.#.#./#...#/.....',
+  '%': '#...#/...#./..#../..#../.#.../#...#/.....',
+  '=': '...../...../#####/...../#####/...../.....',
+  // pictograms
+  '$': '...../.###./#.#.#/#.#.#/#.#.#/.###./.....',   // coin
+  '@': '...../..#../.###./#####/.###./..#../.....',   // gem
+  '>': '#..../##.../###../####./###../##.../#....',   // menu cursor
+  '^': '..#../.###./#####/...../...../...../.....',
+  'v': '...../...../...../#####/.###./..#../.....',
+  '~': '...../.#.#./#####/#####/.###./..#../.....',   // heart
+};
+
+const CHAR_W = 6, CHAR_H = 7, LINE_H = 9;
+
+const glyphCache = new Map();
+
+function glyph(ch, shade) {
+  const key = ch + shade;
+  let c = glyphCache.get(key);
+  if (c) return c;
+  const rows = (G[ch] || G[' ']).split('/');
+  c = makeCanvas(5, 7);
+  const x = c.getContext('2d');
+  x.fillStyle = PAL[shade];
+  rows.forEach((row, y) => {
+    for (let i = 0; i < 5; i++) if (row[i] === '#') x.fillRect(i, y, 1, 1);
+  });
+  glyphCache.set(key, c);
+  return c;
+}
+
+function textWidth(str) {
+  return String(str).length * CHAR_W - 1;
+}
+
+function drawText(ctx, str, x, y, shade = DARK) {
+  str = String(str).toUpperCase();
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch !== ' ') ctx.drawImage(glyph(G[ch] !== undefined ? ch : ' ', shade), x + i * CHAR_W, y);
+  }
+}
+
+/** Word-wraps to `cols` characters. Returns the lines. */
+function wrapText(str, cols) {
+  const words = String(str).toUpperCase().split(/\s+/);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    if (!line) line = w;
+    else if ((line + ' ' + w).length <= cols) line += ' ' + w;
+    else { lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+/* ------------------------------ emoji baker ------------------------------ */
+
+const bakeCache = new Map();
+
+/**
+ * Renders an emoji at `size`, then posterises it into the 4 shades. Every
+ * edge pixel is forced to the darkest shade: that outline is what makes a
+ * 4-colour sprite legible against the pale background.
+ */
+function bake(emoji, size = 16) {
+  const key = emoji + size;
+  let cached = bakeCache.get(key);
+  if (cached) return cached;
+
+  const src = makeCanvas(size, size);
+  const sx = src.getContext('2d');
+  sx.font = `${size - 1}px serif`;
+  sx.textAlign = 'center';
+  sx.textBaseline = 'middle';
+  sx.fillText(emoji, size / 2, size / 2 + 1);
+
+  const d = sx.getImageData(0, 0, size, size).data;
+  const on = new Uint8Array(size * size);
+  const lum = new Float32Array(size * size);
+  let lo = 1, hi = 0;
+  for (let k = 0; k < size * size; k++) {
+    if (d[k * 4 + 3] < 110) continue;
+    on[k] = 1;
+    const l = (d[k * 4] * 0.299 + d[k * 4 + 1] * 0.587 + d[k * 4 + 2] * 0.114) / 255;
+    lum[k] = l;
+    if (l < lo) lo = l;
+    if (l > hi) hi = l;
+  }
+  const span = Math.max(0.001, hi - lo);
+
+  const out = makeCanvas(size, size);
+  const ox = out.getContext('2d');
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const k = y * size + x;
+    if (!on[k]) continue;
+    const edge = x === 0 || y === 0 || x === size - 1 || y === size - 1 ||
+      !on[k - 1] || !on[k + 1] || !on[k - size] || !on[k + size];
+    let shade;
+    if (edge) shade = DARK;
+    else {
+      const n = (lum[k] - lo) / span;
+      shade = n > 0.85 ? PALE : n > 0.5 ? LITE : MID;
+    }
+    ox.fillStyle = PAL[shade];
+    ox.fillRect(x, y, 1, 1);
+  }
+  bakeCache.set(key, out);
+  return out;
+}
+
+/* ----------------------------- farmer sprite ----------------------------- */
+/* Digits are shade indices, '.' is transparent. Rows 0-11 are the body; the
+   legs come from LEGS so both walk frames share one definition. */
+
+const BODY = {
+  down: [
+    '.....000000.....',
+    '....03333330....',
+    '..000333333000..',
+    '..03333333330...',
+    '...0333333330...',
+    '...0303333030...',
+    '...0333333330...',
+    '....03333330....',
+    '..001111111100..',
+    '.00111111111100.',
+    '.00111111111100.',
+    '.00000000000000.',
+  ],
+  up: [
+    '.....000000.....',
+    '....03333330....',
+    '..000333333000..',
+    '..03333333330...',
+    '...0333333330...',
+    '...0333333330...',
+    '...0333333330...',
+    '....03333330....',
+    '..001111111100..',
+    '.00111111111100.',
+    '.00111111111100.',
+    '.00000000000000.',
+  ],
+  side: [
+    '.....000000.....',
+    '....03333330....',
+    '...00333333000..',
+    '...03333333330..',
+    '....03333330....',
+    '....03303330....',
+    '....03333330....',
+    '.....033330.....',
+    '...0011111100...',
+    '..001111111100..',
+    '..001111111100..',
+    '..000000000000..',
+  ],
+};
+
+const LEGS = [
+  ['..00111..11100..', '..00111..11100..', '..00000..00000..'], // stride
+  ['...0011111100...', '...0011111100...', '...0000000000...'], // together
+];
+
+function spriteFromRows(rows) {
+  const c = makeCanvas(16, 16);
+  const x = c.getContext('2d');
+  rows.forEach((row, y) => {
+    for (let i = 0; i < row.length; i++) {
+      const ch = row[i];
+      if (ch === '.') continue;
+      x.fillStyle = PAL[+ch];
+      x.fillRect(i, y, 1, 1);
+    }
+  });
+  return c;
+}
+
+function flip(src) {
+  const c = makeCanvas(16, 16);
+  const x = c.getContext('2d');
+  x.translate(16, 0);
+  x.scale(-1, 1);
+  x.drawImage(src, 0, 0);
+  return c;
+}
+
+/** farmer[dir][frame] — dir is 'down' | 'up' | 'left' | 'right'. */
+const farmer = {};
+
+function buildFarmer() {
+  for (const dir of ['down', 'up', 'side']) {
+    const frames = LEGS.map(legs => spriteFromRows([...BODY[dir], ...legs]));
+    if (dir === 'side') {
+      farmer.right = frames;
+      farmer.left = frames.map(flip);
+    } else {
+      farmer[dir] = frames;
+    }
+  }
+}
+
+/* ------------------------------ terrain tiles ---------------------------- */
+/* Drawn procedurally: at 16x16 with four shades, a few rects and speckles
+   read better than hand-authored data and cost a fraction of the source. */
+
+const T_GRASS = 0, T_PATH = 1, T_WATER = 2, T_TREE = 3,
+  T_FENCE = 4, T_SOIL = 5, T_WALL = 6, T_ROOF = 7, T_DOOR = 8, T_PEN = 9,
+  T_WINDOW = 10;
+
+const tiles = [];
+const tile = i => tiles[i];
+
+function px(x, s, a, b, w = 1, h = 1) { x.fillStyle = PAL[s]; x.fillRect(a, b, w, h); }
+
+function buildTiles() {
+  const mk = draw => { const c = makeCanvas(TILE, TILE); draw(c.getContext('2d')); return c; };
+
+  tiles[T_GRASS] = mk(x => {
+    px(x, LITE, 0, 0, 16, 16);
+    for (const [a, b] of [[2, 3], [9, 6], [5, 11], [13, 13], [12, 2]]) {
+      px(x, MID, a, b, 2, 1);
+      px(x, MID, a + 1, b - 1);
+    }
+  });
+
+  tiles[T_PATH] = mk(x => {
+    px(x, PALE, 0, 0, 16, 16);
+    for (const [a, b] of [[3, 4], [11, 9], [6, 13], [14, 2]]) px(x, LITE, a, b, 2, 2);
+  });
+
+  tiles[T_WATER] = mk(x => {
+    px(x, MID, 0, 0, 16, 16);
+    for (let y = 2; y < 16; y += 5) {
+      px(x, LITE, 1, y, 5, 1);
+      px(x, LITE, 9, y + 2, 5, 1);
+    }
+  });
+
+  tiles[T_TREE] = mk(x => {
+    px(x, LITE, 0, 0, 16, 16);            // grass underneath
+    px(x, DARK, 7, 10, 2, 6);             // trunk
+    px(x, DARK, 4, 0, 8, 12);             // canopy silhouette
+    px(x, DARK, 2, 2, 12, 8);
+    px(x, DARK, 1, 4, 14, 4);
+    px(x, MID, 5, 1, 6, 10);              // foliage
+    px(x, MID, 3, 3, 10, 6);
+    px(x, MID, 2, 5, 12, 2);
+    px(x, LITE, 5, 3, 2, 2);              // catchlights
+    px(x, LITE, 9, 6, 2, 2);
+  });
+
+  tiles[T_FENCE] = mk(x => {
+    px(x, LITE, 0, 0, 16, 16);
+    px(x, DARK, 0, 6, 16, 2);
+    px(x, DARK, 2, 3, 2, 10);
+    px(x, DARK, 11, 3, 2, 10);
+  });
+
+  tiles[T_PEN] = mk(x => {                // trodden pen floor
+    px(x, PALE, 0, 0, 16, 16);
+    for (const [a, b] of [[2, 2], [10, 5], [5, 10], [12, 12]]) px(x, LITE, a, b, 3, 1);
+  });
+
+  /* Broken furrows: a block of these reads as tilled ground instead of a
+     barcode, and leaves contrast for the crop sprite on top. */
+  tiles[T_SOIL] = mk(x => {
+    px(x, LITE, 0, 0, 16, 16);
+    for (const y of [2, 7, 12]) {
+      px(x, MID, 0, y, 16, 3);
+      px(x, DARK, 1, y + 1, 6, 1);
+      px(x, DARK, 9, y + 1, 6, 1);
+    }
+  });
+
+  /** Plank siding — quiet, so signs and doors read against it. */
+  const wall = x => {
+    px(x, LITE, 0, 0, 16, 16);
+    for (const a of [0, 5, 10, 15]) px(x, MID, a, 0, 1, 16);
+  };
+
+  tiles[T_WALL] = mk(wall);
+
+  tiles[T_ROOF] = mk(x => {
+    px(x, DARK, 0, 0, 16, 16);
+    for (let y = 2; y < 14; y += 4) px(x, MID, 0, y, 16, 1);   // shingle courses
+    px(x, MID, 0, 14, 16, 2);                                  // eave
+  });
+
+  tiles[T_WINDOW] = mk(x => {
+    wall(x);
+    px(x, DARK, 2, 3, 12, 10);
+    px(x, PALE, 3, 4, 4, 8);
+    px(x, PALE, 9, 4, 4, 8);
+  });
+
+  tiles[T_DOOR] = mk(x => {
+    wall(x);
+    px(x, DARK, 3, 1, 10, 15);
+    px(x, LITE, 4, 2, 8, 14);
+    px(x, DARK, 10, 8, 2, 2);             // handle
+  });
+}
+
+/* ------------------------------ frames/boxes ----------------------------- */
+
+/**
+ * A flat label plate: one dark pixel of border, pale inside, nothing else.
+ * `panel` adds an inner highlight that eats small text, so signs use this.
+ */
+function plate(ctx, x, y, w, h) {
+  ctx.fillStyle = PAL[DARK];
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = PAL[PALE];
+  ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+}
+
+/** Pokémon-style bordered window: dark frame, pale fill. */
+function panel(ctx, x, y, w, h) {
+  ctx.fillStyle = PAL[PALE];
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = PAL[DARK];
+  ctx.fillRect(x, y, w, 2);
+  ctx.fillRect(x, y + h - 2, w, 2);
+  ctx.fillRect(x, y, 2, h);
+  ctx.fillRect(x + w - 2, y, 2, h);
+  ctx.fillStyle = PAL[LITE];
+  ctx.fillRect(x + 3, y + 3, w - 6, 1);
+  ctx.fillRect(x + 3, y + 3, 1, h - 6);
+}
+
+function buildAll() {
+  buildTiles();
+  buildFarmer();
+}
+return { makeCanvas, textWidth, drawText, wrapText, bake, buildFarmer, buildTiles, plate, panel, buildAll, PAL, DARK, TILE, SCREEN_W, SCREEN_H, CHAR_W, farmer, T_GRASS, tile };
+})();
+
+/* ---------- js/world.js ---------- */
+const __mod_world = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const GFX = __mod_gfx;
+/* ==========================================================================
+   world.js — the farm as a walkable tile map: layout, collision, what sits
+   on any given tile, and a path finder for tap-to-walk.
+   ========================================================================== */
+
+
+
+
+
+const MAP_W = 24, MAP_H = 22;
+
+/** The 6x4 block of fields — exactly D.MAX_PLOTS tiles. */
+const FIELD = { x: 9, y: 3, cols: 6, rows: 4 };
+
+const BUILDINGS = [
+  { id: 'home',  x: 2,  y: 2,  w: 3, h: 3, name: 'HOME' },
+  { id: 'silo',  x: 2,  y: 8,  w: 3, h: 3, name: 'SILO' },
+  { id: 'barn',  x: 2,  y: 13, w: 3, h: 3, name: 'BARN' },
+  { id: 'works', x: 2,  y: 17, w: 3, h: 3, name: 'WORKS' },
+  { id: 'store', x: 19, y: 2,  w: 3, h: 3, name: 'STORE' },
+];
+
+/** A 1x1 signpost rather than a building. */
+const BOARD = { x: 7, y: 10, name: 'ORDERS' };
+
+/** Pens are walkable; animals stand on them and never block. */
+const PENS = {
+  chicken: { x: 17, y: 7,  w: 4, h: 2 },
+  cow:     { x: 17, y: 11, w: 3, h: 2 },
+  pig:     { x: 17, y: 15, w: 3, h: 2 },
+  sheep:   { x: 21, y: 7,  w: 2, h: 3 },
+  bee:     { x: 21, y: 11, w: 2, h: 2 },
+};
+
+const terrain = [];
+const solid = [];
+
+const idx = (x, y) => y * MAP_W + x;
+const inBounds = (x, y) => x >= 0 && y >= 0 && x < MAP_W && y < MAP_H;
+
+function buildMap() {
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    terrain[idx(x, y)] = GFX.T_GRASS;
+    solid[idx(x, y)] = 0;
+  }
+
+  const put = (x, y, t, block) => {
+    if (!inBounds(x, y)) return;
+    terrain[idx(x, y)] = t;
+    solid[idx(x, y)] = block ? 1 : 0;
+  };
+
+  // Tree line around the whole farm.
+  for (let x = 0; x < MAP_W; x++) { put(x, 0, GFX.T_TREE, 1); put(x, MAP_H - 1, GFX.T_TREE, 1); }
+  for (let y = 0; y < MAP_H; y++) { put(0, y, GFX.T_TREE, 1); put(MAP_W - 1, y, GFX.T_TREE, 1); }
+
+  // A path spine down the middle with spurs to every door.
+  for (let y = 1; y < MAP_H - 1; y++) put(6, y, GFX.T_PATH, 0);
+  for (const b of BUILDINGS) {
+    const doorY = b.y + b.h;                       // the tile in front of the door
+    const dx = b.x + (b.w >> 1);
+    if (!inBounds(dx, doorY)) continue;
+    put(dx, doorY, GFX.T_PATH, 0);
+    const [from, to] = dx < 6 ? [dx, 6] : [6, dx];
+    for (let x = from; x <= to; x++) put(x, doorY, GFX.T_PATH, 0);
+  }
+  for (let x = 6; x <= FIELD.x; x++) put(x, FIELD.y + FIELD.rows, GFX.T_PATH, 0);
+  for (let x = FIELD.x; x <= 22; x++) put(x, FIELD.y + FIELD.rows, GFX.T_PATH, 0);
+
+  // Fields.
+  for (let r = 0; r < FIELD.rows; r++) for (let c = 0; c < FIELD.cols; c++) {
+    put(FIELD.x + c, FIELD.y + r, GFX.T_SOIL, 0);
+  }
+
+  // Pens.
+  for (const p of Object.values(PENS)) {
+    for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) put(p.x + x, p.y + y, GFX.T_PEN, 0);
+  }
+
+  // Buildings: a roof course on top, plank walls below, windows either side of
+  // the door. Solid throughout — you interact by facing them.
+  for (const b of BUILDINGS) {
+    const mid = b.w >> 1;
+    for (let y = 0; y < b.h; y++) for (let x = 0; x < b.w; x++) {
+      let t = GFX.T_WALL;
+      if (y === 0) t = GFX.T_ROOF;
+      else if (y === b.h - 1 && x === mid) t = GFX.T_DOOR;
+      else if (y === b.h - 1) t = GFX.T_WINDOW;
+      put(b.x + x, b.y + y, t, 1);
+    }
+  }
+
+  put(BOARD.x, BOARD.y, GFX.T_FENCE, 1);          // the order board post
+
+  // A pond and a few trees so the place doesn't read as a spreadsheet.
+  for (const [x, y] of [[15, 19], [16, 19], [15, 20], [16, 20]]) put(x, y, GFX.T_WATER, 1);
+  for (const [x, y] of [[8, 1], [16, 1], [11, 20], [3, 6], [22, 19], [12, 9], [19, 19]]) {
+    put(x, y, GFX.T_TREE, 1);
+  }
+}
+
+const isSolid = (x, y) => !inBounds(x, y) || solid[idx(x, y)] === 1;
+
+/* --------------------------- what's on a tile ---------------------------- */
+
+/** Plot index at this tile, or -1. Only bought fields count. */
+function plotAt(x, y) {
+  const c = x - FIELD.x, r = y - FIELD.y;
+  if (c < 0 || r < 0 || c >= FIELD.cols || r >= FIELD.rows) return -1;
+  const i = r * FIELD.cols + c;
+  return i < St.S.plots.length ? i : -1;
+}
+
+/** True for a field tile you have not cleared yet. */
+function lockedPlotAt(x, y) {
+  const c = x - FIELD.x, r = y - FIELD.y;
+  if (c < 0 || r < 0 || c >= FIELD.cols || r >= FIELD.rows) return false;
+  return r * FIELD.cols + c >= St.S.plots.length;
+}
+
+/** {type, slot} for a pen tile, else null. */
+function penAt(x, y) {
+  for (const [type, p] of Object.entries(PENS)) {
+    if (x >= p.x && y >= p.y && x < p.x + p.w && y < p.y + p.h) {
+      return { type, slot: (y - p.y) * p.w + (x - p.x) };
+    }
+  }
+  return null;
+}
+
+/** Tile position of animal `slot` in its pen. */
+function penSlotPos(type, slot) {
+  const p = PENS[type];
+  return { x: p.x + (slot % p.w), y: p.y + Math.floor(slot / p.w) };
+}
+
+function buildingAt(x, y) {
+  return BUILDINGS.find(b => x >= b.x && y >= b.y && x < b.x + b.w && y < b.y + b.h) || null;
+}
+
+const isBoard = (x, y) => x === BOARD.x && y === BOARD.y;
+
+/* ------------------------------ pathfinding ------------------------------ */
+
+/**
+ * Breadth-first walk from (sx,sy) to (tx,ty) over walkable tiles.
+ * Returns a list of steps, or null when there's no route.
+ */
+function findPath(sx, sy, tx, ty) {
+  if (sx === tx && sy === ty) return [];
+  if (isSolid(tx, ty)) return null;
+  const prev = new Int32Array(MAP_W * MAP_H).fill(-1);
+  const seen = new Uint8Array(MAP_W * MAP_H);
+  const q = [idx(sx, sy)];
+  seen[idx(sx, sy)] = 1;
+  const goal = idx(tx, ty);
+
+  for (let head = 0; head < q.length; head++) {
+    const cur = q[head];
+    if (cur === goal) {
+      const steps = [];
+      for (let n = goal; n !== idx(sx, sy); n = prev[n]) {
+        steps.push({ x: n % MAP_W, y: Math.floor(n / MAP_W) });
+      }
+      return steps.reverse();
+    }
+    const cx = cur % MAP_W, cy = Math.floor(cur / MAP_W);
+    for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+      const nx = cx + dx, ny = cy + dy;
+      if (isSolid(nx, ny)) continue;
+      const n = idx(nx, ny);
+      if (seen[n]) continue;
+      seen[n] = 1;
+      prev[n] = cur;
+      q.push(n);
+    }
+  }
+  return null;
+}
+
+/** Nearest walkable tile next to a solid target, so taps on buildings work. */
+function approach(sx, sy, tx, ty) {
+  let best = null, bestLen = Infinity;
+  for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+    const p = findPath(sx, sy, tx + dx, ty + dy);
+    if (p && p.length < bestLen) { best = p; bestLen = p.length; }
+  }
+  return best;
+}
+
+/* ------------------------------ decoration ------------------------------- */
+
+/** Sprite to draw on a field tile, or null for bare soil. */
+function plotSprite(i) {
+  const p = St.S.plots[i];
+  if (!p) return null;
+  const crop = D.ITEMS[p.crop];
+  const t = Math.min(1, (Date.now() - p.at) / Math.max(1, p.end - p.at));
+  return { icon: crop.icon, stage: t >= 1 ? 2 : t > 0.45 ? 1 : 0 };
+}
+return { buildMap, plotAt, lockedPlotAt, penAt, penSlotPos, buildingAt, findPath, approach, plotSprite, MAP_W, FIELD, BUILDINGS, BOARD, PENS, terrain, inBounds, isSolid, isBoard };
 })();
 
 /* ---------- js/game.js ---------- */
@@ -1741,17 +2058,19 @@ function settleOffline() {
 return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, sellPrice, sell, buyPlot, upgradeSilo, upgradeBarn, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, tick, settleOffline };
 })();
 
-/* ---------- js/ui.js ---------- */
-const __mod_ui = (function () {
+/* ---------- js/screen.js ---------- */
+const __mod_screen = (function () {
 const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
-const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic} = __mod_util;
-const {SFX, setSound, soundOn} = __mod_audio;
+const W = __mod_world;
+const GFX = __mod_gfx;
+const {PAL, DARK, MID, LITE, PALE, TILE, SCREEN_W, SCREEN_H} = __mod_gfx;
+const {fmt, fmtTime, now} = __mod_util;
 /* ==========================================================================
-   ui.js — rendering. Views are rebuilt on any action; per-second changes
-   (timers, progress rings) run through lightweight "tickers" so the DOM
-   isn't thrown away every frame and scroll position survives.
+   screen.js — everything drawn into the 160x144 frame: the overworld camera,
+   the status bar, and the windowed UI (text boxes, list menus, confirms).
+   The UI is a stack, so B always walks back the way you came.
    ========================================================================== */
 
 
@@ -1760,790 +2079,723 @@ const {SFX, setSound, soundOn} = __mod_audio;
 
 
 
-const $ = id => document.getElementById(id);
 
-let view = 'farm';
-let tickers = [];
 
-const TABS = [
-  { id: 'farm',    icon: '🌾', label: 'Farm' },
-  { id: 'animals', icon: '🐔', label: 'Animals' },
-  { id: 'craft',   icon: '🏭', label: 'Craft' },
-  { id: 'orders',  icon: '📋', label: 'Orders' },
-  { id: 'shop',    icon: '🛒', label: 'Shop' },
-];
+const HUD_H = 14;
+const VIEW_H = SCREEN_H - HUD_H;
 
-/** Register a function to run every second while the current view is up. */
-function T(fn) { tickers.push(fn); fn(); }
+let ctx = null;
+const camera = { x: 0, y: 0 };
 
-function setView(v) {
-  view = v;
-  render();
-  $('view').scrollTop = 0;
+function initScreen(canvas) {
+  ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
 }
 
-/* ------------------------------ chrome ---------------------------------- */
+/* ------------------------------- UI stack -------------------------------- */
 
-function render() {
-  tickers = [];
-  renderHud();
-  renderTabs();
-  const host = $('view');
-  host.innerHTML = '';
-  const builder = { farm: farmView, animals: animalsView, craft: craftView, orders: ordersView, shop: shopView }[view];
-  host.appendChild(builder());
+const stack = [];
+const busy = () => stack.length > 0;
+const top = () => stack[stack.length - 1] || null;
+
+function closeAll() { stack.length = 0; }
+function pop() { stack.pop(); }
+
+function dialog(text, onDone) {
+  stack.push({ kind: 'dialog', lines: GFX.wrapText(text, 24), onDone });
 }
 
-/** Called once a second — never rebuilds, only refreshes. */
-function refresh() {
-  for (const fn of tickers) fn();
-  renderHudNumbers();
-  renderTabBadges();
+/**
+ * items: { label, right, icon, detail, disabled, value }
+ * onPick(item, index) — return false to keep the menu open.
+ */
+function menu({ title, items, onPick, onCancel, cursor = 0 }) {
+  stack.push({ kind: 'menu', title, items, onPick, onCancel, cursor, scroll: 0 });
 }
 
-function renderHud() {
-  const S = St.S;
-  const hud = $('hud');
-  hud.innerHTML = '';
-
-  const av = el('button', 'hud-avatar', `${S.avatar}<span class="hud-lvl">LV ${S.level}</span>`);
-  av.onclick = () => { haptic(); profileSheet(); };
-  hud.appendChild(av);
-
-  const mid = el('div', 'hud-mid');
-  mid.appendChild(el('div', 'hud-name', `${S.name} · ${D.titleFor(S.level)}`));
-  const bar = el('div', 'xpbar', '<i></i><span></span>');
-  mid.appendChild(bar);
-  hud.appendChild(mid);
-
-  hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
-  hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
-
-  renderHudNumbers();
+function confirm(text, onYes, onNo) {
+  stack.push({ kind: 'confirm', lines: GFX.wrapText(text, 24), choice: 0, onYes, onNo });
 }
 
-function renderHudNumbers() {
-  const S = St.S;
-  const c = $('hud-coins'), g = $('hud-gems');
-  if (c) c.textContent = fmt(S.coins);
-  if (g) g.textContent = fmt(S.gems);
-  const p = St.levelProgress();
-  const fill = document.querySelector('.xpbar > i');
-  const txt = document.querySelector('.xpbar > span');
-  if (fill) fill.style.width = (p.pct * 100).toFixed(1) + '%';
-  if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
-  const lvl = document.querySelector('.hud-lvl');
-  if (lvl) lvl.textContent = 'LV ' + S.level;
-}
-
-function renderTabs() {
-  const bar = $('tabbar');
-  bar.innerHTML = '';
-  for (const t of TABS) {
-    const b = el('button', 'tab' + (t.id === view ? ' on' : ''), `<em>${t.icon}</em>${t.label}`);
-    b.dataset.tab = t.id;
-    b.onclick = () => { haptic(); SFX.plant(); setView(t.id); };
-    bar.appendChild(b);
-  }
-  renderTabBadges();
-}
-
-/** Little red counters that tell you where taps are waiting. */
-function renderTabBadges() {
-  const S = St.S;
-  const counts = {
-    farm: S.plots.filter(p => G.plotState(p) === 'ready').length,
-    animals: S.animals.filter(a => G.animalState(a) === 'ready').length,
-    craft: Object.values(S.machines).reduce(
-      (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
-    orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
-    shop: 0,
-  };
-  for (const t of TABS) {
-    const btn = document.querySelector(`.tab[data-tab="${t.id}"]`);
-    if (!btn) continue;
-    let b = btn.querySelector('.badge');
-    const n = counts[t.id];
-    if (n > 0) {
-      if (!b) { b = el('span', 'badge'); btn.appendChild(b); }
-      b.textContent = n > 99 ? '99+' : n;
-    } else if (b) b.remove();
+/** Refreshes the open menu's rows in place, keeping the cursor put. */
+function refreshMenu(items) {
+  const t = top();
+  if (t && t.kind === 'menu') {
+    t.items = items;
+    t.cursor = Math.min(t.cursor, Math.max(0, items.length - 1));
   }
 }
 
-/* ------------------------------ shared bits ------------------------------ */
-
-function storageBar(kind) {
-  const S = St.S;
-  const wrap = el('div', 'storage');
-  const isSilo = kind === 'silo';
-  wrap.innerHTML = `<span>${isSilo ? '🛖' : '🏠'}</span><span class="bar"><i></i></span><span class="num"></span>`;
-  const sell = el('button', 'btn btn-sm btn-gold', 'Sell');
-  sell.onclick = () => { haptic(); sellSheet(kind); };
-  wrap.appendChild(sell);
-  T(() => {
-    const used = isSilo ? St.siloUsed() : St.barnUsed();
-    const cap = isSilo ? S.siloCap : S.barnCap;
-    wrap.querySelector('.bar > i').style.width = clamp(used / cap, 0, 1) * 100 + '%';
-    wrap.querySelector('.num').textContent = `${used}/${cap}`;
-    wrap.classList.toggle('full', used >= cap);
-  });
-  return wrap;
+let flashMsg = null, flashUntil = 0;
+function flash(msg) {
+  flashMsg = String(msg).toUpperCase();
+  flashUntil = now() + 1800;
 }
 
-function panel(titleHtml, ...children) {
-  const p = el('div', 'panel');
-  if (titleHtml) p.appendChild(el('div', 'panel-head', titleHtml));
-  for (const c of children) if (c) p.appendChild(c);
-  return p;
-}
+/* -------------------------------- input ---------------------------------- */
 
-function lockRow(icon, name, level, note) {
-  const r = el('div', 'row locked');
-  r.innerHTML = `<div class="ic">${icon}</div><div class="body"><b>${name}</b>
-    <small>🔒 Unlocks at level ${level}${note ? ' · ' + note : ''}</small></div>`;
-  return r;
-}
+const ROWS = 5, ROW_H = 16, LIST_Y = 18;
 
-/* --------------------------------- FARM ---------------------------------- */
+/** action: 'up' | 'down' | 'left' | 'right' | 'a' | 'b'. */
+function uiKey(action) {
+  const t = top();
+  if (!t) return false;
 
-/** "What am I working towards?" — the next level that actually opens something. */
-function goalPanel() {
-  const S = St.S;
-  let target = 0, unlocks = [];
-  for (let lv = S.level + 1; lv <= S.level + 20; lv++) {
-    const u = unlocksAt(lv);
-    if (u.length) { target = lv; unlocks = u; break; }
-  }
-  if (!target) return null;
-
-  let toGo = D.xpToNext(S.level) - S.xp;
-  for (let lv = S.level + 1; lv < target; lv++) toGo += D.xpToNext(lv);
-
-  const row = el('div', 'row');
-  row.innerHTML = `<div class="ic">🎯</div><div class="body">
-    <b>Next goal: level ${target} · ${fmt(toGo)} XP</b>
-    <div class="chips">${unlocks.map(u => `<span class="chip">${u}</span>`).join('')}</div></div>`;
-  return panel(null, row);
-}
-
-function farmView() {
-  const S = St.S;
-  const frag = document.createDocumentFragment();
-
-  const goal = goalPanel();
-  if (goal) frag.appendChild(goal);
-
-  /* fields */
-  const head = `<em>🌱</em>Fields<span class="spacer"></span>`;
-  const tools = el('div', 'btn-row');
-  tools.style.marginBottom = '10px';
-
-  const hb = el('button', 'btn btn-sm btn-green', '🧺 Harvest All');
-  hb.onclick = () => { haptic(); G.harvestAll(); render(); };
-  const pb = el('button', 'btn btn-sm btn-gold', '🌱 Plant All');
-  pb.onclick = () => { haptic(); G.plantAll(S.selectedSeed); render(); };
-  tools.append(hb, pb);
-
-  const grid = el('div', 'fields');
-  S.plots.forEach((p, i) => grid.appendChild(plotTile(i)));
-
-  const fieldsPanel = panel(head, storageBar('silo'), tools, grid);
-  frag.appendChild(fieldsPanel);
-
-  /* seed strip */
-  const strip = el('div', 'seeds');
-  for (const c of D.CROPS) {
-    const locked = c.level > S.level;
-    const b = el('button', 'seed' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
-      `<em>${c.icon}</em><b>${c.name}</b><small>${locked ? 'Lv ' + c.level : '🪙' + c.seed}</small>
-       <small>${locked ? '🔒' : fmtTime(G.growSeconds(c))}</small>`);
-    b.onclick = () => {
-      haptic();
-      if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
-      S.selectedSeed = c.id;
-      St.saveSoon();
-      render();
-    };
-    strip.appendChild(b);
-  }
-  frag.appendChild(panel(`<em>🌰</em>Seed Shop`, strip,
-    el('div', 'muted', `Tap a seed, then tap a field to plant it. Each field yields ${D.CROP_YIELD} crops.`)));
-
-  /* land expansion teaser */
-  if (S.plots.length < D.MAX_PLOTS) {
-    const owned = S.plots.length;
-    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
-    const row = el('div', 'row');
-    row.innerHTML = `<div class="ic">🚧</div><div class="body"><b>Clear a new field</b>
-      <small>${S.level >= lv ? 'Ready to clear' : `Needs level ${lv}`} · Field ${owned + 1} of ${D.MAX_PLOTS}</small></div>`;
-    const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
-    b.disabled = S.level < lv;
-    b.onclick = () => { haptic(); G.buyPlot(); render(); };
-    row.appendChild(b);
-    frag.appendChild(panel(null, row));
+  if (t.kind === 'dialog') {
+    if (action === 'a' || action === 'b') { pop(); if (t.onDone) t.onDone(); }
+    return true;
   }
 
-  return frag;
-}
-
-function plotTile(i) {
-  const S = St.S;
-  const b = el('button', 'plot');
-  b.onclick = () => {
-    haptic();
-    const p = St.S.plots[i];
-    const state = G.plotState(p);
-    if (state === 'empty') { if (G.plant(i, St.S.selectedSeed)) render(); }
-    else if (state === 'ready') { G.harvest(i); render(); }
-    else speedSheet('field', () => { if (G.speedUpPlot(i)) render(); }, (St.S.plots[i].end - now()) / 1000, D.ITEMS[St.S.plots[i].crop]);
-  };
-
-  T(() => {
-    const p = St.S.plots[i];
-    const state = G.plotState(p);
-    b.className = 'plot ' + (state === 'empty' ? 'empty' : state);
-    if (state === 'empty') { b.innerHTML = ''; return; }
-    const crop = D.ITEMS[p.crop];
-    const total = p.end - p.at;
-    const pct = clamp((now() - p.at) / total, 0, 1);
-    const left = (p.end - now()) / 1000;
-    if (!b.dataset.crop || b.dataset.crop !== p.crop || !b.querySelector('.crop')) {
-      b.innerHTML = `<span class="crop">${crop.icon}</span>
-                     <span class="tag"></span><span class="growbar"><i></i></span>`;
-      b.dataset.crop = p.crop;
+  if (t.kind === 'confirm') {
+    if (action === 'up' || action === 'down' || action === 'left' || action === 'right') {
+      t.choice = t.choice ? 0 : 1;
+    } else if (action === 'a') {
+      pop();
+      if (t.choice === 0) { if (t.onYes) t.onYes(); } else if (t.onNo) t.onNo();
+    } else if (action === 'b') {
+      pop();
+      if (t.onNo) t.onNo();
     }
-    // Seedling grows into a full plant as the timer runs down.
-    const scale = 0.42 + 0.58 * pct;
-    b.querySelector('.crop').style.transform = `scale(${scale.toFixed(2)})`;
-    b.querySelector('.growbar > i').style.width = (pct * 100).toFixed(1) + '%';
-    b.querySelector('.tag').textContent = state === 'ready' ? 'TAP!' : fmtTime(left);
-  });
-  return b;
+    return true;
+  }
+
+  if (t.kind === 'menu') {
+    const n = t.items.length;
+    if (action === 'up' && n) t.cursor = (t.cursor - 1 + n) % n;
+    else if (action === 'down' && n) t.cursor = (t.cursor + 1) % n;
+    else if (action === 'a' && n) {
+      const item = t.items[t.cursor];
+      if (item.disabled) { flash(item.disabledWhy || 'CANT DO THAT'); return true; }
+      if (t.onPick && t.onPick(item, t.cursor) !== false) { /* handler owns the stack */ }
+    } else if (action === 'b') {
+      pop();
+      if (t.onCancel) t.onCancel();
+    }
+    if (t.cursor < t.scroll) t.scroll = t.cursor;
+    if (t.cursor >= t.scroll + ROWS) t.scroll = t.cursor - ROWS + 1;
+    return true;
+  }
+  return false;
 }
 
-/* -------------------------------- ANIMALS -------------------------------- */
+/** Screen-space tap while a window is open. Returns true if it was consumed. */
+function uiTap(px, py) {
+  const t = top();
+  if (!t) return false;
+  if (t.kind === 'dialog') { uiKey('a'); return true; }
+  if (t.kind === 'confirm') {
+    const yes = py >= 96 && py < 120;
+    t.choice = yes ? 0 : 1;
+    uiKey('a');
+    return true;
+  }
+  if (t.kind === 'menu') {
+    const row = Math.floor((py - LIST_Y - 2) / ROW_H);
+    if (row >= 0 && row < ROWS) {
+      const i = t.scroll + row;
+      if (i < t.items.length) { t.cursor = i; uiKey('a'); }
+    } else if (py > LIST_Y + ROWS * ROW_H + 6) {
+      uiKey('b');
+    }
+    return true;
+  }
+  return false;
+}
 
-function animalsView() {
-  const S = St.S;
-  const frag = document.createDocumentFragment();
+/* ------------------------------- drawing --------------------------------- */
 
-  const bar = el('div', 'btn-row');
-  bar.style.marginBottom = '10px';
-  const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect All');
-  cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
-  const fb = el('button', 'btn btn-sm btn-gold', '🌰 Feed All');
-  fb.onclick = () => { haptic(); G.feedAllAnimals(); render(); };
-  bar.append(cb, fb);
+function icon(emoji, size, x, y) {
+  ctx.drawImage(GFX.bake(emoji, size), x, y);
+}
 
-  const feedNote = el('div', 'muted');
-  T(() => {
-    feedNote.textContent = `Feed in barn: ${St.count('feed')} 🌰` +
-      (St.has('autoFeeder') ? ' · Auto Feeder is running' : ' · Mill more at the Feed Mill');
-  });
+function drawFrame(player, hint) {
+  ctx.fillStyle = PAL[PALE];
+  ctx.fillRect(0, 0, SCREEN_W, SCREEN_H);
+  drawWorld(player, hint);
+  drawHud();
+  drawUi();
+  drawFlash();
+}
 
-  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`, storageBar('barn'), bar, feedNote));
+/* ---- overworld ---- */
 
-  const soon = [];
+function drawWorld(p, hint) {
+  // Camera centres on the player, then stops at the edges of the farm.
+  const px = p.x * TILE + p.ox, py = p.y * TILE + p.oy;
+  camera.x = Math.max(0, Math.min(W.MAP_W * TILE - SCREEN_W, Math.round(px - SCREEN_W / 2 + 8)));
+  camera.y = Math.max(0, Math.min(W.MAP_H * TILE - VIEW_H, Math.round(py - VIEW_H / 2 + 8)));
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, HUD_H, SCREEN_W, VIEW_H);
+  ctx.clip();
+  ctx.translate(-camera.x, HUD_H - camera.y);
+
+  const x0 = Math.floor(camera.x / TILE), y0 = Math.floor(camera.y / TILE);
+  for (let ty = y0; ty <= y0 + VIEW_H / TILE + 1; ty++) {
+    for (let tx = x0; tx <= x0 + SCREEN_W / TILE + 1; tx++) {
+      if (!W.inBounds(tx, ty)) continue;
+      ctx.drawImage(GFX.tile(W.terrain[ty * W.MAP_W + tx]), tx * TILE, ty * TILE);
+    }
+  }
+
+  drawCrops();
+  drawAnimals();
+  drawSigns();
+
+  // The farmer, and a nudge when something here can be used.
+  const frames = GFX.farmer[p.dir] || GFX.farmer.down;
+  ctx.drawImage(frames[p.frame], px, py - 4);
+  if (hint) {
+    GFX.plate(ctx, px + 3, py - 16, 10, 12);
+    GFX.drawText(ctx, '!', px + 6, py - 13, DARK);
+  }
+  ctx.restore();
+}
+
+function drawCrops() {
+  for (let i = 0; i < St.S.plots.length; i++) {
+    const c = i % W.FIELD.cols, r = Math.floor(i / W.FIELD.cols);
+    const tx = (W.FIELD.x + c) * TILE, ty = (W.FIELD.y + r) * TILE;
+    const s = W.plotSprite(i);
+    if (!s) continue;
+    const size = [8, 12, 16][s.stage];
+    ctx.drawImage(GFX.bake(s.icon, size), tx + (TILE - size) / 2, ty + (TILE - size) - 1);
+    if (s.stage === 2) {                     // ripe: a little pop above the crop
+      GFX.plate(ctx, tx + 4, ty - 10, 9, 11);
+      GFX.drawText(ctx, '!', tx + 6, ty - 7, DARK);
+    }
+  }
+}
+
+function drawAnimals() {
   for (const type of D.ANIMALS) {
-    if (type.level > S.level) { soon.push(lockRow(type.icon, type.name2 || type.name + 's', type.level)); continue; }
     const mine = St.animalsOf(type.id);
-    const head = `<em>${type.icon}</em>${type.name2 || type.name + 's'}<span class="spacer"></span>
-      <span class="muted">${mine.length}/${type.max}</span>`;
-    const info = el('div', 'muted',
-      `Eats ${type.feed} 🌰 → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
-    const pen = el('div', 'pen-grid');
-
-    for (const an of mine) pen.appendChild(critterTile(an, type));
-
-    if (mine.length < type.max) {
-      const add = el('button', 'critter add', `<span>＋</span><span class="tag">🪙${fmt(type.cost)}</span>`);
-      add.onclick = () => { haptic(); G.buyAnimal(type.id); render(); };
-      pen.appendChild(add);
-    }
-    frag.appendChild(panel(head, info, pen));
-  }
-  if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
-  return frag;
-}
-
-function critterTile(an, type) {
-  const b = el('button', 'critter');
-  b.onclick = () => {
-    haptic();
-    const st = G.animalState(an);
-    if (st === 'hungry') { G.feedAnimal(an); render(); }
-    else if (st === 'ready') { G.collectAnimal(an); render(); }
-    else speedSheet(type.name.toLowerCase(), () => { if (G.speedUpAnimal(an)) render(); }, (an.readyAt - now()) / 1000, D.ITEMS[type.product]);
-  };
-  T(() => {
-    const st = G.animalState(an);
-    b.className = 'critter ' + st;
-    const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
-    const tag = st === 'ready' ? 'TAP!' : st === 'hungry' ? 'Feed' : fmtTime((an.readyAt - now()) / 1000);
-    b.innerHTML = `<span>${type.icon}</span>${mark ? `<span class="mark">${mark}</span>` : ''}<span class="tag">${tag}</span>`;
-  });
-  return b;
-}
-
-/* --------------------------------- CRAFT --------------------------------- */
-
-function craftView() {
-  const S = St.S;
-  const frag = document.createDocumentFragment();
-
-  const top = panel(`<em>🏭</em>Workshops<span class="spacer"></span>`, storageBar('barn'));
-  const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect Everything');
-  cb.style.marginTop = '8px';
-  cb.onclick = () => { haptic(); G.collectAllJobs(); render(); };
-  top.appendChild(cb);
-  frag.appendChild(top);
-
-  const soon = [];
-  for (const m of D.MACHINES) {
-    const owned = S.machines[m.id] && S.machines[m.id].owned;
-    if (m.level > S.level && !owned) {
-      soon.push(lockRow(m.icon, m.name, m.level,
-        D.recipesFor(m.id).map(r => D.ITEMS[r.out].icon).join(' ')));
-      continue;
-    }
-
-    if (!owned) {
-      const row = el('div', 'row');
-      row.innerHTML = `<div class="ic">${m.icon}</div><div class="body"><b>${m.name}</b>
-        <small>Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}</small></div>`;
-      const b = el('button', 'btn btn-sm btn-green', `🔨 ${fmt(m.cost)}`);
-      b.disabled = S.coins < m.cost;
-      b.onclick = () => { haptic(); G.buyMachine(m.id); render(); };
-      row.appendChild(b);
-      frag.appendChild(panel(null, row));
-      continue;
-    }
-
-    frag.appendChild(machinePanel(m));
-  }
-  if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
-  return frag;
-}
-
-function machinePanel(m) {
-  const S = St.S;
-  const head = `<em>${m.icon}</em>${m.name}<span class="spacer"></span>`;
-  const slots = el('div', 'slots');
-  const list = el('div');
-  list.style.marginTop = '10px';
-
-  const cap = St.queueCap();
-  for (let i = 0; i < cap; i++) slots.appendChild(slotTile(m.id, i));
-
-  for (const r of D.recipesFor(m.id)) {
-    const out = D.ITEMS[r.out];
-    const locked = r.level > S.level;
-    const row = el('div', 'row' + (locked ? ' locked' : ''));
-    const ing = el('div', 'chips');
-    row.innerHTML = `<div class="ic">${out.icon}</div>`;
-    const body = el('div', 'body');
-    body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
-      <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
-    body.appendChild(ing);
-    row.appendChild(body);
-
-    const btn = el('button', 'btn btn-sm btn-green', '🔨 Make');
-    btn.onclick = () => { haptic(); G.enqueue(m.id, r.id); render(); };
-    row.appendChild(btn);
-
-    T(() => {
-      ing.innerHTML = '';
-      for (const [id, q] of Object.entries(r.in)) {
-        const have = St.count(id);
-        ing.appendChild(el('span', 'chip ' + (have >= q ? 'done' : 'miss'),
-          have >= q ? `${D.ITEMS[id].icon} ×${q}` : `${D.ITEMS[id].icon} ${have}/${q}`));
+    mine.forEach((an, slot) => {
+      const pos = W.penSlotPos(type.id, slot);
+      const x = pos.x * TILE, y = pos.y * TILE;
+      ctx.drawImage(GFX.bake(type.icon, 16), x, y);
+      const st = G.animalState(an);
+      if (st === 'ready') {
+        ctx.drawImage(GFX.bake(D.ITEMS[type.product].icon, 8), x + 9, y - 7);
+      } else if (st === 'hungry') {
+        GFX.plate(ctx, x + 8, y - 10, 9, 11);
+        GFX.drawText(ctx, '!', x + 10, y - 7, DARK);
       }
-      const full = S.machines[m.id].queue.length >= St.queueCap();
-      btn.disabled = locked || full || !St.hasAll(r.in);
-      btn.textContent = full ? '⏳ Full' : '🔨 Make';
     });
-    list.appendChild(row);
   }
-  return panel(head, slots, list);
 }
 
-function slotTile(machineId, i) {
-  const b = el('button', 'slot');
-  b.onclick = () => {
-    const m = St.S.machines[machineId];
-    const job = m.queue[i];
-    if (!job) return;
-    haptic();
-    if (G.jobReady(job)) { G.collectJob(machineId, job.jid); render(); }
-    else {
-      const r = D.RECIPES.find(x => x.id === job.recipe);
-      speedSheet(D.ITEMS[r.out].name, () => { if (G.speedUpJob(machineId, job.jid)) render(); },
-        (job.end - now()) / 1000, D.ITEMS[r.out]);
-    }
-  };
-  T(() => {
-    const m = St.S.machines[machineId];
-    const job = m.queue[i];
-    if (!job) { b.className = 'slot'; b.innerHTML = '<span style="opacity:.35">＋</span>'; return; }
-    const r = D.RECIPES.find(x => x.id === job.recipe);
-    const out = D.ITEMS[r.out];
-    const ready = G.jobReady(job);
-    b.className = 'slot ' + (ready ? 'done' : 'busy');
-    const total = Math.max(1, job.end - job.start);
-    const pct = clamp((now() - job.start) / total, 0, 1) * 100;
-    b.innerHTML = `<span class="ring" style="--p:${pct.toFixed(0)}%"></span><span>${out.icon}</span>
-      <span class="tag">${ready ? 'TAP!' : fmtTime((job.end - now()) / 1000)}</span>`;
-  });
-  return b;
+function sign(name, cx, y) {
+  const w = GFX.textWidth(name) + 6;
+  const x = Math.round(cx - w / 2);
+  GFX.plate(ctx, x, y, w, 11);
+  GFX.drawText(ctx, name, x + 3, y + 2, DARK);
 }
 
-/* -------------------------------- ORDERS --------------------------------- */
-
-const CUSTOMERS = ['👨‍🍳', '👵', '🧑‍🎤', '👮', '🧑‍🏫', '👨‍🔧', '🧕', '🧑‍🚀', '💁', '🧙'];
-
-function ordersView() {
-  const S = St.S;
-  const frag = document.createDocumentFragment();
-  const p = panel(`<em>📋</em>Order Board<span class="spacer"></span>`);
-  p.appendChild(el('div', 'muted',
-    'Fill a crate to earn far more than selling piece by piece. Decline anything you cannot make — a new order arrives sooner.'));
-  frag.appendChild(p);
-
-  S.orders.forEach((o, i) => {
-    if (!o || !o.oid) {
-      const w = el('div', 'order wait');
-      T(() => {
-        const left = ((o && o.wait ? o.wait : 0) - now()) / 1000;
-        w.innerHTML = `🚚 New order in ${fmtTime(Math.max(0, left))}`;
-      });
-      frag.appendChild(w);
-      return;
-    }
-    frag.appendChild(orderCard(o, i));
-  });
-  return frag;
-}
-
-function orderCard(o, i) {
-  const card = el('div', 'order');
-  const face = CUSTOMERS[(o.oid.charCodeAt(0) + i) % CUSTOMERS.length];
-  const top = el('div', 'order-top');
-  top.innerHTML = `<span class="who">${face}</span>
-    <div class="body" style="flex:1"><b>Order #${o.oid.slice(0, 4).toUpperCase()}</b>
-      <small class="muted">🪙 ${fmt(o.coins)} · +${o.xp} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
-  card.appendChild(top);
-
-  const reqs = el('div', 'order-req');
-  card.appendChild(reqs);
-
-  const btns = el('div', 'btn-row');
-  btns.style.marginTop = '10px';
-  const deliver = el('button', 'btn btn-sm btn-green', '🚚 Deliver');
-  deliver.onclick = () => { haptic(); G.deliverOrder(o.oid); render(); };
-  const decline = el('button', 'btn btn-sm', '✖️ Decline');
-  decline.style.flex = '0 0 auto';
-  decline.onclick = () => { haptic(); G.declineOrder(o.oid); render(); };
-  btns.append(deliver, decline);
-  card.appendChild(btns);
-
-  T(() => {
-    reqs.innerHTML = '';
-    for (const [id, q] of Object.entries(o.items)) {
-      const have = St.count(id);
-      const r = el('div', 'req' + (have >= q ? '' : ' miss'));
-      r.innerHTML = `<em>${D.ITEMS[id].icon}</em><b>${Math.min(have, q)}/${q}</b>`;
-      reqs.appendChild(r);
-    }
-    deliver.disabled = !G.canDeliver(o);
-  });
-  return card;
-}
-
-/* --------------------------------- SHOP ---------------------------------- */
-
-function shopView() {
-  const S = St.S;
-  const frag = document.createDocumentFragment();
-
-  /* market */
-  const market = panel(`<em>💰</em>Market`);
-  market.appendChild(el('div', 'muted', 'Sell straight from storage at market price.'));
-  const mrow = el('div', 'btn-row');
-  mrow.style.marginTop = '8px';
-  const s1 = el('button', 'btn btn-sm btn-gold', '🛖 Sell Crops');
-  s1.onclick = () => { haptic(); sellSheet('silo'); };
-  const s2 = el('button', 'btn btn-sm btn-gold', '🏠 Sell Goods');
-  s2.onclick = () => { haptic(); sellSheet('barn'); };
-  mrow.append(s1, s2);
-  market.appendChild(mrow);
-  if (St.has('scythe')) market.appendChild(el('div', 'muted', '🪄 Golden Scythe: +25% on every sale.'));
-  frag.appendChild(market);
-
-  /* land */
-  const land = panel(`<em>🚜</em>Land`);
-  if (S.plots.length >= D.MAX_PLOTS) {
-    land.appendChild(el('div', 'muted', '🏆 You own every field on Sunny Acres.'));
-  } else {
-    const owned = S.plots.length;
-    const cost = D.plotCost(owned), lv = D.plotLevel(owned);
-    land.appendChild(buyRow('🚧', `Field ${owned + 1}`,
-      `${owned} of ${D.MAX_PLOTS} fields cleared`, cost, S.level < lv ? lv : 0,
-      () => { G.buyPlot(); render(); }));
+function drawSigns() {
+  // Nameplates sit on the roof course, where nothing else competes with them.
+  for (const b of W.BUILDINGS) {
+    sign(b.name, (b.x + b.w / 2) * TILE, b.y * TILE + 3);
   }
-  frag.appendChild(land);
+  sign(W.BOARD.name, (W.BOARD.x + 0.5) * TILE, W.BOARD.y * TILE - 12);
+}
 
-  /* storage */
-  const store = panel(`<em>📦</em>Storage`);
-  store.appendChild(buyRow('🛖', `Silo +${D.SILO_STEP}`,
-    `Holds ${S.siloCap} crops now`, D.siloUpgradeCost(S.siloCap), 0,
-    () => { G.upgradeSilo(); render(); }));
-  store.appendChild(buyRow('🏠', `Barn +${D.BARN_STEP}`,
-    `Holds ${S.barnCap} goods now`, D.barnUpgradeCost(S.barnCap), 0,
-    () => { G.upgradeBarn(); render(); }));
-  frag.appendChild(store);
+/* ---- status bar ---- */
 
-  /* upgrades */
-  const up = panel(`<em>⭐</em>Farm Upgrades`);
-  up.appendChild(el('div', 'muted', 'Permanent boosts. Each one takes work off your hands for good.'));
-  for (const u of D.UPGRADES) {
-    if (S.upgrades[u.id]) {
-      const r = el('div', 'row');
-      r.innerHTML = `<div class="ic">${u.icon}</div><div class="body"><b>${u.name}</b><small>${u.desc}</small></div>
-        <span class="chip done">✔ Owned</span>`;
-      up.appendChild(r);
-    } else {
-      up.appendChild(buyRow(u.icon, u.name, u.desc, u.cost, S.level < u.level ? u.level : 0,
-        () => { G.buyUpgrade(u.id); render(); }));
+function drawHud() {
+  ctx.fillStyle = PAL[PALE];
+  ctx.fillRect(0, 0, SCREEN_W, HUD_H);
+  ctx.fillStyle = PAL[DARK];
+  ctx.fillRect(0, HUD_H - 2, SCREEN_W, 2);
+
+  GFX.drawText(ctx, '$' + fmt(St.S.coins), 3, 3, DARK);
+  const gems = '@' + fmt(St.S.gems);
+  GFX.drawText(ctx, gems, 74, 3, DARK);
+  const lv = 'LV' + St.S.level;
+  GFX.drawText(ctx, lv, SCREEN_W - GFX.textWidth(lv) - 3, 3, DARK);
+}
+
+/* ---- windows ---- */
+
+function drawUi() {
+  const t = top();
+  if (!t) return;
+  if (t.kind === 'dialog') return drawDialog(t);
+  if (t.kind === 'confirm') return drawConfirm(t);
+  if (t.kind === 'menu') return drawMenu(t);
+}
+
+function drawDialog(t) {
+  const h = 14 + t.lines.length * GFX.LINE_H;
+  const y = SCREEN_H - h;
+  GFX.panel(ctx, 0, y, SCREEN_W, h);
+  t.lines.forEach((l, i) => GFX.drawText(ctx, l, 8, y + 7 + i * GFX.LINE_H, DARK));
+  if (Math.floor(now() / 350) % 2) GFX.drawText(ctx, 'v', SCREEN_W - 12, y + h - 11, DARK);
+}
+
+function drawConfirm(t) {
+  GFX.panel(ctx, 0, 60, SCREEN_W, 34);
+  t.lines.slice(0, 2).forEach((l, i) => GFX.drawText(ctx, l, 8, 68 + i * GFX.LINE_H, DARK));
+  GFX.panel(ctx, 0, 96, SCREEN_W, 24);
+  GFX.panel(ctx, 0, 120, SCREEN_W, 24);
+  GFX.drawText(ctx, 'YES', 24, 104, DARK);
+  GFX.drawText(ctx, 'NO', 24, 128, DARK);
+  GFX.drawText(ctx, '>', 10, t.choice === 0 ? 104 : 128, DARK);
+}
+
+function drawMenu(t) {
+  // title
+  GFX.panel(ctx, 0, 0, SCREEN_W, 18);
+  GFX.drawText(ctx, t.title, 6, 5, DARK);
+
+  const listH = ROWS * ROW_H + 6;
+  GFX.panel(ctx, 0, LIST_Y, SCREEN_W, listH);
+
+  if (!t.items.length) {
+    GFX.drawText(ctx, 'NOTHING HERE', 30, LIST_Y + 24, MID);
+  }
+
+  for (let r = 0; r < ROWS; r++) {
+    const i = t.scroll + r;
+    if (i >= t.items.length) break;
+    const it = t.items[i];
+    const y = LIST_Y + 4 + r * ROW_H;
+    const shade = it.disabled ? MID : DARK;
+
+    if (i === t.cursor) GFX.drawText(ctx, '>', 3, y + 4, DARK);
+    let tx = 11;
+    if (it.icon) { icon(it.icon, 14, tx, y); tx += 16; }
+    GFX.drawText(ctx, it.label, tx, y + 4, shade);
+    if (it.right) {
+      GFX.drawText(ctx, it.right, SCREEN_W - GFX.textWidth(it.right) - 6, y + 4, shade);
     }
   }
-  frag.appendChild(up);
-  return frag;
+
+  // scroll arrows
+  if (t.scroll > 0) GFX.drawText(ctx, '^', SCREEN_W / 2 - 2, LIST_Y - 1, DARK);
+  if (t.scroll + ROWS < t.items.length) {
+    GFX.drawText(ctx, 'v', SCREEN_W / 2 - 2, LIST_Y + listH - 9, DARK);
+  }
+
+  // detail panel for the highlighted row
+  const dy = LIST_Y + listH;
+  GFX.panel(ctx, 0, dy, SCREEN_W, SCREEN_H - dy);
+  const sel = t.items[t.cursor];
+  const detail = sel ? (sel.detail || '') : '';
+  GFX.wrapText(detail, 24).slice(0, 3)
+    .forEach((l, i) => GFX.drawText(ctx, l, 6, dy + 6 + i * GFX.LINE_H, DARK));
 }
 
-function buyRow(icon, name, desc, cost, needLevel, onBuy) {
-  const S = St.S;
-  const r = el('div', 'row' + (needLevel ? ' locked' : ''));
-  r.innerHTML = `<div class="ic">${icon}</div><div class="body"><b>${name}</b>
-    <small>${needLevel ? '🔒 Unlocks at level ' + needLevel : desc}</small></div>`;
-  const b = el('button', 'btn btn-sm btn-green', `🪙 ${fmt(cost)}`);
-  b.disabled = !!needLevel || S.coins < cost;
-  b.onclick = () => { haptic(); onBuy(); };
-  r.appendChild(b);
-  return r;
+function drawFlash() {
+  if (!flashMsg || now() > flashUntil) return;
+  const w = Math.min(SCREEN_W, GFX.textWidth(flashMsg) + 12);
+  const x = (SCREEN_W - w) / 2;
+  GFX.plate(ctx, x, SCREEN_H - 18, w, 14);
+  GFX.drawText(ctx, flashMsg, x + 6, SCREEN_H - 14, DARK);
+}
+return { initScreen, closeAll, pop, dialog, menu, confirm, refreshMenu, flash, uiKey, uiTap, drawFrame, HUD_H, camera, busy, top };
+})();
+
+/* ---------- js/menus.js ---------- */
+const __mod_menus = (function () {
+const D = __mod_data;
+const St = __mod_state;
+const G = __mod_game;
+const S = __mod_screen;
+const {fmt, fmtTime} = __mod_util;
+/* ==========================================================================
+   menus.js — the windows behind every A press: fields, pens, silo, barn,
+   workshops, store, order board and the farmhouse.
+   ========================================================================== */
+
+
+
+
+
+
+
+const price = id => '$' + fmt(G.sellPrice(id));
+
+/* -------------------------------- fields --------------------------------- */
+
+function fieldMenu(i) {
+  const plot = St.S.plots[i];
+  const state = G.plotState(plot);
+
+  if (state === 'ready') {                 // no menu — just take the crop
+    const n = G.harvest(i);
+    if (n) S.flash(`GOT ${n} ${D.ITEMS[plot.crop].name}`);
+    return;
+  }
+
+  if (state === 'growing') {
+    const left = (plot.end - Date.now()) / 1000;
+    const cost = D.speedUpCost(left);
+    S.confirm(`${D.ITEMS[plot.crop].name} NEEDS ${fmtTime(left)}. FINISH FOR ${cost} GEMS?`,
+      () => { if (G.speedUpPlot(i)) S.flash('READY!'); });
+    return;
+  }
+
+  seedMenu(i);
 }
 
-/* -------------------------------- sheets --------------------------------- */
+function seedMenu(plotIndex) {
+  const crops = D.CROPS;
+  const items = [{
+    label: 'PLANT ALL', icon: '🚜', right: '',
+    detail: 'FILL EVERY EMPTY FIELD WITH THE SEED YOU PICK NEXT.', value: null,
+  }];
+  for (const c of crops) {
+    const locked = c.level > St.S.level;
+    items.push({
+      label: c.name, icon: c.icon,
+      right: locked ? 'LV' + c.level : '$' + c.seed,
+      disabled: locked || St.S.coins < c.seed,
+      disabledWhy: locked ? `NEEDS LEVEL ${c.level}` : 'NOT ENOUGH COINS',
+      detail: locked ? `UNLOCKS AT LEVEL ${c.level}.`
+        : `GROWS IN ${fmtTime(G.growSeconds(c))}. SELLS FOR ${price(c.id)} EACH.`,
+      value: c.id,
+    });
+  }
+  const start = Math.max(0, crops.findIndex(c => c.id === St.S.selectedSeed) + 1);
 
-function openSheet(build) {
-  const root = $('sheet-root');
-  const back = el('div', 'backdrop');
-  const sheet = el('div', 'sheet');
-  sheet.appendChild(el('div', 'sheet-grab'));
-  const close = () => { back.remove(); };
-  build(sheet, close);
-  back.appendChild(sheet);
-  back.onclick = e => { if (e.target === back) close(); };
-  root.appendChild(back);
-  return close;
-}
-
-function sellSheet(kind) {
-  const S = St.S;
-  openSheet((sheet, close) => {
-    const isSilo = kind === 'silo';
-    sheet.appendChild(el('h2', null, isSilo ? '🛖 Sell Crops' : '🏠 Sell Goods'));
-    sheet.appendChild(el('p', 'sub', 'Tap to sell. Orders pay much better — check the board first.'));
-
-    const list = el('div');
-    const build = () => {
-      list.innerHTML = '';
-      const stock = isSilo ? S.silo : S.barn;
-      const ids = Object.keys(stock).filter(id => stock[id] > 0);
-      if (!ids.length) {
-        list.appendChild(el('div', 'muted center', 'Nothing in here yet.'));
+  S.menu({
+    title: 'SEED BAG', items, cursor: start,
+    onPick(item) {
+      if (!item.value) {                   // PLANT ALL -> pick the seed first
+        S.pop();
+        plantAllMenu();
         return;
       }
-      ids.sort((a, b) => D.ITEMS[a].price - D.ITEMS[b].price);
-      for (const id of ids) {
-        const it = D.ITEMS[id];
-        const n = stock[id];
-        const row = el('div', 'row');
-        row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
-          <small>🪙 ${fmt(G.sellPrice(id))} each</small></div>`;
-        const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
-        const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
-        one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
-        all.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, n)) + ' 🪙'); build(); refresh(); };
-        row.append(one, all);
-        list.appendChild(row);
+      St.S.selectedSeed = item.value;
+      if (plotIndex == null) { S.flash(`${D.ITEMS[item.value].name} SELECTED`); return; }
+      if (G.plant(plotIndex, item.value)) {
+        S.pop();
+        S.flash(`PLANTED ${D.ITEMS[item.value].name}`);
       }
-    };
-    build();
-    sheet.appendChild(list);
-
-    const done = el('button', 'btn btn-big btn-blue', 'Done');
-    done.style.marginTop = '10px';
-    done.onclick = () => { close(); render(); };
-    sheet.appendChild(done);
+    },
   });
 }
 
-function speedSheet(what, action, secLeft, item) {
-  openSheet((sheet, close) => {
-    const cost = D.speedUpCost(secLeft);
-    sheet.appendChild(el('h2', null, `${item ? item.icon : '⏳'} Still ${fmtTime(secLeft)}`));
-    sheet.appendChild(el('p', 'sub', `Spend gems to finish this ${what} right now.`));
-    const go = el('button', 'btn btn-big btn-blue', `💎 ${cost} — Finish Now`);
-    go.onclick = () => { action(); close(); };
-    sheet.appendChild(go);
-    const nope = el('button', 'btn btn-big', 'Wait it out');
-    nope.style.marginTop = '8px';
-    nope.onclick = close;
-    sheet.appendChild(nope);
+function plantAllMenu() {
+  const items = D.CROPS.filter(c => c.level <= St.S.level).map(c => ({
+    label: c.name, icon: c.icon, right: '$' + c.seed, value: c.id,
+    detail: `PLANTS EVERY EMPTY FIELD. ${fmtTime(G.growSeconds(c))} EACH.`,
+  }));
+  S.menu({
+    title: 'PLANT ALL', items,
+    onPick(item) { S.pop(); G.plantAll(item.value); },
   });
 }
 
-function profileSheet() {
-  const S = St.S;
-  openSheet((sheet, close) => {
-    sheet.appendChild(el('h2', null, `${S.avatar} ${S.name}`));
-    sheet.appendChild(el('p', 'sub', `${D.titleFor(S.level)} · Level ${S.level}`));
+function seedBag() { seedMenu(null); }
 
-    const next = D.TITLES.find(t => t.level > S.level);
-    const stats = el('div', 'panel');
-    stats.style.margin = '0 0 10px';
-    stats.innerHTML = `
-      <div class="row"><div class="ic">🧺</div><div class="body"><b>${fmt(S.stats.harvested)}</b><small>Crops harvested</small></div></div>
-      <div class="row"><div class="ic">🥚</div><div class="body"><b>${fmt(S.stats.collected)}</b><small>Animal goods collected</small></div></div>
-      <div class="row"><div class="ic">🏭</div><div class="body"><b>${fmt(S.stats.crafted)}</b><small>Goods crafted</small></div></div>
-      <div class="row"><div class="ic">🚚</div><div class="body"><b>${fmt(S.stats.orders)}</b><small>Orders delivered</small></div></div>
-      <div class="row"><div class="ic">🪙</div><div class="body"><b>${fmt(S.stats.earned)}</b><small>Coins earned all-time</small></div></div>
-      ${next ? `<div class="row"><div class="ic">🎖️</div><div class="body"><b>${next.name}</b><small>Next title, at level ${next.level}</small></div></div>` : ''}`;
-    sheet.appendChild(stats);
-
-    /* avatar swap */
-    sheet.appendChild(el('div', 'fld-label', 'Change your look'));
-    const grid = el('div', 'avatar-grid');
-    for (const a of D.AVATARS) {
-      const b = el('button', 'av' + (a === S.avatar ? ' on' : ''), a);
-      b.onclick = () => { S.avatar = a; St.save(); close(); render(); };
-      grid.appendChild(b);
-    }
-    sheet.appendChild(grid);
-
-    const snd = el('button', 'btn btn-big', '');
-    const paint = () => { snd.textContent = soundOn() ? '🔊 Sound: On' : '🔇 Sound: Off'; };
-    paint();
-    snd.onclick = () => {
-      S.settings.sound = !S.settings.sound;
-      setSound(S.settings.sound);
-      St.save();
-      paint();
-    };
-    sheet.appendChild(snd);
-
-    const reset = el('button', 'btn btn-big btn-red', '🗑️ Start a new farm');
-    reset.style.marginTop = '8px';
-    reset.onclick = () => confirmSheet('Start over?',
-      'Your farm, coins and levels are erased for good.', () => { St.wipe(); location.reload(); });
-    sheet.appendChild(reset);
-
-    const done = el('button', 'btn btn-big btn-blue', 'Close');
-    done.style.marginTop = '8px';
-    done.onclick = close;
-    sheet.appendChild(done);
-  });
-}
-
-function confirmSheet(title, body, onYes) {
-  openSheet((sheet, close) => {
-    sheet.appendChild(el('h2', null, title));
-    sheet.appendChild(el('p', 'sub', body));
-    const yes = el('button', 'btn btn-big btn-red', 'Yes, do it');
-    yes.onclick = () => { close(); onYes(); };
-    const no = el('button', 'btn btn-big', 'Cancel');
-    no.style.marginTop = '8px';
-    no.onclick = close;
-    sheet.append(yes, no);
-  });
-}
-
-/* ------------------------------- feedback -------------------------------- */
-
-function toast(msg, icon, bad) {
-  const t = el('div', 'toast' + (bad ? ' bad' : ''), `${icon ? icon + ' ' : ''}${msg}`);
-  $('toasts').appendChild(t);
-  setTimeout(() => t.remove(), 2300);
-}
-
-function floatText(e, text) {
-  const f = el('div', 'float', text);
-  const x = e && e.clientX ? e.clientX : innerWidth / 2;
-  const y = e && e.clientY ? e.clientY : innerHeight / 2;
-  f.style.left = x + 'px';
-  f.style.top = y + 'px';
-  f.style.transform = 'translate(-50%, 0)';
-  document.body.appendChild(f);
-  setTimeout(() => f.remove(), 1000);
-}
-
-/** What the player just earned the right to do. */
-function unlocksAt(level) {
-  const out = [];
-  for (const c of D.CROPS) if (c.level === level) out.push(`${c.icon} ${c.name}`);
-  for (const a of D.ANIMALS) if (a.level === level) out.push(`${a.icon} ${a.name}`);
-  for (const m of D.MACHINES) if (m.level === level) out.push(`${m.icon} ${m.name}`);
-  for (const r of D.RECIPES) if (r.level === level && !D.MACHINES.some(m => m.level === level && m.id === r.machine)) {
-    out.push(`${D.ITEMS[r.out].icon} ${D.ITEMS[r.out].name}`);
-  }
-  for (const u of D.UPGRADES) if (u.level === level) out.push(`${u.icon} ${u.name}`);
+function lockedField() {
   const owned = St.S.plots.length;
-  if (owned < D.MAX_PLOTS && D.plotLevel(owned) === level) out.push('🚧 New field');
-  return out;
+  if (owned >= D.MAX_PLOTS) { S.dialog('EVERY FIELD ON THE FARM IS YOURS.'); return; }
+  const cost = D.plotCost(owned), lv = D.plotLevel(owned);
+  if (St.S.level < lv) { S.dialog(`THIS PATCH IS OVERGROWN. CLEAR IT AT LEVEL ${lv}.`); return; }
+  S.confirm(`CLEAR THIS FIELD FOR ${fmt(cost)} COINS?`, () => G.buyPlot());
 }
 
-function levelUpSplash(level) {
-  SFX.levelUp();
-  const wrap = el('div', 'levelup');
-  const card = el('div', 'card');
-  const unlocks = unlocksAt(level);
-  const newTitle = D.titleFor(level) !== D.titleFor(level - 1);
-  card.innerHTML = `<div class="big">🎉</div><h2>Level ${level}!</h2>
-    <p>${newTitle ? `You are now a ${D.titleFor(level)} · ` : ''}+🪙${fmt(level * 120)} · +💎${level % 5 === 0 ? 3 : 1}</p>
-    ${unlocks.length ? `<div class="unlock-list">${unlocks.map(u => `<span class="chip">${u}</span>`).join('')}</div>` : ''}`;
-  const b = el('button', 'btn btn-big btn-green', 'Nice!');
-  b.onclick = () => { wrap.remove(); render(); };
-  card.appendChild(b);
-  wrap.appendChild(card);
-  wrap.onclick = e => { if (e.target === wrap) { wrap.remove(); render(); } };
-  document.body.appendChild(wrap);
-}
+/* --------------------------------- pens ---------------------------------- */
 
-function welcomeBack(info) {
-  if (info.away < 120) return;
-  const bits = [];
-  if (info.ripe) bits.push(`${info.ripe} field${info.ripe > 1 ? 's' : ''} ripened`);
-  if (info.ready) bits.push(`${info.ready} animal${info.ready > 1 ? 's' : ''} produced`);
-  if (info.crafts) bits.push(`${info.crafts} craft${info.crafts > 1 ? 's' : ''} finished`);
-  if (!bits.length) return;
-  openSheet((sheet, close) => {
-    sheet.appendChild(el('h2', null, '👋 Welcome back!'));
-    sheet.appendChild(el('p', 'sub', `You were away for ${fmtSpan(info.away)}.`));
-    const list = el('div');
-    for (const b of bits) {
-      const r = el('div', 'row');
-      r.innerHTML = `<div class="ic">✅</div><div class="body"><b>${b}</b></div>`;
-      list.appendChild(r);
+function penTile(type, slot) {
+  const kind = D.ANIMALS.find(a => a.id === type);
+  const mine = St.animalsOf(type);
+
+  if (slot < mine.length) {
+    const an = mine[slot];
+    const st = G.animalState(an);
+    if (st === 'ready') {
+      if (G.collectAnimal(an)) S.flash(`GOT ${D.ITEMS[kind.product].name}`);
+      return;
     }
-    sheet.appendChild(list);
-    const go = el('button', 'btn btn-big btn-green', 'Back to the farm');
-    go.style.marginTop = '10px';
-    go.onclick = close;
-    sheet.appendChild(go);
+    if (st === 'hungry') {
+      if (St.count('feed') < kind.feed) {
+        S.dialog(`THE ${kind.name} IS HUNGRY. IT NEEDS ${kind.feed} FEED - MILL SOME AT WORKS.`);
+        return;
+      }
+      G.feedAnimal(an);
+      S.flash(`FED THE ${kind.name}`);
+      return;
+    }
+    const left = (an.readyAt - Date.now()) / 1000;
+    S.confirm(`${kind.name} IS BUSY FOR ${fmtTime(left)}. RUSH FOR ${D.speedUpCost(left)} GEMS?`,
+      () => { if (G.speedUpAnimal(an)) S.flash('READY!'); });
+    return;
+  }
+
+  if (kind.level > St.S.level) { S.dialog(`${kind.name}S ARRIVE AT LEVEL ${kind.level}.`); return; }
+  if (mine.length >= kind.max) { S.dialog('THIS PEN IS FULL.'); return; }
+  S.confirm(`BUY A ${kind.name} FOR ${fmt(kind.cost)} COINS?`, () => G.buyAnimal(type));
+}
+
+/* ------------------------------- selling --------------------------------- */
+
+function sellList(title, isCrop) {
+  const build = () => Object.keys(isCrop ? St.S.silo : St.S.barn)
+    .filter(id => St.count(id) > 0)
+    .sort((a, b) => D.ITEMS[a].price - D.ITEMS[b].price)
+    .map(id => ({
+      label: D.ITEMS[id].name, icon: D.ITEMS[id].icon,
+      right: 'x' + St.count(id), value: id,
+      detail: `${price(id)} EACH. ALL ${St.count(id)} FETCH $${fmt(G.sellPrice(id) * St.count(id))}.`,
+    }));
+
+  S.menu({
+    title, items: build(),
+    onPick(item) {
+      const id = item.value;
+      S.menu({
+        title: D.ITEMS[id].name.toUpperCase(),
+        items: [
+          { label: 'SELL 1', right: price(id), value: 1 },
+          { label: 'SELL 10', right: '$' + fmt(G.sellPrice(id) * Math.min(10, St.count(id))), value: 10 },
+          { label: 'SELL ALL', right: '$' + fmt(G.sellPrice(id) * St.count(id)), value: 1e9 },
+          { label: 'BACK', value: 0 },
+        ],
+        onPick(sub) {
+          S.pop();
+          if (sub.value) {
+            const got = G.sell(id, sub.value);
+            S.flash(`SOLD FOR $${fmt(got)}`);
+          }
+          S.refreshMenu(build());
+        },
+      });
+    },
   });
 }
-return { setView, render, refresh, openSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
+
+const siloMenu = () => sellList('SILO', true);
+const barnMenu = () => sellList('BARN', false);
+
+/* ------------------------------ workshops -------------------------------- */
+
+function worksMenu() {
+  const build = () => D.MACHINES.map(m => {
+    const own = St.S.machines[m.id] && St.S.machines[m.id].owned;
+    const ready = own ? St.S.machines[m.id].queue.filter(G.jobReady).length : 0;
+    const locked = m.level > St.S.level;
+    return {
+      label: m.name, icon: m.icon, value: m.id,
+      right: !own ? (locked ? 'LV' + m.level : '$' + fmt(m.cost)) : ready ? `!${ready}` : '',
+      disabled: locked,
+      disabledWhy: `NEEDS LEVEL ${m.level}`,
+      detail: !own
+        ? (locked ? `UNLOCKS AT LEVEL ${m.level}.` : `BUILD FOR ${fmt(m.cost)} COINS.`)
+        : `MAKES ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}.`,
+      owned: own,
+    };
+  });
+
+  S.menu({
+    title: 'WORKSHOPS', items: build(),
+    onPick(item) {
+      if (!item.owned) {
+        const m = D.MACHINES.find(x => x.id === item.value);
+        S.confirm(`BUILD THE ${m.name} FOR ${fmt(m.cost)} COINS?`, () => {
+          G.buyMachine(m.id);
+          S.refreshMenu(build());
+        });
+        return;
+      }
+      machineMenu(item.value, () => S.refreshMenu(build()));
+    },
+  });
+}
+
+function machineMenu(id, onBack) {
+  const m = D.MACHINES.find(x => x.id === id);
+
+  const build = () => {
+    const q = St.S.machines[id].queue;
+    const rows = [];
+    for (const job of q) {
+      const r = D.RECIPES.find(x => x.id === job.recipe);
+      const done = G.jobReady(job);
+      rows.push({
+        label: done ? 'TAKE ' + D.ITEMS[r.out].name : D.ITEMS[r.out].name,
+        icon: D.ITEMS[r.out].icon,
+        right: done ? 'DONE' : fmtTime((job.end - Date.now()) / 1000),
+        job, detail: done ? 'READY TO COLLECT.' : 'STILL COOKING. PICK IT TO RUSH WITH GEMS.',
+      });
+    }
+    for (const r of D.recipesFor(id)) {
+      const locked = r.level > St.S.level;
+      const need = Object.entries(r.in)
+        .map(([k, v]) => `${St.count(k)}/${v} ${D.ITEMS[k].name}`).join(', ');
+      rows.push({
+        label: 'MAKE ' + D.ITEMS[r.out].name, icon: D.ITEMS[r.out].icon,
+        right: locked ? 'LV' + r.level : fmtTime(G.craftTime(r)),
+        recipe: r,
+        disabled: locked || !St.hasAll(r.in) || St.S.machines[id].queue.length >= St.queueCap(),
+        disabledWhy: locked ? `NEEDS LEVEL ${r.level}`
+          : St.S.machines[id].queue.length >= St.queueCap() ? 'QUEUE IS FULL' : 'MISSING INGREDIENTS',
+        detail: locked ? `UNLOCKS AT LEVEL ${r.level}.` : `NEEDS ${need}. SELLS ${price(r.out)}.`,
+      });
+    }
+    return rows;
+  };
+
+  S.menu({
+    title: m.name, items: build(), onCancel: onBack,
+    onPick(item) {
+      if (item.job) {
+        if (G.jobReady(item.job)) {
+          G.collectJob(id, item.job.jid);
+          S.flash('COLLECTED');
+        } else {
+          const left = (item.job.end - Date.now()) / 1000;
+          S.confirm(`RUSH FOR ${D.speedUpCost(left)} GEMS?`, () => {
+            G.speedUpJob(id, item.job.jid);
+            S.refreshMenu(build());
+          });
+          return;
+        }
+      } else if (item.recipe) {
+        if (G.enqueue(id, item.recipe.id)) S.flash('STARTED');
+      }
+      S.refreshMenu(build());
+    },
+  });
+}
+
+/* -------------------------------- orders --------------------------------- */
+
+function ordersMenu() {
+  const build = () => St.S.orders.map((o, i) => {
+    if (!o || !o.oid) {
+      return { label: 'WAITING...', right: fmtTime(Math.max(0, ((o && o.wait) || 0 - Date.now()) / 1000)),
+        disabled: true, disabledWhy: 'NO ORDER YET', detail: 'A NEW CUSTOMER IS ON THE WAY.' };
+    }
+    const need = Object.entries(o.items)
+      .map(([id, q]) => `${St.count(id)}/${q} ${D.ITEMS[id].name}`).join(', ');
+    const first = Object.keys(o.items)[0];
+    return {
+      label: 'ORDER ' + (i + 1), icon: D.ITEMS[first].icon,
+      right: '$' + fmt(o.coins), order: o,
+      disabled: !G.canDeliver(o), disabledWhy: 'YOU ARE SHORT ON GOODS',
+      detail: `WANTS ${need}. PAYS $${fmt(o.coins)} AND ${o.xp} XP${o.gems ? ` AND ${o.gems} GEMS` : ''}.`,
+    };
+  });
+
+  S.menu({
+    title: 'ORDER BOARD', items: build(),
+    onPick(item) {
+      if (!item.order) return;
+      G.deliverOrder(item.order.oid);
+      S.refreshMenu(build());
+    },
+  });
+}
+
+/* --------------------------------- store --------------------------------- */
+
+function storeMenu() {
+  const build = () => {
+    const S_ = St.S;
+    const rows = [];
+    if (S_.plots.length < D.MAX_PLOTS) {
+      const cost = D.plotCost(S_.plots.length), lv = D.plotLevel(S_.plots.length);
+      rows.push({
+        label: 'NEW FIELD', icon: '🚜', right: '$' + fmt(cost), kind: 'plot',
+        disabled: S_.level < lv || S_.coins < cost,
+        disabledWhy: S_.level < lv ? `NEEDS LEVEL ${lv}` : 'NOT ENOUGH COINS',
+        detail: `CLEARS FIELD ${S_.plots.length + 1} OF ${D.MAX_PLOTS}.`,
+      });
+    }
+    rows.push({
+      label: 'BIGGER SILO', icon: '🛖', right: '$' + fmt(D.siloUpgradeCost(S_.siloCap)), kind: 'silo',
+      disabled: S_.coins < D.siloUpgradeCost(S_.siloCap), disabledWhy: 'NOT ENOUGH COINS',
+      detail: `HOLDS ${S_.siloCap} CROPS. ADDS ${D.SILO_STEP} MORE.`,
+    });
+    rows.push({
+      label: 'BIGGER BARN', icon: '🏠', right: '$' + fmt(D.barnUpgradeCost(S_.barnCap)), kind: 'barn',
+      disabled: S_.coins < D.barnUpgradeCost(S_.barnCap), disabledWhy: 'NOT ENOUGH COINS',
+      detail: `HOLDS ${S_.barnCap} GOODS. ADDS ${D.BARN_STEP} MORE.`,
+    });
+    for (const u of D.UPGRADES) {
+      const owned = !!S_.upgrades[u.id];
+      rows.push({
+        label: u.name, icon: u.icon, kind: 'up', up: u.id,
+        right: owned ? 'OWNED' : S_.level < u.level ? 'LV' + u.level : '$' + fmt(u.cost),
+        disabled: owned || S_.level < u.level || S_.coins < u.cost,
+        disabledWhy: owned ? 'ALREADY YOURS' : S_.level < u.level ? `NEEDS LEVEL ${u.level}` : 'NOT ENOUGH COINS',
+        detail: u.desc.toUpperCase(),
+      });
+    }
+    return rows;
+  };
+
+  S.menu({
+    title: 'FARM STORE', items: build(),
+    onPick(item) {
+      const done = () => S.refreshMenu(build());
+      if (item.kind === 'plot') S.confirm('CLEAR A NEW FIELD?', () => { G.buyPlot(); done(); });
+      else if (item.kind === 'silo') { G.upgradeSilo(); done(); }
+      else if (item.kind === 'barn') { G.upgradeBarn(); done(); }
+      else if (item.kind === 'up') {
+        const u = D.UPGRADES.find(x => x.id === item.up);
+        S.confirm(`BUY ${u.name} FOR ${fmt(u.cost)} COINS?`, () => { G.buyUpgrade(u.id); done(); });
+      }
+    },
+  });
+}
+
+/* ------------------------------- farmhouse ------------------------------- */
+
+function homeMenu() {
+  const s = St.S.stats;
+  S.menu({
+    title: St.S.name.toUpperCase(), items: [
+      { label: 'LEVEL ' + St.S.level, right: D.titleFor(St.S.level).toUpperCase(),
+        detail: `${fmt(St.levelProgress().have)} OF ${fmt(St.levelProgress().need)} XP TO THE NEXT LEVEL.` },
+      { label: 'HARVESTED', right: fmt(s.harvested), detail: 'CROPS PULLED OUT OF THE GROUND.' },
+      { label: 'COLLECTED', right: fmt(s.collected), detail: 'GOODS TAKEN FROM YOUR ANIMALS.' },
+      { label: 'CRAFTED', right: fmt(s.crafted), detail: 'GOODS MADE IN THE WORKSHOPS.' },
+      { label: 'ORDERS', right: fmt(s.orders), detail: 'CRATES SHIPPED FROM THE BOARD.' },
+      { label: 'EARNED', right: '$' + fmt(s.earned), detail: 'COINS EARNED SINCE DAY ONE.' },
+      { label: 'SAVE', icon: '💾', kind: 'save', detail: 'THE FARM SAVES ITSELF, BUT HERE YOU GO.' },
+      { label: 'NEW FARM', kind: 'wipe', detail: 'ERASES THIS FARM FOR GOOD.' },
+    ],
+    onPick(item) {
+      if (item.kind === 'save') { St.save(); S.flash('SAVED'); }
+      if (item.kind === 'wipe') {
+        S.confirm('ERASE THIS FARM FOR GOOD?', () => { St.wipe(); location.reload(); });
+      }
+    },
+  });
+}
+
+/* ------------------------------ start menu ------------------------------- */
+
+function startMenu() {
+  S.menu({
+    title: 'MENU', items: [
+      { label: 'SEEDS', icon: '🌱', kind: 'seeds', detail: 'CHOOSE WHAT TO SOW NEXT.' },
+      { label: 'SILO', icon: '🛖', kind: 'silo', detail: 'SELL CROPS.' },
+      { label: 'BARN', icon: '🏠', kind: 'barn', detail: 'SELL ANIMAL AND CRAFTED GOODS.' },
+      { label: 'ORDERS', icon: '📋', kind: 'orders', detail: 'SEE WHAT CUSTOMERS WANT.' },
+      { label: 'WORKS', icon: '🏭', kind: 'works', detail: 'MILL FEED AND CRAFT GOODS.' },
+      { label: 'STORE', icon: '🛒', kind: 'store', detail: 'LAND, STORAGE AND UPGRADES.' },
+      { label: 'FARMER', icon: '🧑‍🌾', kind: 'home', detail: 'YOUR LEVEL AND RECORDS.' },
+    ],
+    onPick(item) {
+      S.pop();
+      ({ seeds: seedBag, silo: siloMenu, barn: barnMenu, orders: ordersMenu,
+         works: worksMenu, store: storeMenu, home: homeMenu })[item.kind]();
+    },
+  });
+}
+
+/** Routes a building's door to its window. */
+function openBuilding(id) {
+  ({ home: homeMenu, silo: siloMenu, barn: barnMenu, works: worksMenu, store: storeMenu })[id]();
+}
+return { fieldMenu, seedBag, lockedField, penTile, worksMenu, ordersMenu, storeMenu, homeMenu, startMenu, openBuilding, siloMenu, barnMenu };
 })();
 
 /* ---------- js/main.js ---------- */
@@ -2551,11 +2803,19 @@ const __mod_main = (function () {
 const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
-const UI = __mod_ui;
+const W = __mod_world;
+const S = __mod_screen;
+const M = __mod_menus;
+const GFX = __mod_gfx;
 const {setSound, unlockAudio} = __mod_audio;
+const {fmtSpan, now} = __mod_util;
 /* ==========================================================================
-   main.js — boot, onboarding, and the once-a-second heartbeat.
+   main.js — boot, the farmer's movement, input, and the frame loop.
    ========================================================================== */
+
+
+
+
 
 
 
@@ -2565,18 +2825,250 @@ const {setSound, unlockAudio} = __mod_audio;
 
 const $ = id => document.getElementById(id);
 
-/* ------------------------------ onboarding ------------------------------- */
+const DX = { up: 0, down: 0, left: -1, right: 1 };
+const DY = { up: -1, down: 1, left: 0, right: 0 };
+const MOVE_MS = 150;
+const TILE_F = GFX.TILE;
+
+const player = { x: 6, y: 12, ox: 0, oy: 0, dir: 'down', frame: 0, step: null, path: [], goal: null };
+
+let held = null;          // direction currently pressed
+let repeatAt = 0;         // next auto-repeat for menu navigation
+let canvas = null;
+
+/* ------------------------------ interaction ------------------------------ */
+
+function targetAt(x, y) {
+  const b = W.buildingAt(x, y);
+  if (b) return { kind: 'building', id: b.id };
+  if (W.isBoard(x, y)) return { kind: 'orders' };
+  const i = W.plotAt(x, y);
+  if (i >= 0) return { kind: 'field', i };
+  if (W.lockedPlotAt(x, y)) return { kind: 'locked' };
+  const pen = W.penAt(x, y);
+  if (pen) return { kind: 'pen', type: pen.type, slot: pen.slot };
+  return null;
+}
+
+/** What A would act on: the tile you stand on, else the one you face. */
+function currentTarget() {
+  return targetAt(player.x, player.y) ||
+         targetAt(player.x + DX[player.dir], player.y + DY[player.dir]);
+}
+
+function act(t) {
+  if (!t) return;
+  if (t.kind === 'building') M.openBuilding(t.id);
+  else if (t.kind === 'orders') M.ordersMenu();
+  else if (t.kind === 'field') M.fieldMenu(t.i);
+  else if (t.kind === 'locked') M.lockedField();
+  else if (t.kind === 'pen') M.penTile(t.type, t.slot);
+}
+
+/* -------------------------------- movement ------------------------------- */
+
+function tryStep(dir) {
+  player.dir = dir;
+  const nx = player.x + DX[dir], ny = player.y + DY[dir];
+  if (W.isSolid(nx, ny)) return false;
+  player.step = { fromX: player.x, fromY: player.y, dir, t: now() };
+  player.x = nx;
+  player.y = ny;
+  return true;
+}
+
+function updateMovement() {
+  if (player.step) {
+    const k = Math.min(1, (now() - player.step.t) / MOVE_MS);
+    player.ox = -DX[player.step.dir] * TILE_F * (1 - k);
+    player.oy = -DY[player.step.dir] * TILE_F * (1 - k);
+    if (k >= 1) {
+      player.step = null;
+      player.ox = player.oy = 0;
+      player.frame ^= 1;
+      St.S.pos = { x: player.x, y: player.y };
+      arrived();
+    }
+    return;
+  }
+  if (S.busy()) return;
+
+  if (player.path.length) {
+    const next = player.path[0];
+    const dir = next.x > player.x ? 'right' : next.x < player.x ? 'left'
+      : next.y > player.y ? 'down' : 'up';
+    player.path.shift();
+    if (!tryStep(dir)) { player.path.length = 0; player.goal = null; }
+    return;
+  }
+  if (held) tryStep(held);
+}
+
+
+/** Fires once a queued walk reaches its destination. */
+function arrived() {
+  if (player.path.length || !player.goal) return;
+  const g = player.goal;
+  player.goal = null;
+  const t = targetAt(g.x, g.y);
+  if (t) act(t);
+}
+
+/* --------------------------------- input --------------------------------- */
+
+function press(action) {
+  unlockAudio();
+  if (action === 'start') {
+    if (S.busy()) S.closeAll(); else M.startMenu();
+    return;
+  }
+  if (S.busy()) {
+    S.uiKey(action);
+    if (DX[action] !== undefined) held = action;   // lets menus auto-repeat
+    return;
+  }
+
+  if (action === 'a') { player.path.length = 0; act(currentTarget()); return; }
+  if (action === 'b') return;
+  held = action;
+  if (!player.step) { player.path.length = 0; player.goal = null; tryStep(action); }
+}
+
+function release(action) {
+  if (held === action) held = null;
+}
+
+function tap(clientX, clientY) {
+  const r = canvas.getBoundingClientRect();
+  const px = (clientX - r.left) / r.width * GFX.SCREEN_W;
+  const py = (clientY - r.top) / r.height * GFX.SCREEN_H;
+  unlockAudio();
+
+  if (S.busy()) { S.uiTap(px, py); return; }
+  if (py < S.HUD_H) { M.startMenu(); return; }
+
+  const tx = Math.floor((px + S.camera.x) / GFX.TILE);
+  const ty = Math.floor((py - S.HUD_H + S.camera.y) / GFX.TILE);
+  if (!W.inBounds(tx, ty)) return;
+
+  // Standing on it already? Just use it.
+  if (tx === player.x && ty === player.y) { act(currentTarget()); return; }
+
+  const path = W.isSolid(tx, ty) ? W.approach(player.x, player.y, tx, ty)
+                                 : W.findPath(player.x, player.y, tx, ty);
+  if (!path) { S.flash('CANT GET THERE'); return; }
+  player.path = path;
+  player.goal = { x: tx, y: ty };
+  if (!path.length) act(targetAt(tx, ty));
+}
+
+function bindControls() {
+  for (const btn of document.querySelectorAll('[data-key]')) {
+    const key = btn.dataset.key;
+    const down = e => {
+      e.preventDefault();
+      btn.classList.add('on');
+      press(key);
+      repeatAt = now() + 320;
+    };
+    const up = e => { e.preventDefault(); btn.classList.remove('on'); release(key); };
+    btn.addEventListener('pointerdown', down);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointercancel', up);
+    btn.addEventListener('pointerleave', up);
+  }
+
+  canvas.addEventListener('pointerdown', e => { e.preventDefault(); tap(e.clientX, e.clientY); });
+
+  const KEYS = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    w: 'up', s: 'down', a: 'left', d: 'right',
+    z: 'a', Enter: 'a', ' ': 'a', x: 'b', Escape: 'b', Shift: 'start', Tab: 'start',
+  };
+  addEventListener('keydown', e => {
+    const k = KEYS[e.key];
+    if (!k) return;
+    e.preventDefault();
+    if (!e.repeat) { press(k); repeatAt = now() + 320; }
+  });
+  addEventListener('keyup', e => { const k = KEYS[e.key]; if (k) release(k); });
+}
+
+/* --------------------------------- loop ---------------------------------- */
+
+let lastTick = 0;
+
+function frame() {
+  // Held direction repeats inside menus so long lists are quick to scroll.
+  if (held && S.busy() && now() >= repeatAt) {
+    S.uiKey(held);
+    repeatAt = now() + 130;
+  }
+  updateMovement();
+
+  if (now() - lastTick >= 1000) {
+    lastTick = now();
+    G.tick();
+    St.saveSoon();
+  }
+
+  S.drawFrame(player, !S.busy() && !!currentTarget());
+  requestAnimationFrame(frame);
+}
+
+/* --------------------------------- boot ---------------------------------- */
+
+function boot() {
+  setSound(St.S.settings.sound !== false);
+  $('onboard').hidden = true;
+  $('device').hidden = false;
+
+  GFX.buildAll();
+  W.buildMap();
+  // Pick up where you left off, unless that spot is no longer walkable.
+  const pos = St.S.pos;
+  if (pos && !W.isSolid(pos.x, pos.y)) { player.x = pos.x; player.y = pos.y; }
+  canvas = $('screen');
+  S.initScreen(canvas);
+  bindControls();
+
+  G.on('toast', t => S.flash(t.msg));
+  G.on('levelup', lv => {
+    const bits = [];
+    for (const c of D.CROPS) if (c.level === lv) bits.push(c.name);
+    for (const a of D.ANIMALS) if (a.level === lv) bits.push(a.name);
+    for (const m of D.MACHINES) if (m.level === lv) bits.push(m.name);
+    for (const u of D.UPGRADES) if (u.level === lv) bits.push(u.name);
+    S.dialog(`LEVEL ${lv}! ${bits.length ? 'YOU UNLOCKED ' + bits.join(', ') + '.' : 'KEEP GOING!'}`);
+  });
+
+  const info = G.settleOffline();
+  if (info.away > 120 && (info.ripe || info.ready || info.crafts)) {
+    const bits = [];
+    if (info.ripe) bits.push(`${info.ripe} FIELDS RIPENED`);
+    if (info.ready) bits.push(`${info.ready} ANIMALS PRODUCED`);
+    if (info.crafts) bits.push(`${info.crafts} CRAFTS FINISHED`);
+    S.dialog(`WELCOME BACK! YOU WERE AWAY ${fmtSpan(info.away).toUpperCase()}. ${bits.join('. ')}.`);
+  }
+
+  addEventListener('pagehide', St.save);
+  addEventListener('blur', St.save);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) St.save(); else G.tick();
+  });
+
+  requestAnimationFrame(frame);
+}
 
 function showOnboarding() {
   const ob = $('onboard');
   ob.hidden = false;
   let avatar = D.AVATARS[0];
-
   const grid = $('ob-avatars');
   D.AVATARS.forEach((a, i) => {
     const b = document.createElement('button');
-    b.className = 'av' + (i === 0 ? ' on' : '');
     b.type = 'button';
+    b.className = 'av' + (i === 0 ? ' on' : '');
     b.textContent = a;
     b.onclick = () => {
       avatar = a;
@@ -2584,54 +3076,12 @@ function showOnboarding() {
     };
     grid.appendChild(b);
   });
-
   $('ob-start').onclick = () => {
     unlockAudio();
-    const name = ($('ob-name').value || '').trim().slice(0, 14) || 'Farmer';
-    St.startNew(name, avatar);
-    ob.hidden = true;
+    St.startNew(($('ob-name').value || '').trim().slice(0, 10) || 'FARMER', avatar);
     boot();
   };
 }
-
-/* --------------------------------- boot ---------------------------------- */
-
-function boot() {
-  const S = St.S;
-  setSound(S.settings.sound !== false);
-  $('app').hidden = false;
-
-  G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
-  G.on('levelup', lv => UI.levelUpSplash(lv));
-
-  const info = G.settleOffline();
-  UI.render();
-  UI.welcomeBack(info);
-
-  // Heartbeat: advance the world, then repaint the cheap bits.
-  setInterval(() => {
-    G.tick();
-    UI.refresh();
-  }, 1000);
-
-  // Timers are all timestamp-based, so a backgrounded tab catches up instantly.
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) St.save();
-    else { G.tick(); UI.render(); }
-  });
-  window.addEventListener('pagehide', St.save);
-  window.addEventListener('blur', St.save);
-
-  // iOS only starts audio inside a user gesture.
-  document.addEventListener('pointerdown', unlockAudio, { once: true });
-
-  // Kill the pull-to-refresh / rubber-band bounce on the game surface.
-  document.addEventListener('touchmove', e => {
-    if (e.touches.length > 1) e.preventDefault();
-  }, { passive: false });
-}
-
-/* --------------------------------- start --------------------------------- */
 
 if (St.load()) boot();
 else showOnboarding();

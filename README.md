@@ -2,9 +2,13 @@
 
 *Be a strong independent American farmer.*
 
-A pocket farming game for iPhone, in the mould of Hay Day and Township. Plant
-crops, raise animals, craft goods, fill orders, and level up to unlock the next
-stage of the farm.
+A pocket farming game for iPhone, played the way you'd play Pokémon Red: a
+walkable overworld in four shades of green, a D-pad, and windows that open when
+you press A. Plant crops, raise animals, craft goods, fill orders, and level up
+to unlock the next stage of the farm.
+
+Everything is drawn into a 160x144 canvas — the real Game Boy resolution — with
+a 5x7 bitmap font and a four-colour DMG palette.
 
 No build step, no dependencies, no network calls at runtime — it's plain HTML,
 CSS and ES modules. Your farm saves to the phone itself.
@@ -38,15 +42,34 @@ npx http-server -p 8080 -c-1     # then open http://localhost:8080
 deployment → Source: **GitHub Actions***. The included workflow does the rest,
 and that version installs to the home screen with its proper icon.
 
+## Controls
+
+| Control | What it does |
+| --- | --- |
+| **D-pad** | Walk. In a window, moves the cursor. |
+| **A** | Use whatever you're standing on or facing. In a window, picks the row. |
+| **B** | Back out of a window. |
+| **START** | The main menu — every building's window without the walk. |
+| **Tap the map** | The farmer walks there and uses it when he arrives. |
+| **Tap a row** | Same as moving the cursor there and pressing A. |
+
+A keyboard works too: arrows or WASD to walk, Z or Enter for A, X for B, Shift
+for START.
+
 ## How to play
 
-| Tab | What you do there |
+Walk onto a field and press **A** to sow; press A again when the crop pops a
+**!** to harvest it. Then find the places on the farm:
+
+| Where | What's inside |
 | --- | --- |
-| 🌾 **Farm** | Pick a seed, tap a field to plant. Tap again when it says **TAP!** to harvest. |
-| 🐔 **Animals** | Buy animals, feed them, collect eggs, milk, bacon, wool and honey. |
-| 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
-| 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
-| 🛒 **Shop** | Sell from storage, clear new fields, expand the silo and barn, buy upgrades. |
+| 🏠 **HOME** | Your level, titles and lifetime records. |
+| 🛖 **SILO** | Sell crops. |
+| 🏠 **BARN** | Sell animal goods and crafted goods. |
+| 🏭 **WORKS** | Build workshops, mill feed, craft everything else. |
+| 🛒 **STORE** | Clear new fields, expand storage, buy permanent upgrades. |
+| 📋 **ORDERS** | The board by the path — fill a crate for ~40% over market. |
+| 🐔 **PENS** | Stand on an animal to feed or collect; on an empty spot to buy one. |
 
 The core loop: **grow → process → sell/deliver → level up → unlock more**.
 
@@ -71,7 +94,7 @@ goods, 24 fields, and 8 permanent upgrades that make the grind disappear:
 | 12 | 💦 Sprinkler Rig | Another 20% off crop timers |
 | 15 | 🪄 Golden Scythe | +25% on everything you sell |
 | 17 | 🚚 Delivery Truck | +30% order payouts, orders refresh twice as fast |
-| 20 | 🚜 Tractor | Plant All fills every field in one tap, free |
+| 20 | 🚜 Tractor | Plant All sows every empty field for free |
 | 24 | 🧑‍🔧 Farm Foreman | +3 craft queue slots, 20% faster crafting |
 | 27 | 🌾 Combine | Ripe crops harvest themselves |
 
@@ -86,8 +109,11 @@ css/style.css           all styling
 js/data.js              crops, animals, recipes, upgrades, economy curves
 js/state.js             the save file and every read/write against it
 js/game.js              player actions + the world clock
-js/ui.js                views and rendering
-js/main.js              boot, onboarding, heartbeat
+js/gfx.js               palette, bitmap font, tiles, farmer, emoji->sprite baker
+js/world.js             the tile map, collision and path finding
+js/screen.js            the 160x144 renderer and the window system
+js/menus.js             what each building, field and pen opens
+js/main.js              boot, movement, input, frame loop
 js/audio.js             WebAudio blips (no asset files)
 js/util.js              formatting helpers
 sw.js                   offline cache
@@ -102,7 +128,12 @@ node scripts/build-single.mjs
 ```
 
 Tuning the game means editing `js/data.js` — grow times, prices, XP curve,
-unlock levels and upgrade costs all live there.
+unlock levels and upgrade costs all live there. The farm's layout (where the
+buildings, fields and pens sit) is the table at the top of `js/world.js`.
+
+Item art is generated, not drawn: `gfx.js` renders each item's emoji at 16px,
+posterises it into the four shades and forces a dark outline. That's why adding
+a crop to `data.js` needs no new artwork.
 
 To regenerate the app icons after changing the artwork:
 
@@ -112,8 +143,8 @@ node scripts/make-icons.mjs
 
 ## Notes
 
-- Saves live in `localStorage` under `sunnyacres.save.v1`, on that device only.
-  Clearing Safari's website data wipes the farm. Profile → *Start a new farm*
-  does the same on purpose.
+- Saves live in `localStorage` under `sunnyacres.save.v1`, on that device only,
+  including where the farmer was standing. Clearing Safari's website data wipes
+  the farm; HOME → *NEW FARM* does the same on purpose.
 - After changing any game file, bump `CACHE` in `sw.js` so installed phones
   pick up the new build.

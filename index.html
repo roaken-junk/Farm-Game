@@ -4,13 +4,12 @@
 <meta charset="utf-8">
 <title>Sunny Acres — Farm Game</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
-<meta name="description" content="A pocket farming game: plant, raise animals, craft goods and fill orders.">
-<meta name="theme-color" content="#7ec8f0">
+<meta name="description" content="A pocket farming game you walk around, in four shades of green.">
+<meta name="theme-color" content="#c9c5b8">
 
-<!-- Add to Home Screen on iOS -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sunny Acres">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
@@ -20,32 +19,48 @@
 </head>
 <body>
 
-<div id="app" hidden>
-  <header class="hud" id="hud"></header>
-  <main class="view" id="view"></main>
-  <nav class="tabbar" id="tabbar"></nav>
-</div>
+<div id="device" class="device" hidden>
+  <div class="bezel">
+    <div class="bezel-label"><span>DOT MATRIX WITH STEREO SOUND</span></div>
+    <canvas id="screen" width="160" height="144"></canvas>
+  </div>
 
-<!-- First run: name + avatar -->
-<div id="onboard" class="onboard" hidden>
-  <div class="onboard-card">
-    <div class="onboard-logo">🌻</div>
-    <h1>Sunny Acres</h1>
-    <p class="sub">Grow it. Raise it. Sell it.</p>
+  <div class="brand">SUNNY ACRES<span>FARM SYSTEM</span></div>
 
-    <label class="fld-label" for="ob-name">Your farmer's name</label>
-    <input id="ob-name" class="fld" type="text" maxlength="14" placeholder="Farmer" autocomplete="off"
-           autocapitalize="words" spellcheck="false">
+  <div class="pads">
+    <div class="dpad">
+      <button type="button" class="d up" data-key="up" aria-label="Up"></button>
+      <button type="button" class="d left" data-key="left" aria-label="Left"></button>
+      <button type="button" class="d right" data-key="right" aria-label="Right"></button>
+      <button type="button" class="d down" data-key="down" aria-label="Down"></button>
+      <span class="d-hub"></span>
+    </div>
+    <div class="ab">
+      <button type="button" class="rb" data-key="b" aria-label="B">B</button>
+      <button type="button" class="rb" data-key="a" aria-label="A">A</button>
+    </div>
+  </div>
 
-    <label class="fld-label">Pick your look</label>
-    <div class="avatar-grid" id="ob-avatars"></div>
-
-    <button class="btn btn-big btn-green" id="ob-start">Start Farming</button>
+  <div class="startrow">
+    <button type="button" class="pill" data-key="start" aria-label="Start">START</button>
   </div>
 </div>
 
-<div id="toasts" class="toasts"></div>
-<div id="sheet-root"></div>
+<div id="onboard" class="onboard" hidden>
+  <div class="ob-screen">
+    <div class="ob-logo">SUNNY ACRES</div>
+    <p class="ob-sub">A FARM IN FOUR SHADES OF GREEN</p>
+
+    <label class="ob-label" for="ob-name">FARMER NAME</label>
+    <input id="ob-name" class="ob-field" type="text" maxlength="10" placeholder="FARMER"
+           autocomplete="off" autocapitalize="characters" spellcheck="false">
+
+    <label class="ob-label">PICK A FACE</label>
+    <div class="avatar-grid" id="ob-avatars"></div>
+
+    <button type="button" class="ob-start" id="ob-start">PRESS START</button>
+  </div>
+</div>
 
 <script type="module" src="js/main.js"></script>
 </body>

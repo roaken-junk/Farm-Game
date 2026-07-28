@@ -14,7 +14,7 @@ const ROOT = new URL('../', import.meta.url);
 const read = p => readFileSync(new URL(p, ROOT), 'utf8');
 
 /** Dependency order matters: a module may only import ones listed before it. */
-const MODULES = ['util', 'data', 'audio', 'state', 'game', 'ui', 'main'];
+const MODULES = ['util', 'data', 'audio', 'state', 'gfx', 'world', 'game', 'screen', 'menus', 'main'];
 const nsOf = name => `__mod_${name}`;
 
 /* ------------------------- ES module -> IIFE ---------------------------- */
