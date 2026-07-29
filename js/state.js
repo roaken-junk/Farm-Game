@@ -51,6 +51,7 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
     fest: { cycle: -1, points: 0, claimed: [] },
+    trough: { units: 24, grazedAt: now() },
     tips: { seenFest: false },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
@@ -143,6 +144,12 @@ function migrate(data) {
   data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
   data.fest = { ...base.fest, ...(data.fest || {}) };
+  data.trough = { ...base.trough, ...(data.trough || {}) };
+  // Farms from before the trough kept milled feed in the barn; pour it in.
+  if (data.barn && data.barn.feed) {
+    data.trough.units = Math.min(D.TROUGH_CAP, data.trough.units + data.barn.feed);
+    delete data.barn.feed;
+  }
   data.tips = { ...base.tips, ...(data.tips || {}) };
   return data;
 }
@@ -304,6 +311,27 @@ export function orderMult() {
 
 export function xpMult() {
   return boostMult('xp');
+}
+
+/* -------------------------------- trough -------------------------------- */
+
+export const troughUnits = () => Math.floor(S.trough.units);
+
+export function addTrough(n) {
+  const before = S.trough.units;
+  S.trough.units = Math.min(D.TROUGH_CAP, S.trough.units + n);
+  return Math.round(S.trough.units - before);
+}
+
+export function takeTrough(n) {
+  if (S.trough.units < n) return false;
+  S.trough.units -= n;
+  return true;
+}
+
+/** Grass grows back on its own, faster with Rich Pasture. */
+export function grazeRate() {
+  return (has('autoFeeder') ? 2 : 1) / D.GRAZE_SECONDS;
 }
 
 export function queueCap() {

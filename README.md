@@ -42,13 +42,17 @@ and that version installs to the home screen with its proper icon.
 
 The **Farm tab is a map of your land** — fields, animal pens, the silo, barn,
 workshops and store all sit on it. Tap the thing itself: soil to sow, a ripe
-crop to pull it, a hungry animal to feed it, a building to go inside. Red dots
-appear over anything waiting on you.
+crop to pull it, an animal to collect from it, a building to go inside.
+
+Every field and every animal wears a **fill bar**. It creeps left to right as
+the crop grows, and turns gold and full the moment it's ready — so you can read
+the state of the whole farm in one look without counting down timers. Buildings
+carry a red count of whatever is waiting inside them.
 
 | Tab | What you do there |
 | --- | --- |
 | 🌾 **Farm** | The map. Plant and harvest by tapping soil; the seed rack sits under it. |
-| 🐔 **Animals** | Buy animals, feed them, collect eggs, milk, bacon, wool and honey. |
+| 🐔 **Animals** | Buy animals and collect eggs, milk, bacon, wool and honey. They feed themselves. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
 | 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
@@ -66,6 +70,23 @@ The core loop: **grow → process → sell/deliver → level up → unlock more*
   holding a full silo until it swings green is worth real money.
 - **Goals and the daily bonus** pay out on top of everything else. The streak
   resets if you skip a day and maxes out at seven.
+
+### Feeding animals
+
+Animals eat from one shared **trough** and feed themselves — there is nothing to
+tap, and no need to hand fields over to growing animal feed. The trough fills
+three ways:
+
+- **Grazing** — free and automatic. Grass regrows on its own up to 60% of the
+  trough, so a small barnyard can run indefinitely without you doing anything.
+- **Hay bales** — 🪙240 for 20 feed, bought from the Animals tab or the Shop.
+  This is the "I'd rather spend coins than fields" option, and it is priced to
+  be clearly worth it.
+- **The Feed Mill** — wheat + corn into 6 feed a batch. Best value per unit,
+  and entirely optional.
+
+Farms saved before this change have their leftover barn feed poured into the
+trough on load.
 
 ### The Harvest Festival
 
@@ -129,7 +150,7 @@ goods, 24 fields, and 8 permanent upgrades that make the grind disappear:
 | Level | Upgrade | What it does |
 | --- | --- | --- |
 | 5 | 🪣 Watering Can | Crops grow 10% faster |
-| 9 | 🥫 Auto Feeder | Animals feed themselves from the barn |
+| 9 | 🌱 Rich Pasture | Grass regrows twice as fast |
 | 12 | 💦 Sprinkler Rig | Another 20% off crop timers |
 | 15 | 🪄 Golden Scythe | +25% on everything you sell |
 | 17 | 🚚 Delivery Truck | +30% order payouts, orders refresh twice as fast |

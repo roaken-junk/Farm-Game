@@ -16,6 +16,7 @@ const $ = id => document.getElementById(id);
 
 export let view = 'farm';
 let tickers = [];
+let seedScroll = 0;      // horizontal position of the seed rack, kept across renders
 
 const TABS = [
   { id: 'farm',    icon: '🌾', label: 'Farm' },
@@ -191,11 +192,14 @@ function row({ icon, title, sub, chips, trail, locked, onIcon, tone }) {
   return r;
 }
 
-/** A labelled progress bar, used by goals, the festival and storage alike. */
-function meter(pct, label, cls = '') {
+/**
+ * A labelled progress bar, used by goals, the festival, storage and the
+ * trough. The label span is always present, empty or not, so callers that
+ * update it on a ticker always have something to write into.
+ */
+function meter(pct, label = '', cls = '') {
   const m = el('div', 'meter ' + cls);
-  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i>` +
-    (label ? `<span>${label}</span>` : '');
+  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i><span>${label}</span>`;
   return m;
 }
 
@@ -336,10 +340,20 @@ function seedBar() {
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
       St.saveSoon();
-      render();
+      // Swap the highlight in place. Re-rendering here would reset the
+      // strip's horizontal scroll and throw you back to wheat.
+      for (const n of strip.children) n.classList.toggle('on', n === chip);
+      FX.floatFrom(chip, c.name);
     };
     strip.appendChild(chip);
   }
+  // Remember where the rack was scrolled to across full re-renders.
+  strip.addEventListener('scroll', () => { seedScroll = strip.scrollLeft; }, { passive: true });
+  requestAnimationFrame(() => {
+    strip.scrollLeft = seedScroll;
+    const on = strip.querySelector('.seedchip.on');
+    if (!seedScroll && on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
+  });
 
   const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
   plantBtn.title = 'Plant all';
@@ -390,21 +404,12 @@ function animalsView() {
   const S = St.S;
   const frag = document.createDocumentFragment();
 
-  const bar = el('div', 'btn-row');
-  bar.style.marginBottom = '10px';
   const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect All');
+  cb.style.marginBottom = '10px';
   cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
-  const fb = el('button', 'btn btn-sm btn-gold', '🌰 Feed All');
-  fb.onclick = () => { haptic(); G.feedAllAnimals(); render(); };
-  bar.append(cb, fb);
 
-  const feedNote = el('div', 'muted');
-  T(() => {
-    feedNote.textContent = `Feed in barn: ${St.count('feed')} 🌰` +
-      (St.has('autoFeeder') ? ' · Auto Feeder is running' : ' · Mill more at the Feed Mill');
-  });
-
-  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`, storageBar('barn'), bar, feedNote));
+  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`,
+    storageBar('barn'), cb, troughPanel()));
 
   const soon = [];
   for (const type of D.ANIMALS) {
@@ -413,7 +418,8 @@ function animalsView() {
     const head = `<em>${type.icon}</em>${type.name2 || type.name + 's'}<span class="spacer"></span>
       <span class="muted">${mine.length}/${type.max}</span>`;
     const info = el('div', 'muted',
-      `Eats ${type.feed} 🌰 → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
+      `Eats ${type.feed} from the trough → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} ` +
+      `every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
     const pen = el('div', 'pen-grid');
 
     for (const an of mine) pen.appendChild(critterTile(an, type));
@@ -427,6 +433,41 @@ function animalsView() {
   }
   if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
   return frag;
+}
+
+/** The trough: a bar, what's filling it, and the two ways to top it up. */
+export function troughPanel() {
+  const wrap = el('div', 'trough');
+  const bar = meter(0, '', 'meter-hay');
+  const note = el('div', 'muted');
+  const buttons = el('div', 'btn-row');
+  buttons.style.marginTop = '8px';
+
+  const hay = el('button', 'btn btn-sm btn-gold',
+    `🌾 Buy hay · 🪙${fmt(D.HAY.coins)}`);
+  hay.onclick = () => { haptic(); G.buyHay(); render(); };
+  const mill = el('button', 'btn btn-sm', '🏚️ Mill feed');
+  mill.onclick = () => { haptic(); setView('craft'); };
+  buttons.append(hay, mill);
+
+  wrap.append(el('div', 'fld-label', 'Feed trough'), bar, note, buttons);
+
+  T(() => {
+    const u = St.troughUnits();
+    const pct = u / D.TROUGH_CAP;
+    bar.querySelector('i').style.width = clamp(pct, 0, 1) * 100 + '%';
+    bar.querySelector('span').textContent = `${u} / ${D.TROUGH_CAP}`;
+    bar.classList.toggle('low', pct < 0.15);
+    const grazing = u < D.TROUGH_CAP * D.GRAZE_CEILING;
+    const ceiling = Math.round(D.TROUGH_CAP * D.GRAZE_CEILING);
+    note.textContent = grazing
+      ? `Your animals feed themselves from here. Grass regrows on its own and will reach ` +
+        `${ceiling} in about ${fmtTime((ceiling - u) / St.grazeRate())}.`
+      : 'Your animals feed themselves from here. The pasture is grazed down to its limit — ' +
+        'hay or milled feed tops up the rest.';
+    hay.disabled = u >= D.TROUGH_CAP || St.S.coins < D.HAY.coins;
+  });
+  return wrap;
 }
 
 function critterTile(an, type) {
@@ -509,8 +550,11 @@ function machinePanel(m) {
     icBtn.onclick = e => { e.stopPropagation(); haptic(); itemSheet(r.out); };
     row.appendChild(icBtn);
     const body = el('div', 'body');
-    body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
-      <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
+    const toTrough = r.out === 'feed';
+    body.innerHTML = `<b>${toTrough ? `Feed · +${D.MILL_UNITS} to trough` : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
+      <small>${locked ? '🔒 Level ' + r.level
+        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · fills the trough your animals eat from`
+        : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
     body.appendChild(ing);
     row.appendChild(body);
 
@@ -784,6 +828,11 @@ function shopView() {
   }
   frag.appendChild(boosts);
 
+  /* feed */
+  const feed = panel(`<em>🌾</em>Feed`);
+  feed.appendChild(troughPanel());
+  frag.appendChild(feed);
+
   /* land */
   const land = panel(`<em>🚜</em>Land`);
   if (S.plots.length >= D.MAX_PLOTS) {
@@ -850,13 +899,74 @@ export function openSheet(build) {
   const root = $('sheet-root');
   const back = el('div', 'backdrop');
   const sheet = el('div', 'sheet');
-  sheet.appendChild(el('div', 'sheet-grab'));
-  const close = () => { back.remove(); };
+
+  const grip = el('div', 'sheet-grip');
+  grip.innerHTML = '<span class="sheet-grab"></span>';
+  const x = el('button', 'sheet-x', '✕');
+  x.setAttribute('aria-label', 'Close');
+  grip.appendChild(x);
+  sheet.appendChild(grip);
+
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    sheet.classList.add('closing');
+    back.classList.add('closing');
+    setTimeout(() => back.remove(), 180);
+  };
+  x.onclick = () => { haptic(); close(); };
+
   build(sheet, close);
   back.appendChild(sheet);
   back.onclick = e => { if (e.target === back) close(); };
   root.appendChild(back);
+  makeSheetDraggable(sheet, close);
   return close;
+}
+
+/**
+ * Drag the sheet down to dismiss it, the way the grab handle implies.
+ * The drag only starts when the sheet's own scroller is already at the top,
+ * so scrolling a long list still works normally.
+ */
+function makeSheetDraggable(sheet, close) {
+  let startY = 0, dy = 0, dragging = false, startedAt = 0;
+
+  const onDown = e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (sheet.scrollTop > 0) return;
+    // Let controls handle their own taps; only bare surface starts a drag.
+    if (e.target.closest('button, input, textarea, a')) return;
+    dragging = true;
+    startY = e.clientY;
+    dy = 0;
+    startedAt = Date.now();
+    sheet.style.transition = 'none';
+  };
+
+  const onMove = e => {
+    if (!dragging) return;
+    dy = e.clientY - startY;
+    if (dy < 0) dy = dy * 0.25;          // slight resistance upward
+    sheet.style.transform = `translateY(${dy}px)`;
+    if (dy > 4 && e.cancelable) e.preventDefault();
+  };
+
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    sheet.style.transition = '';
+    sheet.style.transform = '';
+    const flicked = dy > 40 && Date.now() - startedAt < 300;
+    if (dy > 110 || flicked) close();
+  };
+
+  sheet.addEventListener('pointerdown', onDown);
+  sheet.addEventListener('pointermove', onMove, { passive: false });
+  sheet.addEventListener('pointerup', onUp);
+  sheet.addEventListener('pointercancel', onUp);
+  sheet.addEventListener('pointerleave', onUp);
 }
 
 function sellSheet(kind) {

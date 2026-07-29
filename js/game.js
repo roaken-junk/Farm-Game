@@ -143,14 +143,14 @@ export function animalState(an) {
   return 'hungry';
 }
 
+/** Puts an animal to work if the trough can cover it. */
 export function feedAnimal(an, quiet = false) {
   const type = D.ANIMALS.find(x => x.id === an.type);
   if (animalState(an) !== 'hungry') return false;
-  if (St.count('feed') < type.feed) {
-    if (!quiet) fail('Out of feed — mill some at the Feed Mill', '🌰');
+  if (!St.takeTrough(type.feed)) {
+    if (!quiet) fail('The trough is empty — buy hay or mill some feed', '🌾');
     return false;
   }
-  St.removeItem('feed', type.feed);
   an.fedAt = now();
   an.readyAt = now() + Math.max(1, Math.round(type.cycle * St.animalMult())) * 1000;
   an.product = false;
@@ -188,12 +188,36 @@ export function collectAllAnimals() {
   return n;
 }
 
-export function feedAllAnimals() {
-  let n = 0;
-  for (const an of St.S.animals) if (feedAnimal(an, true)) n++;
-  if (n) { SFX.plant(); ok(`Fed ${n} animals`, '🌰'); }
-  else fail('No hungry animals, or no feed left', '🌰');
-  return n;
+/* -------------------------------- trough -------------------------------- */
+
+/** Buy a bale. The point of this is that coins can stand in for fields. */
+export function buyHay() {
+  if (St.troughUnits() >= D.TROUGH_CAP) { fail('The trough is already full', '🌾'); return false; }
+  if (!St.spendCoins(D.HAY.coins)) { fail('Not enough coins', '🪙'); return false; }
+  const got = St.addTrough(D.HAY.units);
+  SFX.buy();
+  ok(`Hay delivered · +${got} feed`, '🌾');
+  St.saveSoon();
+  return true;
+}
+
+/** Grass regrows on its own, but only part-way up the trough. */
+function graze() {
+  const t = St.S.trough;
+  const ceiling = D.TROUGH_CAP * D.GRAZE_CEILING;
+  const elapsed = Math.max(0, (now() - (t.grazedAt || now())) / 1000);
+  t.grazedAt = now();
+  if (t.units >= ceiling) return;
+  t.units = Math.min(ceiling, t.units + elapsed * St.grazeRate());
+}
+
+/** Seconds until the trough can cover this animal again. */
+export function grazeWait(need) {
+  const t = St.S.trough;
+  if (t.units >= need) return 0;
+  const ceiling = D.TROUGH_CAP * D.GRAZE_CEILING;
+  if (need > ceiling) return Infinity;
+  return (need - t.units) / St.grazeRate();
 }
 
 export function speedUpAnimal(an) {
@@ -257,6 +281,19 @@ export function collectJob(machineId, jid, quiet = false) {
   const job = m.queue[idx];
   if (!jobReady(job)) return 0;
   const r = D.RECIPES.find(x => x.id === job.recipe);
+
+  // Milled feed is poured straight into the trough, not stacked in the barn.
+  if (r.out === 'feed') {
+    const poured = St.addTrough(D.MILL_UNITS);
+    if (!poured) { if (!quiet) fail('The trough is full', '🌾'); return 0; }
+    m.queue.splice(idx, 1);
+    S.stats.crafted += 1;
+    festAdd('craft', 1);
+    if (!quiet) SFX.collect();
+    St.saveSoon();
+    return 1;
+  }
+
   const got = St.addItem(r.out, r.qty);
   if (!got) { if (!quiet) fail('Barn is full — sell some goods', '📦'); return 0; }
   m.queue.splice(idx, 1);
@@ -605,11 +642,10 @@ export function tick() {
   festState();
   tickOrders();
 
-  // Auto Feeder: any hungry animal eats itself as soon as feed exists.
-  if (St.has('autoFeeder')) {
-    for (const an of S.animals) {
-      if (animalState(an) === 'hungry') feedAnimal(an, true);
-    }
+  // Grass grows, then every hungry animal helps itself. No tapping to feed.
+  graze();
+  for (const an of S.animals) {
+    if (animalState(an) === 'hungry') feedAnimal(an, true);
   }
 
   // Safety net: broke, nothing growing and an empty silo would be a dead end.

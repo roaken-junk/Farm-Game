@@ -150,7 +150,7 @@ export const BOOSTS = [
 /** Permanent upgrades — the "game gets easier as you go" track. */
 export const UPGRADES = [
   { id: 'wateringCan', name: 'Watering Can',  icon: '🪣', level: 5,  cost: 600,    desc: 'Crops grow 10% faster.' },
-  { id: 'autoFeeder',  name: 'Auto Feeder',   icon: '🥫', level: 9,  cost: 4000,   desc: 'Animals feed themselves whenever feed is in the barn.' },
+  { id: 'autoFeeder',  name: 'Rich Pasture',  icon: '🌱', level: 9,  cost: 4000,   desc: 'Grass grows back twice as fast, so the trough fills itself quicker.' },
   { id: 'sprinkler',   name: 'Sprinkler Rig', icon: '💦', level: 12, cost: 18000,  desc: 'Another 20% off every crop timer.' },
   { id: 'scythe',      name: 'Golden Scythe', icon: '🪄', level: 15, cost: 45000,  desc: 'Everything you sell is worth 25% more.' },
   { id: 'truck',       name: 'Delivery Truck',icon: '🚚', level: 17, cost: 90000,  desc: 'Order payouts +30%, and orders refresh twice as fast.' },
@@ -204,6 +204,22 @@ export function marketMult(id, t = Date.now()) {
   const phase = (h / 9973) * Math.PI * 2;
   return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
 }
+
+/* ------------------------------ the trough ------------------------------- */
+
+/**
+ * Animals eat from one shared trough and feed themselves — no tapping, and no
+ * turning your fields over to growing animal feed. The trough fills three
+ * ways, cheapest last:
+ *   grazing   free, slow, and capped part-way up, so you always trickle along
+ *   hay bale  coins, instant, the "I'd rather spend money than fields" option
+ *   feed mill wheat + corn, best value per unit, entirely optional
+ */
+export const TROUGH_CAP = 80;
+export const GRAZE_SECONDS = 40;        // one unit of pasture per this many seconds
+export const GRAZE_CEILING = 0.6;       // grazing alone tops out here
+export const HAY = { units: 20, coins: 240 };
+export const MILL_UNITS = 6;            // what one Feed Mill job pours in
 
 /* --------------------------- the harvest festival ------------------------ */
 

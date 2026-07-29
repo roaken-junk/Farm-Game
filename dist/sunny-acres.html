@@ -812,10 +812,12 @@ button.ic:hover::after { opacity: 1; }
 .map {
   position: relative;
   transform-origin: top left;
-  /* mown stripes, a little sun in the top corner */
+  /* Soft mown bands plus a fine turf speckle, so the grass has depth without
+     the hard stripes the old scene had. */
   background:
-    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .35), transparent 45%),
-    repeating-linear-gradient(90deg, #7cc94a 0 44px, #74c144 44px 88px);
+    radial-gradient(ellipse at 20% 6%, rgba(255, 255, 255, .38), transparent 52%),
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, .05) 0 6px, transparent 6px 13px),
+    repeating-linear-gradient(90deg, #7ec84c 0 60px, #77c246 60px 120px);
 }
 
 .map-path {
@@ -823,9 +825,12 @@ button.ic:hover::after { opacity: 1; }
   left: 0; right: 0;
   top: 540px;
   height: 52px;
-  background: repeating-linear-gradient(90deg, #e6cfa2 0 18px, #dec69a 18px 36px);
-  border-top: 3px solid #c9ab77;
-  border-bottom: 3px solid #c9ab77;
+  background:
+    radial-gradient(circle at 12% 40%, rgba(255, 255, 255, .5), transparent 30%),
+    repeating-linear-gradient(76deg, #ecd8b0 0 9px, #e3cda3 9px 20px);
+  border-top: 3px solid var(--wood-dk);
+  border-bottom: 3px solid var(--wood-dk);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .07);
 }
 
 .map-pond {
@@ -913,63 +918,80 @@ button.ic:hover::after { opacity: 1; }
 .mp-plot {
   position: absolute;
   padding: 0;
-  border: 3px solid #7d5730;
-  border-radius: 12px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  /* ploughed rows, lit from above, matching the app's warm browns */
   background:
-    repeating-linear-gradient(180deg, rgba(0, 0, 0, .10) 0 3px, transparent 3px 14px),
-    linear-gradient(180deg, #b5794a, #8a5a30);
-  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .18);
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .10) 0 2px,
+      rgba(0, 0, 0, .12) 2px 5px,
+      transparent 5px 15px),
+    linear-gradient(180deg, #c08a56, #96633a 60%, #86562f);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -5px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2);
   display: grid;
   place-items: center;
-  overflow: visible;
-  transition: transform .1s ease;
+  overflow: hidden;
+  transition: transform .1s ease, box-shadow .15s ease;
 }
 .mp-plot:active { transform: scale(.95); }
 
-.mp-plot .seedme { font-size: 26px; font-weight: 900; color: rgba(255, 255, 255, .45); }
+.mp-plot .seedme { font-size: 30px; font-weight: 900; color: rgba(255, 255, 255, .5); }
 .mp-plot .sprout {
   font-size: 34px;
   line-height: 1;
   transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
 }
-.mp-plot.ready { border-color: #ffd45e; }
+.mp-plot.ready {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -5px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2),
+    0 0 0 3px rgba(255, 196, 46, .35);
+}
 .mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
 
+/* The completion bar: pinned across the top of every field, edge to edge.
+   Full and gold means ready — readable at a glance across the whole farm. */
 .mp-plot .grow {
   position: absolute;
-  left: 6px; right: 6px; bottom: 5px;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, .35);
-  overflow: hidden;
+  top: 0; left: 0; right: 0;
+  height: 11px;
+  background: rgba(0, 0, 0, .34);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
 }
 .mp-plot .grow > i {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, #ffe07a, #8ce35a);
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #d6f5a0, #7fce46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
+  transition: width .6s linear;
 }
-.mp-plot.ready .grow { display: none; }
+.mp-plot.ready .grow > i {
+  background: linear-gradient(180deg, #ffe98a, var(--gold));
+  animation: barGlow 1.3s ease-in-out infinite;
+}
+@keyframes barGlow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.22); }
+}
 
-.mp-plot .bubble {
+.mp-plot .clock {
   position: absolute;
-  top: -16px; left: 50%;
-  transform: translateX(-50%);
-  background: #fffaef;
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 999px;
-  padding: 0 7px;
-  font-size: 11px;
+  top: 13px; left: 0; right: 0;
+  text-align: center;
+  font-size: 10px;
   font-weight: 900;
-  line-height: 19px;
-  white-space: nowrap;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
+  letter-spacing: .02em;
 }
-.mp-plot .bubble.pop {
-  background: #fff3c4;
-  border-color: var(--gold-dk);
-  font-size: 15px;
-  animation: bob .8s ease-in-out infinite;
-}
+.mp-plot.ready .clock { color: #fff8d8; }
+
 
 .mp-plot.wild {
   border-style: dashed;
@@ -983,10 +1005,13 @@ button.ic:hover::after { opacity: 1; }
 
 .mp-pen {
   position: absolute;
-  border: 4px dashed #b8834a;
-  border-radius: 16px;
-  background: rgba(255, 246, 214, .45);
-  padding: 16px 6px 6px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-lg);
+  background:
+    var(--grain),
+    linear-gradient(180deg, rgba(255, 250, 225, .78), rgba(240, 220, 175, .72));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7), 0 3px 0 rgba(0, 0, 0, .14);
+  padding: 16px 7px 7px;
 }
 .mp-pen.locked { opacity: .75; filter: grayscale(.6); }
 
@@ -1008,8 +1033,9 @@ button.ic:hover::after { opacity: 1; }
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  gap: 4px;
+  gap: 4px 4px;
   height: 100%;
+  padding-top: 6px;     /* headroom so the ready badge is not clipped */
   overflow: hidden;
 }
 .pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
@@ -1033,26 +1059,34 @@ button.ic:hover::after { opacity: 1; }
 .critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
 .critter-m .mark {
   position: absolute;
-  top: -4px; right: -2px;
+  top: -6px; right: -3px;
   font-size: 15px;
   background: #fffaef;
   border: 2px solid var(--wood-dk);
   border-radius: 50%;
   padding: 1px;
   line-height: 1;
+  animation: bob .9s ease-in-out infinite;
 }
-.critter-m .tick {
+.critter-m .mark.waiting { animation: none; filter: grayscale(.5); opacity: .85; }
+
+/* Each animal carries its own little completion bar, same idea as a field. */
+.critter-m .agrow {
   position: absolute;
-  bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  font-weight: 900;
-  color: #fff;
-  background: rgba(0, 0, 0, .5);
-  border-radius: 6px;
-  padding: 0 4px;
-  white-space: nowrap;
+  left: 4px; right: 4px; bottom: -1px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .3);
+  overflow: hidden;
 }
+.critter-m .agrow > i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #d6f5a0, #7fce46);
+  transition: width .6s linear;
+}
+.critter-m.ready .agrow > i { background: linear-gradient(90deg, #ffe98a, var(--gold)); }
+.critter-m.hungry .agrow > i { background: #b9a88c; }
+
 .critter-m.add {
   border: 3px dashed rgba(122, 74, 30, .55);
   border-radius: 12px;
@@ -1372,6 +1406,49 @@ body.no-motion *::after {
   }
 }
 
+/* --------------------------- sheet: grip and drag ------------------------- */
+
+.sheet-grip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  margin: -2px -6px 8px;
+  cursor: grab;
+  touch-action: none;          /* the drag handler owns vertical gestures */
+}
+.sheet-grab {
+  width: 52px; height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .22);
+  margin: 0;
+}
+.sheet-x {
+  position: absolute;
+  right: 2px; top: -2px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(156, 95, 38, .3);
+  background: var(--card-2);
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.sheet { transition: transform .22s cubic-bezier(.2, .9, .3, 1); touch-action: pan-y; }
+.sheet.closing { transform: translateY(100%); transition: transform .18s ease-in; }
+.backdrop.closing { opacity: 0; transition: opacity .18s ease; }
+
+/* ------------------------------- the trough ------------------------------ */
+
+.trough { margin-top: 4px; }
+.trough .meter { height: 22px; }
+.meter-hay > i { background: linear-gradient(180deg, #ffe9a0, #d9a441); }
+.meter-hay.low > i { background: linear-gradient(180deg, #ffb0a0, #d64b3a); }
+.trough .muted { margin-top: 6px; }
+
 </style>
 
 <div id="app" hidden>
@@ -1639,7 +1716,7 @@ const BOOSTS = [
 /** Permanent upgrades — the "game gets easier as you go" track. */
 const UPGRADES = [
   { id: 'wateringCan', name: 'Watering Can',  icon: '🪣', level: 5,  cost: 600,    desc: 'Crops grow 10% faster.' },
-  { id: 'autoFeeder',  name: 'Auto Feeder',   icon: '🥫', level: 9,  cost: 4000,   desc: 'Animals feed themselves whenever feed is in the barn.' },
+  { id: 'autoFeeder',  name: 'Rich Pasture',  icon: '🌱', level: 9,  cost: 4000,   desc: 'Grass grows back twice as fast, so the trough fills itself quicker.' },
   { id: 'sprinkler',   name: 'Sprinkler Rig', icon: '💦', level: 12, cost: 18000,  desc: 'Another 20% off every crop timer.' },
   { id: 'scythe',      name: 'Golden Scythe', icon: '🪄', level: 15, cost: 45000,  desc: 'Everything you sell is worth 25% more.' },
   { id: 'truck',       name: 'Delivery Truck',icon: '🚚', level: 17, cost: 90000,  desc: 'Order payouts +30%, and orders refresh twice as fast.' },
@@ -1693,6 +1770,22 @@ function marketMult(id, t = Date.now()) {
   const phase = (h / 9973) * Math.PI * 2;
   return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
 }
+
+/* ------------------------------ the trough ------------------------------- */
+
+/**
+ * Animals eat from one shared trough and feed themselves — no tapping, and no
+ * turning your fields over to growing animal feed. The trough fills three
+ * ways, cheapest last:
+ *   grazing   free, slow, and capped part-way up, so you always trickle along
+ *   hay bale  coins, instant, the "I'd rather spend money than fields" option
+ *   feed mill wheat + corn, best value per unit, entirely optional
+ */
+const TROUGH_CAP = 80;
+const GRAZE_SECONDS = 40;        // one unit of pasture per this many seconds
+const GRAZE_CEILING = 0.6;       // grazing alone tops out here
+const HAY = { units: 20, coins: 240 };
+const MILL_UNITS = 6;            // what one Feed Mill job pours in
 
 /* --------------------------- the harvest festival ------------------------ */
 
@@ -1798,7 +1891,7 @@ function titleFor(level) {
 function recipesFor(machineId) {
   return RECIPES.filter(r => r.machine === machineId);
 }
-return { goalReward, marketMult, festReward, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, BOOSTS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, FEST_HOURS, FEST_MS, FEST_POINTS, FEST_TIERS, festCycle, festEndsAt, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
+return { goalReward, marketMult, festReward, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, BOOSTS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, TROUGH_CAP, GRAZE_SECONDS, GRAZE_CEILING, HAY, MILL_UNITS, FEST_HOURS, FEST_MS, FEST_POINTS, FEST_TIERS, festCycle, festEndsAt, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
 })();
 
 /* ---------- js/audio.js ---------- */
@@ -2006,6 +2099,7 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
     fest: { cycle: -1, points: 0, claimed: [] },
+    trough: { units: 24, grazedAt: now() },
     tips: { seenFest: false },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
@@ -2098,6 +2192,12 @@ function migrate(data) {
   data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
   data.fest = { ...base.fest, ...(data.fest || {}) };
+  data.trough = { ...base.trough, ...(data.trough || {}) };
+  // Farms from before the trough kept milled feed in the barn; pour it in.
+  if (data.barn && data.barn.feed) {
+    data.trough.units = Math.min(D.TROUGH_CAP, data.trough.units + data.barn.feed);
+    delete data.barn.feed;
+  }
   data.tips = { ...base.tips, ...(data.tips || {}) };
   return data;
 }
@@ -2261,6 +2361,27 @@ function xpMult() {
   return boostMult('xp');
 }
 
+/* -------------------------------- trough -------------------------------- */
+
+const troughUnits = () => Math.floor(S.trough.units);
+
+function addTrough(n) {
+  const before = S.trough.units;
+  S.trough.units = Math.min(D.TROUGH_CAP, S.trough.units + n);
+  return Math.round(S.trough.units - before);
+}
+
+function takeTrough(n) {
+  if (S.trough.units < n) return false;
+  S.trough.units -= n;
+  return true;
+}
+
+/** Grass grows back on its own, faster with Rich Pasture. */
+function grazeRate() {
+  return (has('autoFeeder') ? 2 : 1) / D.GRAZE_SECONDS;
+}
+
 function queueCap() {
   return D.BASE_QUEUE + (has('foreman') ? 3 : 0);
 }
@@ -2294,7 +2415,7 @@ function producibleItems() {
   }
   return [...ids];
 }
-return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, boostLeft, boostsRunning, boostMult, growthMult, craftMult, animalMult, sellMult, orderMult, xpMult, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop };
+return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, boostLeft, boostsRunning, boostMult, growthMult, craftMult, animalMult, sellMult, orderMult, xpMult, addTrough, takeTrough, grazeRate, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop, troughUnits };
 })();
 
 /* ---------- js/game.js ---------- */
@@ -2448,14 +2569,14 @@ function animalState(an) {
   return 'hungry';
 }
 
+/** Puts an animal to work if the trough can cover it. */
 function feedAnimal(an, quiet = false) {
   const type = D.ANIMALS.find(x => x.id === an.type);
   if (animalState(an) !== 'hungry') return false;
-  if (St.count('feed') < type.feed) {
-    if (!quiet) fail('Out of feed — mill some at the Feed Mill', '🌰');
+  if (!St.takeTrough(type.feed)) {
+    if (!quiet) fail('The trough is empty — buy hay or mill some feed', '🌾');
     return false;
   }
-  St.removeItem('feed', type.feed);
   an.fedAt = now();
   an.readyAt = now() + Math.max(1, Math.round(type.cycle * St.animalMult())) * 1000;
   an.product = false;
@@ -2493,12 +2614,36 @@ function collectAllAnimals() {
   return n;
 }
 
-function feedAllAnimals() {
-  let n = 0;
-  for (const an of St.S.animals) if (feedAnimal(an, true)) n++;
-  if (n) { SFX.plant(); ok(`Fed ${n} animals`, '🌰'); }
-  else fail('No hungry animals, or no feed left', '🌰');
-  return n;
+/* -------------------------------- trough -------------------------------- */
+
+/** Buy a bale. The point of this is that coins can stand in for fields. */
+function buyHay() {
+  if (St.troughUnits() >= D.TROUGH_CAP) { fail('The trough is already full', '🌾'); return false; }
+  if (!St.spendCoins(D.HAY.coins)) { fail('Not enough coins', '🪙'); return false; }
+  const got = St.addTrough(D.HAY.units);
+  SFX.buy();
+  ok(`Hay delivered · +${got} feed`, '🌾');
+  St.saveSoon();
+  return true;
+}
+
+/** Grass regrows on its own, but only part-way up the trough. */
+function graze() {
+  const t = St.S.trough;
+  const ceiling = D.TROUGH_CAP * D.GRAZE_CEILING;
+  const elapsed = Math.max(0, (now() - (t.grazedAt || now())) / 1000);
+  t.grazedAt = now();
+  if (t.units >= ceiling) return;
+  t.units = Math.min(ceiling, t.units + elapsed * St.grazeRate());
+}
+
+/** Seconds until the trough can cover this animal again. */
+function grazeWait(need) {
+  const t = St.S.trough;
+  if (t.units >= need) return 0;
+  const ceiling = D.TROUGH_CAP * D.GRAZE_CEILING;
+  if (need > ceiling) return Infinity;
+  return (need - t.units) / St.grazeRate();
 }
 
 function speedUpAnimal(an) {
@@ -2562,6 +2707,19 @@ function collectJob(machineId, jid, quiet = false) {
   const job = m.queue[idx];
   if (!jobReady(job)) return 0;
   const r = D.RECIPES.find(x => x.id === job.recipe);
+
+  // Milled feed is poured straight into the trough, not stacked in the barn.
+  if (r.out === 'feed') {
+    const poured = St.addTrough(D.MILL_UNITS);
+    if (!poured) { if (!quiet) fail('The trough is full', '🌾'); return 0; }
+    m.queue.splice(idx, 1);
+    S.stats.crafted += 1;
+    festAdd('craft', 1);
+    if (!quiet) SFX.collect();
+    St.saveSoon();
+    return 1;
+  }
+
   const got = St.addItem(r.out, r.qty);
   if (!got) { if (!quiet) fail('Barn is full — sell some goods', '📦'); return 0; }
   m.queue.splice(idx, 1);
@@ -2910,11 +3068,10 @@ function tick() {
   festState();
   tickOrders();
 
-  // Auto Feeder: any hungry animal eats itself as soon as feed exists.
-  if (St.has('autoFeeder')) {
-    for (const an of S.animals) {
-      if (animalState(an) === 'hungry') feedAnimal(an, true);
-    }
+  // Grass grows, then every hungry animal helps itself. No tapping to feed.
+  graze();
+  for (const an of S.animals) {
+    if (animalState(an) === 'hungry') feedAnimal(an, true);
   }
 
   // Safety net: broke, nothing growing and an empty silo would be a dead end.
@@ -2948,7 +3105,7 @@ function settleOffline() {
   tick();
   return { away, ready, ripe, crafts };
 }
-return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, festState, festTiers, claimFest, dailyReady, claimDaily, tick, settleOffline, goalsReady, festReady, festLeft };
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, buyHay, grazeWait, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, festState, festTiers, claimFest, dailyReady, claimDaily, tick, settleOffline, goalsReady, festReady, festLeft };
 })();
 
 /* ---------- js/map.js ---------- */
@@ -3108,15 +3265,16 @@ function farmMap({ T, open }) {
       const pct = clamp((now() - plot.at) / total, 0, 1);
       if (node.dataset.crop !== plot.crop) {
         node.dataset.crop = plot.crop;
-        node.innerHTML = `<span class="sprout">${crop.icon}</span>
-                          <span class="bubble"></span>
-                          <span class="grow"><i></i></span>`;
+        node.innerHTML = `<span class="grow"><i></i></span>
+                          <span class="sprout">${crop.icon}</span>
+                          <span class="clock"></span>`;
       }
-      node.querySelector('.sprout').style.transform = `scale(${(0.45 + 0.55 * pct).toFixed(2)})`;
+      // One bar across the top of every field: full means ready, and you can
+      // read the whole farm's state without looking at a single number.
       node.querySelector('.grow > i').style.width = (pct * 100).toFixed(1) + '%';
-      node.querySelector('.bubble').textContent =
-        state === 'ready' ? crop.icon : fmtTime((plot.end - now()) / 1000);
-      node.querySelector('.bubble').className = 'bubble' + (state === 'ready' ? ' pop' : '');
+      node.querySelector('.sprout').style.transform = `scale(${(0.5 + 0.5 * pct).toFixed(2)})`;
+      node.querySelector('.clock').textContent =
+        state === 'ready' ? 'READY' : fmtTime((plot.end - now()) / 1000);
     }
   });
 
@@ -3165,10 +3323,13 @@ function farmMap({ T, open }) {
         if (!a) return;
         const st = G.animalState(an);
         a.className = 'critter-m ' + st;
-        const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '🌰' : '';
-        a.innerHTML = `<span class="beast">${type.icon}</span>` +
-          (mark ? `<span class="mark">${mark}</span>` : '') +
-          (st === 'working' ? `<span class="tick">${fmtTime((an.readyAt - now()) / 1000)}</span>` : '');
+        const cycle = Math.max(1, an.readyAt - an.fedAt);
+        const pct = st === 'working' ? clamp((now() - an.fedAt) / cycle, 0, 1) : st === 'ready' ? 1 : 0;
+        a.innerHTML =
+          `<span class="beast">${type.icon}</span>` +
+          `<span class="agrow"><i style="width:${(pct * 100).toFixed(1)}%"></i></span>` +
+          (st === 'ready' ? `<span class="mark">${D.ITEMS[type.product].icon}</span>` : '') +
+          (st === 'hungry' ? `<span class="mark waiting">🌾</span>` : '');
       });
     });
   }
@@ -3219,6 +3380,7 @@ const $ = id => document.getElementById(id);
 
 let view = 'farm';
 let tickers = [];
+let seedScroll = 0;      // horizontal position of the seed rack, kept across renders
 
 const TABS = [
   { id: 'farm',    icon: '🌾', label: 'Farm' },
@@ -3394,11 +3556,14 @@ function row({ icon, title, sub, chips, trail, locked, onIcon, tone }) {
   return r;
 }
 
-/** A labelled progress bar, used by goals, the festival and storage alike. */
-function meter(pct, label, cls = '') {
+/**
+ * A labelled progress bar, used by goals, the festival, storage and the
+ * trough. The label span is always present, empty or not, so callers that
+ * update it on a ticker always have something to write into.
+ */
+function meter(pct, label = '', cls = '') {
   const m = el('div', 'meter ' + cls);
-  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i>` +
-    (label ? `<span>${label}</span>` : '');
+  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i><span>${label}</span>`;
   return m;
 }
 
@@ -3539,10 +3704,20 @@ function seedBar() {
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
       St.saveSoon();
-      render();
+      // Swap the highlight in place. Re-rendering here would reset the
+      // strip's horizontal scroll and throw you back to wheat.
+      for (const n of strip.children) n.classList.toggle('on', n === chip);
+      FX.floatFrom(chip, c.name);
     };
     strip.appendChild(chip);
   }
+  // Remember where the rack was scrolled to across full re-renders.
+  strip.addEventListener('scroll', () => { seedScroll = strip.scrollLeft; }, { passive: true });
+  requestAnimationFrame(() => {
+    strip.scrollLeft = seedScroll;
+    const on = strip.querySelector('.seedchip.on');
+    if (!seedScroll && on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
+  });
 
   const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
   plantBtn.title = 'Plant all';
@@ -3593,21 +3768,12 @@ function animalsView() {
   const S = St.S;
   const frag = document.createDocumentFragment();
 
-  const bar = el('div', 'btn-row');
-  bar.style.marginBottom = '10px';
   const cb = el('button', 'btn btn-sm btn-green', '🧺 Collect All');
+  cb.style.marginBottom = '10px';
   cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
-  const fb = el('button', 'btn btn-sm btn-gold', '🌰 Feed All');
-  fb.onclick = () => { haptic(); G.feedAllAnimals(); render(); };
-  bar.append(cb, fb);
 
-  const feedNote = el('div', 'muted');
-  T(() => {
-    feedNote.textContent = `Feed in barn: ${St.count('feed')} 🌰` +
-      (St.has('autoFeeder') ? ' · Auto Feeder is running' : ' · Mill more at the Feed Mill');
-  });
-
-  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`, storageBar('barn'), bar, feedNote));
+  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`,
+    storageBar('barn'), cb, troughPanel()));
 
   const soon = [];
   for (const type of D.ANIMALS) {
@@ -3616,7 +3782,8 @@ function animalsView() {
     const head = `<em>${type.icon}</em>${type.name2 || type.name + 's'}<span class="spacer"></span>
       <span class="muted">${mine.length}/${type.max}</span>`;
     const info = el('div', 'muted',
-      `Eats ${type.feed} 🌰 → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
+      `Eats ${type.feed} from the trough → ${D.ITEMS[type.product].icon} ${D.ITEMS[type.product].name} ` +
+      `every ${fmtTime(type.cycle)} · sells for 🪙${fmt(G.sellPrice(type.product))}`);
     const pen = el('div', 'pen-grid');
 
     for (const an of mine) pen.appendChild(critterTile(an, type));
@@ -3630,6 +3797,41 @@ function animalsView() {
   }
   if (soon.length) frag.appendChild(panel(`<em>🔒</em>Coming Soon`, ...soon));
   return frag;
+}
+
+/** The trough: a bar, what's filling it, and the two ways to top it up. */
+function troughPanel() {
+  const wrap = el('div', 'trough');
+  const bar = meter(0, '', 'meter-hay');
+  const note = el('div', 'muted');
+  const buttons = el('div', 'btn-row');
+  buttons.style.marginTop = '8px';
+
+  const hay = el('button', 'btn btn-sm btn-gold',
+    `🌾 Buy hay · 🪙${fmt(D.HAY.coins)}`);
+  hay.onclick = () => { haptic(); G.buyHay(); render(); };
+  const mill = el('button', 'btn btn-sm', '🏚️ Mill feed');
+  mill.onclick = () => { haptic(); setView('craft'); };
+  buttons.append(hay, mill);
+
+  wrap.append(el('div', 'fld-label', 'Feed trough'), bar, note, buttons);
+
+  T(() => {
+    const u = St.troughUnits();
+    const pct = u / D.TROUGH_CAP;
+    bar.querySelector('i').style.width = clamp(pct, 0, 1) * 100 + '%';
+    bar.querySelector('span').textContent = `${u} / ${D.TROUGH_CAP}`;
+    bar.classList.toggle('low', pct < 0.15);
+    const grazing = u < D.TROUGH_CAP * D.GRAZE_CEILING;
+    const ceiling = Math.round(D.TROUGH_CAP * D.GRAZE_CEILING);
+    note.textContent = grazing
+      ? `Your animals feed themselves from here. Grass regrows on its own and will reach ` +
+        `${ceiling} in about ${fmtTime((ceiling - u) / St.grazeRate())}.`
+      : 'Your animals feed themselves from here. The pasture is grazed down to its limit — ' +
+        'hay or milled feed tops up the rest.';
+    hay.disabled = u >= D.TROUGH_CAP || St.S.coins < D.HAY.coins;
+  });
+  return wrap;
 }
 
 function critterTile(an, type) {
@@ -3712,8 +3914,11 @@ function machinePanel(m) {
     icBtn.onclick = e => { e.stopPropagation(); haptic(); itemSheet(r.out); };
     row.appendChild(icBtn);
     const body = el('div', 'body');
-    body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
-      <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
+    const toTrough = r.out === 'feed';
+    body.innerHTML = `<b>${toTrough ? `Feed · +${D.MILL_UNITS} to trough` : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
+      <small>${locked ? '🔒 Level ' + r.level
+        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · fills the trough your animals eat from`
+        : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
     body.appendChild(ing);
     row.appendChild(body);
 
@@ -3987,6 +4192,11 @@ function shopView() {
   }
   frag.appendChild(boosts);
 
+  /* feed */
+  const feed = panel(`<em>🌾</em>Feed`);
+  feed.appendChild(troughPanel());
+  frag.appendChild(feed);
+
   /* land */
   const land = panel(`<em>🚜</em>Land`);
   if (S.plots.length >= D.MAX_PLOTS) {
@@ -4053,13 +4263,74 @@ function openSheet(build) {
   const root = $('sheet-root');
   const back = el('div', 'backdrop');
   const sheet = el('div', 'sheet');
-  sheet.appendChild(el('div', 'sheet-grab'));
-  const close = () => { back.remove(); };
+
+  const grip = el('div', 'sheet-grip');
+  grip.innerHTML = '<span class="sheet-grab"></span>';
+  const x = el('button', 'sheet-x', '✕');
+  x.setAttribute('aria-label', 'Close');
+  grip.appendChild(x);
+  sheet.appendChild(grip);
+
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    sheet.classList.add('closing');
+    back.classList.add('closing');
+    setTimeout(() => back.remove(), 180);
+  };
+  x.onclick = () => { haptic(); close(); };
+
   build(sheet, close);
   back.appendChild(sheet);
   back.onclick = e => { if (e.target === back) close(); };
   root.appendChild(back);
+  makeSheetDraggable(sheet, close);
   return close;
+}
+
+/**
+ * Drag the sheet down to dismiss it, the way the grab handle implies.
+ * The drag only starts when the sheet's own scroller is already at the top,
+ * so scrolling a long list still works normally.
+ */
+function makeSheetDraggable(sheet, close) {
+  let startY = 0, dy = 0, dragging = false, startedAt = 0;
+
+  const onDown = e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (sheet.scrollTop > 0) return;
+    // Let controls handle their own taps; only bare surface starts a drag.
+    if (e.target.closest('button, input, textarea, a')) return;
+    dragging = true;
+    startY = e.clientY;
+    dy = 0;
+    startedAt = Date.now();
+    sheet.style.transition = 'none';
+  };
+
+  const onMove = e => {
+    if (!dragging) return;
+    dy = e.clientY - startY;
+    if (dy < 0) dy = dy * 0.25;          // slight resistance upward
+    sheet.style.transform = `translateY(${dy}px)`;
+    if (dy > 4 && e.cancelable) e.preventDefault();
+  };
+
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    sheet.style.transition = '';
+    sheet.style.transform = '';
+    const flicked = dy > 40 && Date.now() - startedAt < 300;
+    if (dy > 110 || flicked) close();
+  };
+
+  sheet.addEventListener('pointerdown', onDown);
+  sheet.addEventListener('pointermove', onMove, { passive: false });
+  sheet.addEventListener('pointerup', onUp);
+  sheet.addEventListener('pointercancel', onUp);
+  sheet.addEventListener('pointerleave', onUp);
 }
 
 function sellSheet(kind) {
@@ -4472,7 +4743,7 @@ function welcomeBack(info) {
     sheet.appendChild(go);
   });
 }
-return { setView, render, refresh, openSheet, itemSheet, machineSheet, settingsSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
+return { setView, render, refresh, troughPanel, openSheet, itemSheet, machineSheet, settingsSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
 })();
 
 /* ---------- js/main.js ---------- */

@@ -796,10 +796,12 @@ button.ic:hover::after { opacity: 1; }
 .map {
   position: relative;
   transform-origin: top left;
-  /* mown stripes, a little sun in the top corner */
+  /* Soft mown bands plus a fine turf speckle, so the grass has depth without
+     the hard stripes the old scene had. */
   background:
-    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .35), transparent 45%),
-    repeating-linear-gradient(90deg, #7cc94a 0 44px, #74c144 44px 88px);
+    radial-gradient(ellipse at 20% 6%, rgba(255, 255, 255, .38), transparent 52%),
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, .05) 0 6px, transparent 6px 13px),
+    repeating-linear-gradient(90deg, #7ec84c 0 60px, #77c246 60px 120px);
 }
 
 .map-path {
@@ -807,9 +809,12 @@ button.ic:hover::after { opacity: 1; }
   left: 0; right: 0;
   top: 540px;
   height: 52px;
-  background: repeating-linear-gradient(90deg, #e6cfa2 0 18px, #dec69a 18px 36px);
-  border-top: 3px solid #c9ab77;
-  border-bottom: 3px solid #c9ab77;
+  background:
+    radial-gradient(circle at 12% 40%, rgba(255, 255, 255, .5), transparent 30%),
+    repeating-linear-gradient(76deg, #ecd8b0 0 9px, #e3cda3 9px 20px);
+  border-top: 3px solid var(--wood-dk);
+  border-bottom: 3px solid var(--wood-dk);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .07);
 }
 
 .map-pond {
@@ -897,63 +902,80 @@ button.ic:hover::after { opacity: 1; }
 .mp-plot {
   position: absolute;
   padding: 0;
-  border: 3px solid #7d5730;
-  border-radius: 12px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  /* ploughed rows, lit from above, matching the app's warm browns */
   background:
-    repeating-linear-gradient(180deg, rgba(0, 0, 0, .10) 0 3px, transparent 3px 14px),
-    linear-gradient(180deg, #b5794a, #8a5a30);
-  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .22), 0 3px 0 rgba(0, 0, 0, .18);
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .10) 0 2px,
+      rgba(0, 0, 0, .12) 2px 5px,
+      transparent 5px 15px),
+    linear-gradient(180deg, #c08a56, #96633a 60%, #86562f);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -5px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2);
   display: grid;
   place-items: center;
-  overflow: visible;
-  transition: transform .1s ease;
+  overflow: hidden;
+  transition: transform .1s ease, box-shadow .15s ease;
 }
 .mp-plot:active { transform: scale(.95); }
 
-.mp-plot .seedme { font-size: 26px; font-weight: 900; color: rgba(255, 255, 255, .45); }
+.mp-plot .seedme { font-size: 30px; font-weight: 900; color: rgba(255, 255, 255, .5); }
 .mp-plot .sprout {
   font-size: 34px;
   line-height: 1;
   transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
 }
-.mp-plot.ready { border-color: #ffd45e; }
+.mp-plot.ready {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -5px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2),
+    0 0 0 3px rgba(255, 196, 46, .35);
+}
 .mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
 
+/* The completion bar: pinned across the top of every field, edge to edge.
+   Full and gold means ready — readable at a glance across the whole farm. */
 .mp-plot .grow {
   position: absolute;
-  left: 6px; right: 6px; bottom: 5px;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, .35);
-  overflow: hidden;
+  top: 0; left: 0; right: 0;
+  height: 11px;
+  background: rgba(0, 0, 0, .34);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
 }
 .mp-plot .grow > i {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, #ffe07a, #8ce35a);
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #d6f5a0, #7fce46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
+  transition: width .6s linear;
 }
-.mp-plot.ready .grow { display: none; }
+.mp-plot.ready .grow > i {
+  background: linear-gradient(180deg, #ffe98a, var(--gold));
+  animation: barGlow 1.3s ease-in-out infinite;
+}
+@keyframes barGlow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.22); }
+}
 
-.mp-plot .bubble {
+.mp-plot .clock {
   position: absolute;
-  top: -16px; left: 50%;
-  transform: translateX(-50%);
-  background: #fffaef;
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 999px;
-  padding: 0 7px;
-  font-size: 11px;
+  top: 13px; left: 0; right: 0;
+  text-align: center;
+  font-size: 10px;
   font-weight: 900;
-  line-height: 19px;
-  white-space: nowrap;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
+  letter-spacing: .02em;
 }
-.mp-plot .bubble.pop {
-  background: #fff3c4;
-  border-color: var(--gold-dk);
-  font-size: 15px;
-  animation: bob .8s ease-in-out infinite;
-}
+.mp-plot.ready .clock { color: #fff8d8; }
+
 
 .mp-plot.wild {
   border-style: dashed;
@@ -967,10 +989,13 @@ button.ic:hover::after { opacity: 1; }
 
 .mp-pen {
   position: absolute;
-  border: 4px dashed #b8834a;
-  border-radius: 16px;
-  background: rgba(255, 246, 214, .45);
-  padding: 16px 6px 6px;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-lg);
+  background:
+    var(--grain),
+    linear-gradient(180deg, rgba(255, 250, 225, .78), rgba(240, 220, 175, .72));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7), 0 3px 0 rgba(0, 0, 0, .14);
+  padding: 16px 7px 7px;
 }
 .mp-pen.locked { opacity: .75; filter: grayscale(.6); }
 
@@ -992,8 +1017,9 @@ button.ic:hover::after { opacity: 1; }
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  gap: 4px;
+  gap: 4px 4px;
   height: 100%;
+  padding-top: 6px;     /* headroom so the ready badge is not clipped */
   overflow: hidden;
 }
 .pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
@@ -1017,26 +1043,34 @@ button.ic:hover::after { opacity: 1; }
 .critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
 .critter-m .mark {
   position: absolute;
-  top: -4px; right: -2px;
+  top: -6px; right: -3px;
   font-size: 15px;
   background: #fffaef;
   border: 2px solid var(--wood-dk);
   border-radius: 50%;
   padding: 1px;
   line-height: 1;
+  animation: bob .9s ease-in-out infinite;
 }
-.critter-m .tick {
+.critter-m .mark.waiting { animation: none; filter: grayscale(.5); opacity: .85; }
+
+/* Each animal carries its own little completion bar, same idea as a field. */
+.critter-m .agrow {
   position: absolute;
-  bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  font-weight: 900;
-  color: #fff;
-  background: rgba(0, 0, 0, .5);
-  border-radius: 6px;
-  padding: 0 4px;
-  white-space: nowrap;
+  left: 4px; right: 4px; bottom: -1px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .3);
+  overflow: hidden;
 }
+.critter-m .agrow > i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #d6f5a0, #7fce46);
+  transition: width .6s linear;
+}
+.critter-m.ready .agrow > i { background: linear-gradient(90deg, #ffe98a, var(--gold)); }
+.critter-m.hungry .agrow > i { background: #b9a88c; }
+
 .critter-m.add {
   border: 3px dashed rgba(122, 74, 30, .55);
   border-radius: 12px;
@@ -1355,3 +1389,46 @@ body.no-motion *::after {
     transition-duration: .001ms !important;
   }
 }
+
+/* --------------------------- sheet: grip and drag ------------------------- */
+
+.sheet-grip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  margin: -2px -6px 8px;
+  cursor: grab;
+  touch-action: none;          /* the drag handler owns vertical gestures */
+}
+.sheet-grab {
+  width: 52px; height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .22);
+  margin: 0;
+}
+.sheet-x {
+  position: absolute;
+  right: 2px; top: -2px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(156, 95, 38, .3);
+  background: var(--card-2);
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.sheet { transition: transform .22s cubic-bezier(.2, .9, .3, 1); touch-action: pan-y; }
+.sheet.closing { transform: translateY(100%); transition: transform .18s ease-in; }
+.backdrop.closing { opacity: 0; transition: opacity .18s ease; }
+
+/* ------------------------------- the trough ------------------------------ */
+
+.trough { margin-top: 4px; }
+.trough .meter { height: 22px; }
+.meter-hay > i { background: linear-gradient(180deg, #ffe9a0, #d9a441); }
+.meter-hay.low > i { background: linear-gradient(180deg, #ffb0a0, #d64b3a); }
+.trough .muted { margin-top: 6px; }

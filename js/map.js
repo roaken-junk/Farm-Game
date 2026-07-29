@@ -149,15 +149,16 @@ export function farmMap({ T, open }) {
       const pct = clamp((now() - plot.at) / total, 0, 1);
       if (node.dataset.crop !== plot.crop) {
         node.dataset.crop = plot.crop;
-        node.innerHTML = `<span class="sprout">${crop.icon}</span>
-                          <span class="bubble"></span>
-                          <span class="grow"><i></i></span>`;
+        node.innerHTML = `<span class="grow"><i></i></span>
+                          <span class="sprout">${crop.icon}</span>
+                          <span class="clock"></span>`;
       }
-      node.querySelector('.sprout').style.transform = `scale(${(0.45 + 0.55 * pct).toFixed(2)})`;
+      // One bar across the top of every field: full means ready, and you can
+      // read the whole farm's state without looking at a single number.
       node.querySelector('.grow > i').style.width = (pct * 100).toFixed(1) + '%';
-      node.querySelector('.bubble').textContent =
-        state === 'ready' ? crop.icon : fmtTime((plot.end - now()) / 1000);
-      node.querySelector('.bubble').className = 'bubble' + (state === 'ready' ? ' pop' : '');
+      node.querySelector('.sprout').style.transform = `scale(${(0.5 + 0.5 * pct).toFixed(2)})`;
+      node.querySelector('.clock').textContent =
+        state === 'ready' ? 'READY' : fmtTime((plot.end - now()) / 1000);
     }
   });
 
@@ -206,10 +207,13 @@ export function farmMap({ T, open }) {
         if (!a) return;
         const st = G.animalState(an);
         a.className = 'critter-m ' + st;
-        const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '🌰' : '';
-        a.innerHTML = `<span class="beast">${type.icon}</span>` +
-          (mark ? `<span class="mark">${mark}</span>` : '') +
-          (st === 'working' ? `<span class="tick">${fmtTime((an.readyAt - now()) / 1000)}</span>` : '');
+        const cycle = Math.max(1, an.readyAt - an.fedAt);
+        const pct = st === 'working' ? clamp((now() - an.fedAt) / cycle, 0, 1) : st === 'ready' ? 1 : 0;
+        a.innerHTML =
+          `<span class="beast">${type.icon}</span>` +
+          `<span class="agrow"><i style="width:${(pct * 100).toFixed(1)}%"></i></span>` +
+          (st === 'ready' ? `<span class="mark">${D.ITEMS[type.product].icon}</span>` : '') +
+          (st === 'hungry' ? `<span class="mark waiting">🌾</span>` : '');
       });
     });
   }
