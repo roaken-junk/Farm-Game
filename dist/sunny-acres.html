@@ -42,6 +42,21 @@
   --shadow: 0 3px 0 rgba(0, 0, 0, .18);
   --r-lg: 20px;
   --r-md: 14px;
+  --r-sm: 10px;
+
+  /* one type scale, used everywhere */
+  --t-title: 16px;
+  --t-body: 14px;
+  --t-sub: 12px;
+  --t-tiny: 10px;
+
+  /* Paper grain and wood grain, mixed into surfaces so nothing is flat. */
+  --grain:
+    repeating-linear-gradient(48deg, rgba(156, 95, 38, .045) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-42deg, rgba(156, 95, 38, .03) 0 3px, transparent 3px 7px);
+  --woodgrain:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .07) 0 3px, transparent 3px 9px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .06) 0 1px, transparent 1px 14px);
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
@@ -62,6 +77,8 @@ html, body {
 body {
   font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
                "Segoe UI", system-ui, sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.35;
   color: var(--ink);
   background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 45%, #dff3c4 100%);
   -webkit-user-select: none;
@@ -229,13 +246,23 @@ button, input { font: inherit; color: inherit; }
 /* -------------------------------- pieces --------------------------------- */
 
 .panel {
-  background: var(--card);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card) 40%, var(--card-2));
   border: 3px solid var(--wood-dk);
   border-radius: var(--r-lg);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, .16);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .9);
   padding: 12px;
   margin-bottom: 12px;
 }
+
+/* The one panel allowed to shout — the festival. */
+.panel-feature {
+  border-color: #c98a1e;
+  background:
+    var(--grain),
+    linear-gradient(180deg, #fff8e0, #ffeec4 55%, #ffe3a8);
+  box-shadow: 0 4px 0 rgba(140, 92, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+.panel-feature .panel-head { color: #7a4f00; }
 
 .panel-head {
   display: flex; align-items: center; gap: 8px;
@@ -408,25 +435,49 @@ button, input { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px;
+  padding: 9px;
   border-radius: var(--r-md);
-  background: var(--card-2);
-  border: 2px solid rgba(156, 95, 38, .28);
+  background: linear-gradient(180deg, #fffdf6, var(--card-2));
+  border: 2px solid rgba(156, 95, 38, .26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
   margin-bottom: 8px;
+  width: 100%;
+  text-align: left;
+  color: inherit;
 }
+.row-tap { transition: transform .1s ease; }
+.row-tap:active { transform: scale(.985); }
+.row-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .row:last-child { margin-bottom: 0; }
 .row .ic {
-  width: 46px; height: 46px;
+  width: 48px; height: 48px;
+  padding: 0;
   border-radius: 12px;
-  background: linear-gradient(180deg, #fff, #ffeec9);
+  background: radial-gradient(circle at 35% 28%, #fff, #ffeec9 70%);
   border: 2px solid rgba(156, 95, 38, .3);
+  box-shadow: inset 0 -2px 0 rgba(156, 95, 38, .12);
   display: grid; place-items: center;
-  font-size: 25px;
+  font-size: 26px;
+  line-height: 1;
   flex-shrink: 0;
+  transition: transform .12s ease;
 }
+button.ic:active { transform: scale(.9) rotate(-4deg); }
+/* A tappable icon says so with a faint ring. */
+button.ic { position: relative; }
+button.ic::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 13px;
+  border: 2px dashed rgba(156, 95, 38, .32);
+  opacity: .0;
+  transition: opacity .15s;
+}
+button.ic:hover::after { opacity: 1; }
 .row .body { flex: 1; min-width: 0; }
-.row .body b { display: block; font-size: 14px; font-weight: 900; }
-.row .body small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 700; line-height: 1.35; }
+.row .body b { display: block; font-size: var(--t-body); font-weight: 900; letter-spacing: -.01em; }
+.row .body small { display: block; font-size: var(--t-sub); color: var(--ink-soft); font-weight: 700; line-height: 1.4; margin-top: 1px; }
 .row.locked { opacity: .62; filter: grayscale(.7); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
@@ -1087,6 +1138,240 @@ button, input { font: inherit; color: inherit; }
   font-weight: 900;
 }
 
+/* =================== shared components & polish pass ====================== */
+
+/* wood grain on the tab bar, so the chrome feels made of something */
+.tabbar {
+  background: var(--woodgrain), linear-gradient(180deg, var(--wood), #b8752f);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .22);
+}
+
+.hud {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .12)),
+    var(--grain);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+/* the one progress meter, used by goals, festival and anything else */
+.meter {
+  position: relative;
+  height: 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, .13);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, .18);
+  overflow: hidden;
+}
+.meter > i {
+  display: block;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  background: linear-gradient(180deg, #ffe08a, var(--gold-dk));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: width .5s cubic-bezier(.2, .9, .3, 1);
+}
+.meter > span {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-size: var(--t-tiny);
+  font-weight: 900;
+  color: #4a3520;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+}
+.meter-fest > i { background: linear-gradient(180deg, #ffd27a, #e0851b); }
+
+/* the goal bar reuses the meter look */
+.goalbar { height: 8px; border-radius: 5px; box-shadow: inset 0 1px 2px rgba(0,0,0,.2); }
+
+/* chips get semantic colours, consistent across every tab */
+.chip { line-height: 18px; }
+.chip-gold { background: #fff2cd; border-color: var(--gold-dk); }
+.chip-gem  { background: #ddf4ff; border-color: #3ba8d6; }
+.chip-link { cursor: pointer; border-style: dashed; }
+.chip-link:active { transform: scale(.94); }
+
+.tag {
+  background: rgba(0, 0, 0, .08);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.note {
+  background: rgba(255, 255, 255, .7);
+  border: 2px solid rgba(156, 95, 38, .22);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+/* festival milestone markers */
+.fest-marks {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 2px 10px;
+}
+.fest-mark {
+  display: flex; flex-direction: column; align-items: center;
+  font-size: 19px;
+  line-height: 1.1;
+  filter: grayscale(1) opacity(.45);
+  transition: filter .3s, transform .3s;
+}
+.fest-mark small { font-size: 9px; font-weight: 900; color: var(--ink-soft); }
+.fest-mark.hit { filter: none; transform: scale(1.12); }
+
+/* ------------------------------ info sheets ------------------------------ */
+
+.sheet-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.sheet-hero h2 { margin: 0; }
+.sheet-hero .sub { margin: 2px 0 0; }
+.hero-ic {
+  width: 62px; height: 62px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  border: 3px solid var(--wood-dk);
+  background: radial-gradient(circle at 34% 28%, #fff, #ffe9bd 72%);
+  box-shadow: inset 0 -3px 0 rgba(156, 95, 38, .16);
+  display: grid; place-items: center;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.factgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.fact {
+  background: linear-gradient(180deg, #fffdf6, var(--card-2));
+  border: 2px solid rgba(156, 95, 38, .24);
+  border-radius: var(--r-sm);
+  padding: 7px 9px;
+}
+.fact small { display: block; font-size: var(--t-tiny); font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .5px; }
+.fact b { display: block; font-size: 15px; font-weight: 900; margin-top: 1px; }
+.fact-up b { color: #2e8b2e; }
+.fact-down b { color: #c33; }
+
+/* -------------------------------- switch --------------------------------- */
+
+.switch {
+  flex-shrink: 0;
+  width: 52px; height: 30px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .18);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, .25);
+  position: relative;
+  transition: background .2s;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fff, #ecdfc6);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .3);
+  transition: transform .2s cubic-bezier(.3, 1.4, .5, 1);
+}
+.switch.on { background: linear-gradient(180deg, #86dd6e, var(--green-dk)); }
+.switch.on::after { transform: translateX(22px); }
+
+/* ------------------------------- feedback -------------------------------- */
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  display: block;
+  opacity: .95;
+  animation: confettiFly var(--dur, 1.6s) cubic-bezier(.15, .6, .4, 1) var(--delay, 0s) forwards;
+}
+@keyframes confettiFly {
+  0%   { transform: translate(-50%, -50%) rotate(0deg) scale(.4); opacity: 1; }
+  25%  { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 78vh)) rotate(var(--rot)) scale(1);
+    opacity: 0;
+  }
+}
+
+.floaty {
+  position: absolute;
+  transform: translate(-50%, 0);
+  font-size: 16px;
+  font-weight: 900;
+  color: #2e8b2e;
+  text-shadow: 0 2px 0 #fff, 0 0 6px rgba(255, 255, 255, .9);
+  animation: floaty 1.1s cubic-bezier(.2, .8, .3, 1) forwards;
+  white-space: nowrap;
+}
+.floaty.bad { color: #c33; }
+@keyframes floaty {
+  0%   { transform: translate(-50%, 0) scale(.7); opacity: 0; }
+  22%  { transform: translate(-50%, -14px) scale(1.12); opacity: 1; }
+  100% { transform: translate(-50%, -62px) scale(1); opacity: 0; }
+}
+
+/* every button squashes when pressed */
+.fx-pop { animation: fxPop .34s cubic-bezier(.25, 1.6, .4, 1); }
+@keyframes fxPop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(.9); }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* icons on the map give a satisfying squish too */
+.mp-plot:active .sprout { transform: scale(.82) !important; }
+.critter-m:active .beast { transform: scale(.85); }
+
+/* ---------------------------- accessibility ------------------------------ */
+
+body.big-text {
+  --t-title: 18px;
+  --t-body: 16px;
+  --t-sub: 14px;
+  --t-tiny: 12px;
+}
+body.big-text .btn { font-size: 15px; }
+body.big-text .tab { font-size: 11px; }
+
+/* "Animations: off", and anyone who asked the OS for less motion */
+body.no-motion *,
+body.no-motion *::before,
+body.no-motion *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
 </style>
 
 <div id="app" hidden>
@@ -1124,6 +1409,7 @@ button, input { font: inherit; color: inherit; }
   </div>
 </div>
 
+<div id="fx" class="fx-layer"></div>
 <div id="toasts" class="toasts"></div>
 <div id="sheet-root"></div>
 
@@ -1187,13 +1473,16 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+let hapticsOn = true;
+function setHaptics(on) { hapticsOn = !!on; }
+
 /** A short buzz on supported hardware. iOS ignores it; harmless there. */
 function haptic(ms = 12) {
-  if (navigator.vibrate) {
+  if (hapticsOn && navigator.vibrate) {
     try { navigator.vibrate(ms); } catch { /* ignore */ }
   }
 }
-return { clamp, fmt, fmtTime, fmtSpan, el, pick, randInt, uid, haptic, now };
+return { clamp, fmt, fmtTime, fmtSpan, el, pick, randInt, uid, setHaptics, haptic, now };
 })();
 
 /* ---------- js/data.js ---------- */
@@ -1405,6 +1694,45 @@ function marketMult(id, t = Date.now()) {
   return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
 }
 
+/* --------------------------- the harvest festival ------------------------ */
+
+/**
+ * A festival is always running: the clock is cut into fixed cycles, and each
+ * one gives you a fresh points bar with three milestones. Nothing is gated
+ * behind waiting, and points come from ordinary play, so it rewards a session
+ * rather than demanding one.
+ */
+const FEST_HOURS = 6;
+const FEST_MS = FEST_HOURS * 3600 * 1000;
+
+/** Points earned by simply playing. */
+const FEST_POINTS = { harvest: 1, collect: 2, craft: 4, order: 15 };
+
+const FEST_TIERS = [
+  { at: 40,  name: 'Warm-Up',   icon: '🎪' },
+  { at: 120, name: 'Main Stage', icon: '🎠' },
+  { at: 300, name: 'Grand Prize', icon: '🎡' },
+];
+
+/** Which festival we're in — changes on its own every FEST_HOURS. */
+const festCycle = (t = Date.now()) => Math.floor(t / FEST_MS);
+const festEndsAt = (t = Date.now()) => (festCycle(t) + 1) * FEST_MS;
+
+/** Rewards scale with level so the prize stays worth chasing. */
+function festReward(tier, level) {
+  const mult = [1, 3, 9][tier];
+  return {
+    coins: Math.round(1200 * mult * Math.max(1, level) / 2),
+    gems: [3, 6, 15][tier],
+    xp: Math.round(D_xpHint(level) * [0.15, 0.35, 0.9][tier]),
+  };
+}
+
+/** A slice of the current level's XP bar, so the prize always feels like progress. */
+function D_xpHint(level) {
+  return xpToNext(Math.max(1, level));
+}
+
 /* ------------------------------ daily bonus ------------------------------ */
 
 const DAILY_MAX_STREAK = 7;
@@ -1470,7 +1798,7 @@ function titleFor(level) {
 function recipesFor(machineId) {
   return RECIPES.filter(r => r.machine === machineId);
 }
-return { goalReward, marketMult, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, BOOSTS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
+return { goalReward, marketMult, festReward, dailyReward, today, xpToNext, plotCost, plotLevel, siloUpgradeCost, barnUpgradeCost, speedUpCost, titleFor, recipesFor, CROPS, ANIMALS, ANIMAL_GOODS, MACHINES, RECIPES, CRAFTED, ITEMS, BOOSTS, UPGRADES, TITLES, AVATARS, GOALS, GOAL_RANKS, FEST_HOURS, FEST_MS, FEST_POINTS, FEST_TIERS, festCycle, festEndsAt, DAILY_MAX_STREAK, CROP_YIELD, ORDER_REFRESH, START_PLOTS, MAX_PLOTS, START_SILO, START_BARN, BASE_QUEUE, ORDER_SLOTS, SILO_STEP, BARN_STEP };
 })();
 
 /* ---------- js/audio.js ---------- */
@@ -1518,11 +1846,107 @@ const SFX = {
   coin:    () => chord([880, 1170], 0.13, 'sine', 0.05),
   buy:     () => chord([520, 700, 900], 0.14),
   error:   () => blip(150, 0.18, 'sawtooth', 0.04),
-  levelUp: () => chord([523, 659, 784, 1046], 0.30, 'triangle', 0.06),
+  // A proper little fanfare: rising triad, then the octave held over it.
+  levelUp: () => {
+    chord([523, 659, 784], 0.26, 'triangle', 0.055);
+    setTimeout(() => chord([1046, 1318], 0.42, 'triangle', 0.05), 240);
+    setTimeout(() => blip(1568, 0.5, 'sine', 0.035), 430);
+  },
+  fanfare: () => {
+    chord([392, 523, 659, 784], 0.3, 'triangle', 0.05);
+    setTimeout(() => chord([784, 988, 1174], 0.5, 'triangle', 0.045), 300);
+  },
   collect: () => chord([700, 950], 0.12),
   order:   () => chord([600, 800, 1000], 0.16),
 };
 return { setSound, soundOn, unlockAudio, SFX };
+})();
+
+/* ---------- js/fx.js ---------- */
+const __mod_fx = (function () {
+const {el} = __mod_util;
+/* ==========================================================================
+   fx.js — the small feedback layer: confetti, button pops, numbers that fly
+   off the thing you just tapped. Everything here checks the player's
+   "Animations" setting first, and degrades to nothing when it's off.
+   ========================================================================== */
+
+
+
+let motion = true;
+function setMotion(on) {
+  motion = !!on;
+  document.body.classList.toggle('no-motion', !on);
+}
+const motionOn = () => motion;
+
+/* ------------------------------- confetti -------------------------------- */
+
+const CONFETTI = ['#ffc42e', '#57c04b', '#ef5a5a', '#47c9ff', '#f09ac0', '#fff1b8'];
+
+/**
+ * A burst of paper from a point (defaults to the top third of the screen).
+ * Pure DOM: a few dozen absolutely-positioned chips with staggered falls.
+ */
+function confetti(count = 70, originX = null, originY = null) {
+  if (!motion) return;
+  const host = document.getElementById('fx') || document.body;
+  const x0 = originX == null ? innerWidth / 2 : originX;
+  const y0 = originY == null ? innerHeight * 0.32 : originY;
+
+  for (let i = 0; i < count; i++) {
+    const bit = el('i', 'confetti');
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 190;
+    bit.style.cssText = `
+      left:${x0}px; top:${y0}px;
+      background:${CONFETTI[i % CONFETTI.length]};
+      --dx:${Math.cos(angle) * dist}px;
+      --dy:${Math.sin(angle) * dist - 120}px;
+      --rot:${Math.random() * 900 - 450}deg;
+      --dur:${(1.1 + Math.random() * 0.9).toFixed(2)}s;
+      --delay:${(Math.random() * 0.18).toFixed(2)}s;
+      width:${6 + Math.random() * 6}px;
+      height:${8 + Math.random() * 8}px;
+      border-radius:${Math.random() < 0.4 ? '50%' : '2px'};`;
+    host.appendChild(bit);
+    setTimeout(() => bit.remove(), 2400);
+  }
+}
+
+/* ------------------------------ tap feedback ----------------------------- */
+
+/** Squash-and-stretch on the element that was just pressed. */
+function pop(node) {
+  if (!motion || !node) return;
+  node.classList.remove('fx-pop');
+  void node.offsetWidth;               // restart the animation
+  node.classList.add('fx-pop');
+  setTimeout(() => node.classList.remove('fx-pop'), 340);
+}
+
+/** A number or label that drifts up and fades, anchored to an element. */
+function floatFrom(node, text, tone = 'good') {
+  if (!motion) return;
+  const host = document.getElementById('fx') || document.body;
+  const r = node && node.getBoundingClientRect
+    ? node.getBoundingClientRect()
+    : { left: innerWidth / 2, top: innerHeight / 2, width: 0 };
+  const f = el('div', 'floaty ' + tone, text);
+  f.style.left = (r.left + r.width / 2) + 'px';
+  f.style.top = r.top + 'px';
+  host.appendChild(f);
+  setTimeout(() => f.remove(), 1100);
+}
+
+/** Every button in the app gets a press animation, without wiring each one. */
+function bindTapFeedback(root = document) {
+  root.addEventListener('pointerdown', e => {
+    const b = e.target.closest('button:not([disabled])');
+    if (b) pop(b);
+  }, { passive: true });
+}
+return { setMotion, confetti, pop, floatFrom, bindTapFeedback, motionOn };
 })();
 
 /* ---------- js/state.js ---------- */
@@ -1571,10 +1995,18 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     nextOrderAt: 0,
     upgrades: {},
     selectedSeed: 'wheat',
-    settings: { sound: true },
+    settings: {
+      sound: true,
+      haptics: true,
+      motion: true,
+      confirmSell: false,     // ask before a Sell All
+      bigText: false,
+    },
     boosts: {},                                  // boost id -> expiry timestamp
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
+    fest: { cycle: -1, points: 0, claimed: [] },
+    tips: { seenFest: false },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
 }
@@ -1665,6 +2097,8 @@ function migrate(data) {
   data.goals = data.goals || {};
   data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
+  data.fest = { ...base.fest, ...(data.fest || {}) };
+  data.tips = { ...base.tips, ...(data.tips || {}) };
   return data;
 }
 
@@ -1957,6 +2391,7 @@ function harvest(i, quiet = false) {
   }
   S.plots[i] = null;
   S.stats.harvested += got;
+  festAdd('harvest', got);
   gainXp(crop.xp);
   if (!quiet) SFX.harvest();
   St.saveSoon();
@@ -2043,6 +2478,7 @@ function collectAnimal(an, quiet = false) {
   an.product = false;
   an.readyAt = 0;
   S.stats.collected += 1;
+  festAdd('collect');
   gainXp(D.ITEMS[type.product].xp);
   if (!quiet) SFX.collect();
   St.saveSoon();
@@ -2130,6 +2566,7 @@ function collectJob(machineId, jid, quiet = false) {
   if (!got) { if (!quiet) fail('Barn is full — sell some goods', '📦'); return 0; }
   m.queue.splice(idx, 1);
   S.stats.crafted += got;
+  festAdd('craft', got);
   gainXp(D.ITEMS[r.out].xp);
   if (!quiet) SFX.collect();
   St.saveSoon();
@@ -2338,6 +2775,7 @@ function deliverOrder(oid) {
   St.earnCoins(o.coins);
   S.gems += o.gems;
   S.stats.orders += 1;
+  festAdd('order');
   gainXp(o.xp);
   S.orders[i] = { wait: now() + orderWait() };
   SFX.order();
@@ -2387,6 +2825,52 @@ function claimGoal(id) {
 
 const goalsReady = () => D.GOALS.filter(g => goalState(g).ready).length;
 
+/* ---------------------------- harvest festival --------------------------- */
+
+/** Rolls the festival over when the clock enters a new cycle. */
+function festState() {
+  const S = St.S;
+  const cycle = D.festCycle();
+  if (!S.fest || S.fest.cycle !== cycle) {
+    S.fest = { cycle, points: 0, claimed: [] };
+  }
+  return S.fest;
+}
+
+function festAdd(kind, n = 1) {
+  const f = festState();
+  f.points += (D.FEST_POINTS[kind] || 0) * n;
+}
+
+/** Per-tier view: reached, already claimed, and what it pays. */
+function festTiers() {
+  const f = festState();
+  return D.FEST_TIERS.map((t, i) => ({
+    ...t, i,
+    reached: f.points >= t.at,
+    claimed: !!f.claimed[i],
+    reward: D.festReward(i, St.S.level),
+  }));
+}
+
+const festReady = () => festTiers().filter(t => t.reached && !t.claimed).length;
+const festLeft = () => (D.festEndsAt() - now()) / 1000;
+
+function claimFest(i) {
+  const f = festState();
+  const t = festTiers()[i];
+  if (!t || !t.reached || t.claimed) return false;
+  f.claimed[i] = true;
+  St.earnCoins(t.reward.coins);
+  St.S.gems += t.reward.gems;
+  gainXp(t.reward.xp);
+  SFX.fanfare();
+  emit('celebrate', { big: i === D.FEST_TIERS.length - 1 });
+  ok(`${t.name} prize! +${t.reward.coins} coins`, t.icon);
+  St.saveSoon();
+  return true;
+}
+
 /* ------------------------------ daily bonus ------------------------------ */
 
 function dailyReady() {
@@ -2423,6 +2907,7 @@ function tick() {
 
   for (const [id, end] of Object.entries(S.boosts)) if (end <= now()) delete S.boosts[id];
 
+  festState();
   tickOrders();
 
   // Auto Feeder: any hungry animal eats itself as soon as feed exists.
@@ -2463,7 +2948,7 @@ function settleOffline() {
   tick();
   return { away, ready, ripe, crafts };
 }
-return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, dailyReady, claimDaily, tick, settleOffline, goalsReady };
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, feedAllAnimals, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, festState, festTiers, claimFest, dailyReady, claimDaily, tick, settleOffline, goalsReady, festReady, festLeft };
 })();
 
 /* ---------- js/map.js ---------- */
@@ -2712,14 +3197,16 @@ const __mod_ui = (function () {
 const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
+const FX = __mod_fx;
 const {farmMap} = __mod_map;
-const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic} = __mod_util;
+const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics} = __mod_util;
 const {SFX, setSound, soundOn} = __mod_audio;
 /* ==========================================================================
    ui.js — rendering. Views are rebuilt on any action; per-second changes
    (timers, progress rings) run through lightweight "tickers" so the DOM
    isn't thrown away every frame and scroll position survives.
    ========================================================================== */
+
 
 
 
@@ -2842,7 +3329,7 @@ function renderTabBadges() {
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
     orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
-    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0),
+    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0) + G.festReady(),
     shop: 0,
   };
   for (const t of TABS) {
@@ -2882,6 +3369,45 @@ function panel(titleHtml, ...children) {
   if (titleHtml) p.appendChild(el('div', 'panel-head', titleHtml));
   for (const c of children) if (c) p.appendChild(c);
   return p;
+}
+
+/**
+ * The one row component every tab uses: icon tile, title, subtitle, optional
+ * meta chips, optional trailing control. Keeping this single definition is
+ * what makes the tabs look like the same app.
+ */
+function row({ icon, title, sub, chips, trail, locked, onIcon, tone }) {
+  const r = el('div', 'row' + (locked ? ' locked' : '') + (tone ? ' tone-' + tone : ''));
+  const ic = el(onIcon ? 'button' : 'div', 'ic', icon);
+  if (onIcon) ic.onclick = e => { e.stopPropagation(); haptic(); onIcon(); };
+  r.appendChild(ic);
+
+  const body = el('div', 'body');
+  body.appendChild(el('b', null, title));
+  if (sub) body.appendChild(el('small', null, sub));
+  if (chips && chips.length) {
+    body.appendChild(el('div', 'chips', chips.map(c =>
+      `<span class="chip ${c.cls || ''}">${c.text}</span>`).join('')));
+  }
+  r.appendChild(body);
+  if (trail) r.appendChild(trail);
+  return r;
+}
+
+/** A labelled progress bar, used by goals, the festival and storage alike. */
+function meter(pct, label, cls = '') {
+  const m = el('div', 'meter ' + cls);
+  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i>` +
+    (label ? `<span>${label}</span>` : '');
+  return m;
+}
+
+/** A pill button that costs something, so prices read the same everywhere. */
+function costBtn(text, { tone = 'gold', disabled = false, onTap }) {
+  const b = el('button', `btn btn-sm btn-${tone}`, text);
+  b.disabled = disabled;
+  b.onclick = () => { haptic(); onTap(); };
+  return b;
 }
 
 function lockRow(icon, name, level, note) {
@@ -3148,14 +3674,16 @@ function craftView() {
     }
 
     if (!owned) {
-      const row = el('div', 'row');
-      row.innerHTML = `<div class="ic">${m.icon}</div><div class="body"><b>${m.name}</b>
-        <small>Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}</small></div>`;
       const b = el('button', 'btn btn-sm btn-green', `🔨 ${fmt(m.cost)}`);
       b.disabled = S.coins < m.cost;
       b.onclick = () => { haptic(); G.buyMachine(m.id); render(); };
-      row.appendChild(b);
-      frag.appendChild(panel(null, row));
+      frag.appendChild(panel(null, row({
+        icon: m.icon,
+        title: m.name,
+        sub: `Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}`,
+        trail: b,
+        onIcon: () => machineSheet(m.id),
+      })));
       continue;
     }
 
@@ -3180,7 +3708,9 @@ function machinePanel(m) {
     const locked = r.level > S.level;
     const row = el('div', 'row' + (locked ? ' locked' : ''));
     const ing = el('div', 'chips');
-    row.innerHTML = `<div class="ic">${out.icon}</div>`;
+    const icBtn = el('button', 'ic', out.icon);
+    icBtn.onclick = e => { e.stopPropagation(); haptic(); itemSheet(r.out); };
+    row.appendChild(icBtn);
     const body = el('div', 'body');
     body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
       <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
@@ -3301,8 +3831,61 @@ function orderCard(o, i) {
 
 /* -------------------------------- GOALS ---------------------------------- */
 
+function festivalPanel() {
+  const S = St.S;
+  const f = G.festState();
+  const tiers = G.festTiers();
+  const p = panel(`<em>🎪</em>Harvest Festival<span class="spacer"></span>
+                   <span class="tag" id="fest-clock"></span>`);
+  p.classList.add('panel-feature');
+  p.appendChild(el('div', 'muted',
+    'Everything you harvest, collect, craft and deliver earns festival points. ' +
+    'Prizes reset when the next festival starts, so claim as you go.'));
+
+  const top = tiers[tiers.length - 1].at;
+  const bar = meter(f.points / top, `${fmt(f.points)} / ${fmt(top)} points`, 'meter-fest');
+  bar.style.margin = '10px 0 4px';
+  p.appendChild(bar);
+
+  const marks = el('div', 'fest-marks');
+  for (const t of tiers) {
+    marks.appendChild(el('span', 'fest-mark' + (t.reached ? ' hit' : ''),
+      `${t.icon}<small>${fmt(t.at)}</small>`));
+  }
+  p.appendChild(marks);
+
+  for (const t of tiers) {
+    const r = row({
+      icon: t.icon,
+      title: `${t.name}`,
+      sub: t.claimed ? 'Prize collected'
+        : t.reached ? 'Ready to claim!'
+        : `${fmt(t.at - f.points)} more points to go`,
+      chips: [
+        { text: `🪙 ${fmt(t.reward.coins)}`, cls: 'chip-gold' },
+        { text: `💎 ${t.reward.gems}`, cls: 'chip-gem' },
+        { text: `⭐ ${fmt(t.reward.xp)} XP`, cls: '' },
+      ],
+      locked: !t.reached,
+      trail: t.claimed
+        ? el('span', 'chip done', '✔')
+        : t.reached
+          ? costBtn('Claim', { tone: 'green', onTap: () => { G.claimFest(t.i); render(); } })
+          : null,
+    });
+    p.appendChild(r);
+  }
+
+  T(() => {
+    const c = document.getElementById('fest-clock');
+    if (c) c.textContent = '⏳ ' + fmtTime(G.festLeft());
+  });
+  return p;
+}
+
 function goalsView() {
   const frag = document.createDocumentFragment();
+  frag.appendChild(festivalPanel());
 
   /* daily bonus */
   const daily = panel(`<em>🎁</em>Daily Bonus`);
@@ -3501,16 +4084,33 @@ function sellSheet(kind) {
         const it = D.ITEMS[id];
         const n = stock[id];
         const f = G.marketFactor(id);
-        const row = el('div', 'row');
-        row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
-          <small>🪙 ${fmt(G.sellPrice(id))} each
-          <span class="trend ${trendClass(f)}">${trendLabel(f)}</span></small></div>`;
         const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
         const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
-        one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
-        all.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, n)) + ' 🪙'); build(); refresh(); };
-        row.append(one, all);
-        list.appendChild(row);
+
+        const doSell = (btn, qty) => {
+          const got = G.sell(id, qty);
+          FX.floatFrom(btn, '+' + fmt(got) + ' 🪙');
+          build();
+          refresh();
+        };
+        one.onclick = () => { haptic(); doSell(one, 1); };
+        all.onclick = () => {
+          haptic();
+          if (St.S.settings.confirmSell && n > 1) {
+            confirmSheet(`Sell all ${n} ${it.name}?`,
+              `That's 🪙 ${fmt(G.sellPrice(id) * n)} at today's price.`, () => doSell(all, n));
+          } else doSell(all, n);
+        };
+
+        const trail = el('div', 'row-actions');
+        trail.append(one, all);
+        list.appendChild(row({
+          icon: it.icon,
+          title: `${it.name} × ${n}`,
+          sub: `🪙 ${fmt(G.sellPrice(id))} each <span class="trend ${trendClass(f)}">${trendLabel(f)}</span>`,
+          trail,
+          onIcon: () => itemSheet(id),
+        }));
       }
     };
     build();
@@ -3567,16 +4167,9 @@ function profileSheet() {
     }
     sheet.appendChild(grid);
 
-    const snd = el('button', 'btn btn-big', '');
-    const paint = () => { snd.textContent = soundOn() ? '🔊 Sound: On' : '🔇 Sound: Off'; };
-    paint();
-    snd.onclick = () => {
-      S.settings.sound = !S.settings.sound;
-      setSound(S.settings.sound);
-      St.save();
-      paint();
-    };
-    sheet.appendChild(snd);
+    const cog = el('button', 'btn btn-big', '⚙️ Settings');
+    cog.onclick = () => { close(); settingsSheet(); };
+    sheet.appendChild(cog);
 
     const swap = el('button', 'btn btn-big btn-blue', '🔄 Switch farm');
     swap.style.marginTop = '8px';
@@ -3598,6 +4191,158 @@ function profileSheet() {
     const done = el('button', 'btn btn-big btn-blue', 'Close');
     done.style.marginTop = '8px';
     done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/* -------------------------- "what is this?" sheets ----------------------- */
+
+/** Everything the game knows about one item, in one place. */
+function itemSheet(id) {
+  const it = D.ITEMS[id];
+  if (!it) return;
+  openSheet((sheet, close) => {
+    const f = G.marketFactor(id);
+    sheet.appendChild(el('div', 'sheet-hero',
+      `<span class="hero-ic">${it.icon}</span>
+       <div><h2>${it.name}</h2>
+       <p class="sub">${it.kind === 'crop' ? 'Crop · kept in the silo' : 'Good · kept in the barn'}</p></div>`));
+
+    const facts = el('div', 'factgrid');
+    const add = (k, v, cls) => facts.appendChild(el('div', 'fact ' + (cls || ''),
+      `<small>${k}</small><b>${v}</b>`));
+
+    add('You have', fmt(St.count(id)));
+    add('Sells for', '🪙 ' + fmt(G.sellPrice(id)));
+    add('Base value', '🪙 ' + fmt(it.price));
+    add('Market now', trendLabel(f), trendClass(f) === 'done' ? 'fact-up'
+      : trendClass(f) === 'miss' ? 'fact-down' : '');
+    add('Gives', '⭐ ' + it.xp + ' XP');
+    if (it.level) add('Unlocks at', 'Level ' + it.level);
+    sheet.appendChild(facts);
+
+    /* where it comes from */
+    const crop = D.CROPS.find(c => c.id === id);
+    const fromAnimal = D.ANIMALS.find(a => a.product === id);
+    const madeBy = D.RECIPES.find(r => r.out === id);
+    let source = null;
+    if (crop) {
+      source = `Grows in ${fmtTime(G.growSeconds(crop))} from a 🪙${crop.seed} seed, ` +
+               `${D.CROP_YIELD} per field.`;
+    } else if (fromAnimal) {
+      source = `${fromAnimal.name}s make one every ${fmtTime(fromAnimal.cycle)} ` +
+               `for ${fromAnimal.feed} feed.`;
+    } else if (madeBy) {
+      const m = D.MACHINES.find(x => x.id === madeBy.machine);
+      const ing = Object.entries(madeBy.in)
+        .map(([k, q]) => `${D.ITEMS[k].icon} ${q}`).join(' + ');
+      source = `${m.name} turns ${ing} into this in ${fmtTime(G.craftTime(madeBy))}.`;
+    }
+    if (source) {
+      sheet.appendChild(el('div', 'fld-label', 'Where it comes from'));
+      sheet.appendChild(el('div', 'note', source));
+    }
+
+    /* what it's used for */
+    const usedIn = D.RECIPES.filter(r => r.in[id]);
+    if (usedIn.length) {
+      sheet.appendChild(el('div', 'fld-label', 'Used to make'));
+      const chips = el('div', 'chips');
+      for (const r of usedIn) {
+        const b = el('button', 'chip chip-link',
+          `${D.ITEMS[r.out].icon} ${D.ITEMS[r.out].name} ×${r.in[id]}`);
+        b.onclick = () => { haptic(); itemSheet(r.out); };
+        chips.appendChild(b);
+      }
+      sheet.appendChild(chips);
+    }
+
+    const done = el('button', 'btn btn-big btn-blue', 'Got it');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** The same treatment for a building/workshop on the map. */
+function machineSheet(id) {
+  const m = D.MACHINES.find(x => x.id === id);
+  if (!m) return;
+  const owned = St.S.machines[id] && St.S.machines[id].owned;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('div', 'sheet-hero',
+      `<span class="hero-ic">${m.icon}</span>
+       <div><h2>${m.name}</h2><p class="sub">${owned ? 'Built and running' :
+         St.S.level >= m.level ? `Costs 🪙 ${fmt(m.cost)} to build` : `Unlocks at level ${m.level}`}</p></div>`));
+    sheet.appendChild(el('div', 'fld-label', 'Makes'));
+    for (const r of D.recipesFor(id)) {
+      const out = D.ITEMS[r.out];
+      sheet.appendChild(row({
+        icon: out.icon,
+        title: out.name,
+        sub: `${fmtTime(G.craftTime(r))} · sells for 🪙${fmt(G.sellPrice(r.out))}`,
+        chips: Object.entries(r.in).map(([k, q]) => ({ text: `${D.ITEMS[k].icon} ${q}` })),
+        locked: r.level > St.S.level,
+        onIcon: () => itemSheet(r.out),
+      }));
+    }
+    const done = el('button', 'btn btn-big btn-blue', 'Close');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/* -------------------------------- settings ------------------------------- */
+
+function toggleRow(label, note, get, set) {
+  const wrap = el('button', 'row row-tap');
+  const sw = el('span', 'switch');
+  const paint = () => {
+    sw.classList.toggle('on', !!get());
+    wrap.setAttribute('aria-pressed', String(!!get()));
+  };
+  wrap.innerHTML = `<div class="ic">${label.icon}</div>
+    <div class="body"><b>${label.text}</b><small>${note}</small></div>`;
+  wrap.appendChild(sw);
+  wrap.onclick = () => { haptic(); set(!get()); St.save(); paint(); };
+  paint();
+  return wrap;
+}
+
+function settingsSheet() {
+  const S = St.S;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '⚙️ Settings'));
+    sheet.appendChild(el('p', 'sub', 'These stick to this farm and this device.'));
+
+    sheet.appendChild(el('div', 'fld-label', 'Feel'));
+    sheet.appendChild(toggleRow({ icon: '🔊', text: 'Sound effects' },
+      'Chimes when you plant, sell and level up.',
+      () => S.settings.sound, v => { S.settings.sound = v; setSound(v); }));
+    sheet.appendChild(toggleRow({ icon: '📳', text: 'Vibration' },
+      'A tiny buzz on every tap, where the phone supports it.',
+      () => S.settings.haptics, v => { S.settings.haptics = v; setHaptics(v); }));
+    sheet.appendChild(toggleRow({ icon: '✨', text: 'Animations' },
+      'Confetti, button bounces and floating numbers.',
+      () => S.settings.motion, v => { S.settings.motion = v; FX.setMotion(v); }));
+
+    sheet.appendChild(el('div', 'fld-label', 'Reading'));
+    sheet.appendChild(toggleRow({ icon: '🔠', text: 'Larger text' },
+      'Bumps every label up a size.',
+      () => S.settings.bigText, v => {
+        S.settings.bigText = v;
+        document.body.classList.toggle('big-text', v);
+      }));
+
+    sheet.appendChild(el('div', 'fld-label', 'Safety'));
+    sheet.appendChild(toggleRow({ icon: '🛡️', text: 'Confirm Sell All' },
+      'Asks before emptying a whole stack, so a stray tap cannot cost you a silo.',
+      () => S.settings.confirmSell, v => { S.settings.confirmSell = v; }));
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
+    done.style.marginTop = '12px';
+    done.onclick = () => { close(); render(); };
     sheet.appendChild(done);
   });
 }
@@ -3686,6 +4431,9 @@ function unlocksAt(level) {
 
 function levelUpSplash(level) {
   SFX.levelUp();
+  FX.confetti(90);
+  setTimeout(() => FX.confetti(50, innerWidth * 0.25, innerHeight * 0.28), 220);
+  setTimeout(() => FX.confetti(50, innerWidth * 0.75, innerHeight * 0.28), 400);
   const wrap = el('div', 'levelup');
   const card = el('div', 'card');
   const unlocks = unlocksAt(level);
@@ -3724,7 +4472,7 @@ function welcomeBack(info) {
     sheet.appendChild(go);
   });
 }
-return { setView, render, refresh, openSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
+return { setView, render, refresh, openSheet, itemSheet, machineSheet, settingsSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
 })();
 
 /* ---------- js/main.js ---------- */
@@ -3733,11 +4481,13 @@ const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
 const UI = __mod_ui;
-const {setSound, unlockAudio} = __mod_audio;
-const {el, fmt} = __mod_util;
+const FX = __mod_fx;
+const {setSound, unlockAudio, SFX} = __mod_audio;
+const {el, fmt, setHaptics} = __mod_util;
 /* ==========================================================================
    main.js — the title screen, onboarding, and the once-a-second heartbeat.
    ========================================================================== */
+
 
 
 
@@ -3845,17 +4595,31 @@ function showOnboarding(slot) {
 
 let started = false;
 
+/** Push the saved preferences into the systems that act on them. */
+function applySettings() {
+  const st = St.S.settings;
+  setSound(st.sound !== false);
+  setHaptics(st.haptics !== false);
+  FX.setMotion(st.motion !== false);
+  document.body.classList.toggle('big-text', !!st.bigText);
+}
+
 function boot() {
   const S = St.S;
-  setSound(S.settings.sound !== false);
+  applySettings();
   $('title').hidden = true;
   $('onboard').hidden = true;
   $('app').hidden = false;
 
   if (!started) {
     started = true;
+    FX.bindTapFeedback();
     G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
     G.on('levelup', lv => UI.levelUpSplash(lv));
+    G.on('celebrate', e => {
+      FX.confetti(e && e.big ? 120 : 60);
+      if (e && e.big) setTimeout(() => FX.confetti(80), 260);
+    });
 
     // Heartbeat: advance the world, then repaint the cheap bits.
     setInterval(() => {

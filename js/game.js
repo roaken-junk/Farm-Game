@@ -86,6 +86,7 @@ export function harvest(i, quiet = false) {
   }
   S.plots[i] = null;
   S.stats.harvested += got;
+  festAdd('harvest', got);
   gainXp(crop.xp);
   if (!quiet) SFX.harvest();
   St.saveSoon();
@@ -172,6 +173,7 @@ export function collectAnimal(an, quiet = false) {
   an.product = false;
   an.readyAt = 0;
   S.stats.collected += 1;
+  festAdd('collect');
   gainXp(D.ITEMS[type.product].xp);
   if (!quiet) SFX.collect();
   St.saveSoon();
@@ -259,6 +261,7 @@ export function collectJob(machineId, jid, quiet = false) {
   if (!got) { if (!quiet) fail('Barn is full — sell some goods', '📦'); return 0; }
   m.queue.splice(idx, 1);
   S.stats.crafted += got;
+  festAdd('craft', got);
   gainXp(D.ITEMS[r.out].xp);
   if (!quiet) SFX.collect();
   St.saveSoon();
@@ -467,6 +470,7 @@ export function deliverOrder(oid) {
   St.earnCoins(o.coins);
   S.gems += o.gems;
   S.stats.orders += 1;
+  festAdd('order');
   gainXp(o.xp);
   S.orders[i] = { wait: now() + orderWait() };
   SFX.order();
@@ -516,6 +520,52 @@ export function claimGoal(id) {
 
 export const goalsReady = () => D.GOALS.filter(g => goalState(g).ready).length;
 
+/* ---------------------------- harvest festival --------------------------- */
+
+/** Rolls the festival over when the clock enters a new cycle. */
+export function festState() {
+  const S = St.S;
+  const cycle = D.festCycle();
+  if (!S.fest || S.fest.cycle !== cycle) {
+    S.fest = { cycle, points: 0, claimed: [] };
+  }
+  return S.fest;
+}
+
+function festAdd(kind, n = 1) {
+  const f = festState();
+  f.points += (D.FEST_POINTS[kind] || 0) * n;
+}
+
+/** Per-tier view: reached, already claimed, and what it pays. */
+export function festTiers() {
+  const f = festState();
+  return D.FEST_TIERS.map((t, i) => ({
+    ...t, i,
+    reached: f.points >= t.at,
+    claimed: !!f.claimed[i],
+    reward: D.festReward(i, St.S.level),
+  }));
+}
+
+export const festReady = () => festTiers().filter(t => t.reached && !t.claimed).length;
+export const festLeft = () => (D.festEndsAt() - now()) / 1000;
+
+export function claimFest(i) {
+  const f = festState();
+  const t = festTiers()[i];
+  if (!t || !t.reached || t.claimed) return false;
+  f.claimed[i] = true;
+  St.earnCoins(t.reward.coins);
+  St.S.gems += t.reward.gems;
+  gainXp(t.reward.xp);
+  SFX.fanfare();
+  emit('celebrate', { big: i === D.FEST_TIERS.length - 1 });
+  ok(`${t.name} prize! +${t.reward.coins} coins`, t.icon);
+  St.saveSoon();
+  return true;
+}
+
 /* ------------------------------ daily bonus ------------------------------ */
 
 export function dailyReady() {
@@ -552,6 +602,7 @@ export function tick() {
 
   for (const [id, end] of Object.entries(S.boosts)) if (end <= now()) delete S.boosts[id];
 
+  festState();
   tickOrders();
 
   // Auto Feeder: any hungry animal eats itself as soon as feed exists.

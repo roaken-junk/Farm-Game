@@ -55,9 +55,12 @@ export function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+let hapticsOn = true;
+export function setHaptics(on) { hapticsOn = !!on; }
+
 /** A short buzz on supported hardware. iOS ignores it; harmless there. */
 export function haptic(ms = 12) {
-  if (navigator.vibrate) {
+  if (hapticsOn && navigator.vibrate) {
     try { navigator.vibrate(ms); } catch { /* ignore */ }
   }
 }

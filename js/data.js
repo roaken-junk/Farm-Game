@@ -205,6 +205,45 @@ export function marketMult(id, t = Date.now()) {
   return 1 + 0.22 * Math.sin(phase + t / 900000) + 0.08 * Math.sin(phase * 3 + t / 300000);
 }
 
+/* --------------------------- the harvest festival ------------------------ */
+
+/**
+ * A festival is always running: the clock is cut into fixed cycles, and each
+ * one gives you a fresh points bar with three milestones. Nothing is gated
+ * behind waiting, and points come from ordinary play, so it rewards a session
+ * rather than demanding one.
+ */
+export const FEST_HOURS = 6;
+export const FEST_MS = FEST_HOURS * 3600 * 1000;
+
+/** Points earned by simply playing. */
+export const FEST_POINTS = { harvest: 1, collect: 2, craft: 4, order: 15 };
+
+export const FEST_TIERS = [
+  { at: 40,  name: 'Warm-Up',   icon: '🎪' },
+  { at: 120, name: 'Main Stage', icon: '🎠' },
+  { at: 300, name: 'Grand Prize', icon: '🎡' },
+];
+
+/** Which festival we're in — changes on its own every FEST_HOURS. */
+export const festCycle = (t = Date.now()) => Math.floor(t / FEST_MS);
+export const festEndsAt = (t = Date.now()) => (festCycle(t) + 1) * FEST_MS;
+
+/** Rewards scale with level so the prize stays worth chasing. */
+export function festReward(tier, level) {
+  const mult = [1, 3, 9][tier];
+  return {
+    coins: Math.round(1200 * mult * Math.max(1, level) / 2),
+    gems: [3, 6, 15][tier],
+    xp: Math.round(D_xpHint(level) * [0.15, 0.35, 0.9][tier]),
+  };
+}
+
+/** A slice of the current level's XP bar, so the prize always feels like progress. */
+function D_xpHint(level) {
+  return xpToNext(Math.max(1, level));
+}
+
 /* ------------------------------ daily bonus ------------------------------ */
 
 export const DAILY_MAX_STREAK = 7;

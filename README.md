@@ -67,6 +67,15 @@ The core loop: **grow → process → sell/deliver → level up → unlock more*
 - **Goals and the daily bonus** pay out on top of everything else. The streak
   resets if you skip a day and maxes out at seven.
 
+### The Harvest Festival
+
+A festival is always running. The clock is cut into six-hour cycles, and each
+one gives you a fresh points bar with three milestones — Warm-Up, Main Stage
+and Grand Prize. Points come from ordinary play (1 per crop harvested, 2 per
+animal good, 4 per craft, 15 per order), so you are never asked to do anything
+special; the prizes scale with your level and get large fast. Claim as you go,
+because the bar resets when the next festival starts.
+
 ### Boosts
 
 The shop sells six timed boosts — these are the profit levers, and buying one
@@ -87,6 +96,19 @@ Market Day, then dump a silo that's already swung green.
 
 Timers are stored as timestamps, so crops keep growing and machines keep
 working while the app is closed.
+
+## Settings
+
+Tap your farmer, then **Settings**: sound effects, vibration, animations (turn
+this off and confetti, bounces and floating numbers all stop), larger text, and
+a confirm-before-Sell-All safety toggle. The game also honours the system's
+reduce-motion preference on its own.
+
+Tapping any item icon — in the sell list, in a recipe, in a workshop — opens a
+detail card: how many you hold, what it sells for right now against its base
+value, today's market swing, the XP it gives, where it comes from, and what it
+can be made into. Those "used to make" chips are tappable, so you can walk a
+production chain end to end.
 
 ## Saves
 
@@ -127,6 +149,7 @@ js/data.js              crops, animals, recipes, upgrades, economy curves
 js/state.js             the save file and every read/write against it
 js/game.js              player actions + the world clock
 js/map.js               the farm map: fields, pens, buildings, decoration
+js/fx.js                confetti, button pops, floating numbers
 js/ui.js                views, panels and sheets
 js/main.js              boot, onboarding, heartbeat
 js/audio.js             WebAudio blips (no asset files)

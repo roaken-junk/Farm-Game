@@ -8,8 +8,9 @@ import * as D from './data.js';
 import * as St from './state.js';
 import * as G from './game.js';
 import { farmMap } from './map.js';
-import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic } from './util.js';
+import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics } from './util.js';
 import { SFX, setSound, soundOn } from './audio.js';
+import * as FX from './fx.js';
 
 const $ = id => document.getElementById(id);
 
@@ -125,7 +126,7 @@ function renderTabBadges() {
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
     orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
-    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0),
+    goals: G.goalsReady() + (G.dailyReady() ? 1 : 0) + G.festReady(),
     shop: 0,
   };
   for (const t of TABS) {
@@ -165,6 +166,45 @@ function panel(titleHtml, ...children) {
   if (titleHtml) p.appendChild(el('div', 'panel-head', titleHtml));
   for (const c of children) if (c) p.appendChild(c);
   return p;
+}
+
+/**
+ * The one row component every tab uses: icon tile, title, subtitle, optional
+ * meta chips, optional trailing control. Keeping this single definition is
+ * what makes the tabs look like the same app.
+ */
+function row({ icon, title, sub, chips, trail, locked, onIcon, tone }) {
+  const r = el('div', 'row' + (locked ? ' locked' : '') + (tone ? ' tone-' + tone : ''));
+  const ic = el(onIcon ? 'button' : 'div', 'ic', icon);
+  if (onIcon) ic.onclick = e => { e.stopPropagation(); haptic(); onIcon(); };
+  r.appendChild(ic);
+
+  const body = el('div', 'body');
+  body.appendChild(el('b', null, title));
+  if (sub) body.appendChild(el('small', null, sub));
+  if (chips && chips.length) {
+    body.appendChild(el('div', 'chips', chips.map(c =>
+      `<span class="chip ${c.cls || ''}">${c.text}</span>`).join('')));
+  }
+  r.appendChild(body);
+  if (trail) r.appendChild(trail);
+  return r;
+}
+
+/** A labelled progress bar, used by goals, the festival and storage alike. */
+function meter(pct, label, cls = '') {
+  const m = el('div', 'meter ' + cls);
+  m.innerHTML = `<i style="width:${clamp(pct, 0, 1) * 100}%"></i>` +
+    (label ? `<span>${label}</span>` : '');
+  return m;
+}
+
+/** A pill button that costs something, so prices read the same everywhere. */
+function costBtn(text, { tone = 'gold', disabled = false, onTap }) {
+  const b = el('button', `btn btn-sm btn-${tone}`, text);
+  b.disabled = disabled;
+  b.onclick = () => { haptic(); onTap(); };
+  return b;
 }
 
 function lockRow(icon, name, level, note) {
@@ -431,14 +471,16 @@ function craftView() {
     }
 
     if (!owned) {
-      const row = el('div', 'row');
-      row.innerHTML = `<div class="ic">${m.icon}</div><div class="body"><b>${m.name}</b>
-        <small>Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}</small></div>`;
       const b = el('button', 'btn btn-sm btn-green', `🔨 ${fmt(m.cost)}`);
       b.disabled = S.coins < m.cost;
       b.onclick = () => { haptic(); G.buyMachine(m.id); render(); };
-      row.appendChild(b);
-      frag.appendChild(panel(null, row));
+      frag.appendChild(panel(null, row({
+        icon: m.icon,
+        title: m.name,
+        sub: `Makes ${D.recipesFor(m.id).map(r => D.ITEMS[r.out].name).join(', ')}`,
+        trail: b,
+        onIcon: () => machineSheet(m.id),
+      })));
       continue;
     }
 
@@ -463,7 +505,9 @@ function machinePanel(m) {
     const locked = r.level > S.level;
     const row = el('div', 'row' + (locked ? ' locked' : ''));
     const ing = el('div', 'chips');
-    row.innerHTML = `<div class="ic">${out.icon}</div>`;
+    const icBtn = el('button', 'ic', out.icon);
+    icBtn.onclick = e => { e.stopPropagation(); haptic(); itemSheet(r.out); };
+    row.appendChild(icBtn);
     const body = el('div', 'body');
     body.innerHTML = `<b>${out.name}${r.qty > 1 ? ' ×' + r.qty : ''}</b>
       <small>${locked ? '🔒 Level ' + r.level : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
@@ -584,8 +628,61 @@ function orderCard(o, i) {
 
 /* -------------------------------- GOALS ---------------------------------- */
 
+function festivalPanel() {
+  const S = St.S;
+  const f = G.festState();
+  const tiers = G.festTiers();
+  const p = panel(`<em>🎪</em>Harvest Festival<span class="spacer"></span>
+                   <span class="tag" id="fest-clock"></span>`);
+  p.classList.add('panel-feature');
+  p.appendChild(el('div', 'muted',
+    'Everything you harvest, collect, craft and deliver earns festival points. ' +
+    'Prizes reset when the next festival starts, so claim as you go.'));
+
+  const top = tiers[tiers.length - 1].at;
+  const bar = meter(f.points / top, `${fmt(f.points)} / ${fmt(top)} points`, 'meter-fest');
+  bar.style.margin = '10px 0 4px';
+  p.appendChild(bar);
+
+  const marks = el('div', 'fest-marks');
+  for (const t of tiers) {
+    marks.appendChild(el('span', 'fest-mark' + (t.reached ? ' hit' : ''),
+      `${t.icon}<small>${fmt(t.at)}</small>`));
+  }
+  p.appendChild(marks);
+
+  for (const t of tiers) {
+    const r = row({
+      icon: t.icon,
+      title: `${t.name}`,
+      sub: t.claimed ? 'Prize collected'
+        : t.reached ? 'Ready to claim!'
+        : `${fmt(t.at - f.points)} more points to go`,
+      chips: [
+        { text: `🪙 ${fmt(t.reward.coins)}`, cls: 'chip-gold' },
+        { text: `💎 ${t.reward.gems}`, cls: 'chip-gem' },
+        { text: `⭐ ${fmt(t.reward.xp)} XP`, cls: '' },
+      ],
+      locked: !t.reached,
+      trail: t.claimed
+        ? el('span', 'chip done', '✔')
+        : t.reached
+          ? costBtn('Claim', { tone: 'green', onTap: () => { G.claimFest(t.i); render(); } })
+          : null,
+    });
+    p.appendChild(r);
+  }
+
+  T(() => {
+    const c = document.getElementById('fest-clock');
+    if (c) c.textContent = '⏳ ' + fmtTime(G.festLeft());
+  });
+  return p;
+}
+
 function goalsView() {
   const frag = document.createDocumentFragment();
+  frag.appendChild(festivalPanel());
 
   /* daily bonus */
   const daily = panel(`<em>🎁</em>Daily Bonus`);
@@ -784,16 +881,33 @@ function sellSheet(kind) {
         const it = D.ITEMS[id];
         const n = stock[id];
         const f = G.marketFactor(id);
-        const row = el('div', 'row');
-        row.innerHTML = `<div class="ic">${it.icon}</div><div class="body"><b>${it.name} × ${n}</b>
-          <small>🪙 ${fmt(G.sellPrice(id))} each
-          <span class="trend ${trendClass(f)}">${trendLabel(f)}</span></small></div>`;
         const one = el('button', 'btn btn-sm btn-gold', 'Sell 1');
         const all = el('button', 'btn btn-sm btn-green', `All 🪙${fmt(G.sellPrice(id) * n)}`);
-        one.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, 1)) + ' 🪙'); build(); refresh(); };
-        all.onclick = e => { haptic(); floatText(e, '+' + fmt(G.sell(id, n)) + ' 🪙'); build(); refresh(); };
-        row.append(one, all);
-        list.appendChild(row);
+
+        const doSell = (btn, qty) => {
+          const got = G.sell(id, qty);
+          FX.floatFrom(btn, '+' + fmt(got) + ' 🪙');
+          build();
+          refresh();
+        };
+        one.onclick = () => { haptic(); doSell(one, 1); };
+        all.onclick = () => {
+          haptic();
+          if (St.S.settings.confirmSell && n > 1) {
+            confirmSheet(`Sell all ${n} ${it.name}?`,
+              `That's 🪙 ${fmt(G.sellPrice(id) * n)} at today's price.`, () => doSell(all, n));
+          } else doSell(all, n);
+        };
+
+        const trail = el('div', 'row-actions');
+        trail.append(one, all);
+        list.appendChild(row({
+          icon: it.icon,
+          title: `${it.name} × ${n}`,
+          sub: `🪙 ${fmt(G.sellPrice(id))} each <span class="trend ${trendClass(f)}">${trendLabel(f)}</span>`,
+          trail,
+          onIcon: () => itemSheet(id),
+        }));
       }
     };
     build();
@@ -850,16 +964,9 @@ function profileSheet() {
     }
     sheet.appendChild(grid);
 
-    const snd = el('button', 'btn btn-big', '');
-    const paint = () => { snd.textContent = soundOn() ? '🔊 Sound: On' : '🔇 Sound: Off'; };
-    paint();
-    snd.onclick = () => {
-      S.settings.sound = !S.settings.sound;
-      setSound(S.settings.sound);
-      St.save();
-      paint();
-    };
-    sheet.appendChild(snd);
+    const cog = el('button', 'btn btn-big', '⚙️ Settings');
+    cog.onclick = () => { close(); settingsSheet(); };
+    sheet.appendChild(cog);
 
     const swap = el('button', 'btn btn-big btn-blue', '🔄 Switch farm');
     swap.style.marginTop = '8px';
@@ -881,6 +988,158 @@ function profileSheet() {
     const done = el('button', 'btn btn-big btn-blue', 'Close');
     done.style.marginTop = '8px';
     done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/* -------------------------- "what is this?" sheets ----------------------- */
+
+/** Everything the game knows about one item, in one place. */
+export function itemSheet(id) {
+  const it = D.ITEMS[id];
+  if (!it) return;
+  openSheet((sheet, close) => {
+    const f = G.marketFactor(id);
+    sheet.appendChild(el('div', 'sheet-hero',
+      `<span class="hero-ic">${it.icon}</span>
+       <div><h2>${it.name}</h2>
+       <p class="sub">${it.kind === 'crop' ? 'Crop · kept in the silo' : 'Good · kept in the barn'}</p></div>`));
+
+    const facts = el('div', 'factgrid');
+    const add = (k, v, cls) => facts.appendChild(el('div', 'fact ' + (cls || ''),
+      `<small>${k}</small><b>${v}</b>`));
+
+    add('You have', fmt(St.count(id)));
+    add('Sells for', '🪙 ' + fmt(G.sellPrice(id)));
+    add('Base value', '🪙 ' + fmt(it.price));
+    add('Market now', trendLabel(f), trendClass(f) === 'done' ? 'fact-up'
+      : trendClass(f) === 'miss' ? 'fact-down' : '');
+    add('Gives', '⭐ ' + it.xp + ' XP');
+    if (it.level) add('Unlocks at', 'Level ' + it.level);
+    sheet.appendChild(facts);
+
+    /* where it comes from */
+    const crop = D.CROPS.find(c => c.id === id);
+    const fromAnimal = D.ANIMALS.find(a => a.product === id);
+    const madeBy = D.RECIPES.find(r => r.out === id);
+    let source = null;
+    if (crop) {
+      source = `Grows in ${fmtTime(G.growSeconds(crop))} from a 🪙${crop.seed} seed, ` +
+               `${D.CROP_YIELD} per field.`;
+    } else if (fromAnimal) {
+      source = `${fromAnimal.name}s make one every ${fmtTime(fromAnimal.cycle)} ` +
+               `for ${fromAnimal.feed} feed.`;
+    } else if (madeBy) {
+      const m = D.MACHINES.find(x => x.id === madeBy.machine);
+      const ing = Object.entries(madeBy.in)
+        .map(([k, q]) => `${D.ITEMS[k].icon} ${q}`).join(' + ');
+      source = `${m.name} turns ${ing} into this in ${fmtTime(G.craftTime(madeBy))}.`;
+    }
+    if (source) {
+      sheet.appendChild(el('div', 'fld-label', 'Where it comes from'));
+      sheet.appendChild(el('div', 'note', source));
+    }
+
+    /* what it's used for */
+    const usedIn = D.RECIPES.filter(r => r.in[id]);
+    if (usedIn.length) {
+      sheet.appendChild(el('div', 'fld-label', 'Used to make'));
+      const chips = el('div', 'chips');
+      for (const r of usedIn) {
+        const b = el('button', 'chip chip-link',
+          `${D.ITEMS[r.out].icon} ${D.ITEMS[r.out].name} ×${r.in[id]}`);
+        b.onclick = () => { haptic(); itemSheet(r.out); };
+        chips.appendChild(b);
+      }
+      sheet.appendChild(chips);
+    }
+
+    const done = el('button', 'btn btn-big btn-blue', 'Got it');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** The same treatment for a building/workshop on the map. */
+export function machineSheet(id) {
+  const m = D.MACHINES.find(x => x.id === id);
+  if (!m) return;
+  const owned = St.S.machines[id] && St.S.machines[id].owned;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('div', 'sheet-hero',
+      `<span class="hero-ic">${m.icon}</span>
+       <div><h2>${m.name}</h2><p class="sub">${owned ? 'Built and running' :
+         St.S.level >= m.level ? `Costs 🪙 ${fmt(m.cost)} to build` : `Unlocks at level ${m.level}`}</p></div>`));
+    sheet.appendChild(el('div', 'fld-label', 'Makes'));
+    for (const r of D.recipesFor(id)) {
+      const out = D.ITEMS[r.out];
+      sheet.appendChild(row({
+        icon: out.icon,
+        title: out.name,
+        sub: `${fmtTime(G.craftTime(r))} · sells for 🪙${fmt(G.sellPrice(r.out))}`,
+        chips: Object.entries(r.in).map(([k, q]) => ({ text: `${D.ITEMS[k].icon} ${q}` })),
+        locked: r.level > St.S.level,
+        onIcon: () => itemSheet(r.out),
+      }));
+    }
+    const done = el('button', 'btn btn-big btn-blue', 'Close');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/* -------------------------------- settings ------------------------------- */
+
+function toggleRow(label, note, get, set) {
+  const wrap = el('button', 'row row-tap');
+  const sw = el('span', 'switch');
+  const paint = () => {
+    sw.classList.toggle('on', !!get());
+    wrap.setAttribute('aria-pressed', String(!!get()));
+  };
+  wrap.innerHTML = `<div class="ic">${label.icon}</div>
+    <div class="body"><b>${label.text}</b><small>${note}</small></div>`;
+  wrap.appendChild(sw);
+  wrap.onclick = () => { haptic(); set(!get()); St.save(); paint(); };
+  paint();
+  return wrap;
+}
+
+export function settingsSheet() {
+  const S = St.S;
+  openSheet((sheet, close) => {
+    sheet.appendChild(el('h2', null, '⚙️ Settings'));
+    sheet.appendChild(el('p', 'sub', 'These stick to this farm and this device.'));
+
+    sheet.appendChild(el('div', 'fld-label', 'Feel'));
+    sheet.appendChild(toggleRow({ icon: '🔊', text: 'Sound effects' },
+      'Chimes when you plant, sell and level up.',
+      () => S.settings.sound, v => { S.settings.sound = v; setSound(v); }));
+    sheet.appendChild(toggleRow({ icon: '📳', text: 'Vibration' },
+      'A tiny buzz on every tap, where the phone supports it.',
+      () => S.settings.haptics, v => { S.settings.haptics = v; setHaptics(v); }));
+    sheet.appendChild(toggleRow({ icon: '✨', text: 'Animations' },
+      'Confetti, button bounces and floating numbers.',
+      () => S.settings.motion, v => { S.settings.motion = v; FX.setMotion(v); }));
+
+    sheet.appendChild(el('div', 'fld-label', 'Reading'));
+    sheet.appendChild(toggleRow({ icon: '🔠', text: 'Larger text' },
+      'Bumps every label up a size.',
+      () => S.settings.bigText, v => {
+        S.settings.bigText = v;
+        document.body.classList.toggle('big-text', v);
+      }));
+
+    sheet.appendChild(el('div', 'fld-label', 'Safety'));
+    sheet.appendChild(toggleRow({ icon: '🛡️', text: 'Confirm Sell All' },
+      'Asks before emptying a whole stack, so a stray tap cannot cost you a silo.',
+      () => S.settings.confirmSell, v => { S.settings.confirmSell = v; }));
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
+    done.style.marginTop = '12px';
+    done.onclick = () => { close(); render(); };
     sheet.appendChild(done);
   });
 }
@@ -969,6 +1228,9 @@ function unlocksAt(level) {
 
 export function levelUpSplash(level) {
   SFX.levelUp();
+  FX.confetti(90);
+  setTimeout(() => FX.confetti(50, innerWidth * 0.25, innerHeight * 0.28), 220);
+  setTimeout(() => FX.confetti(50, innerWidth * 0.75, innerHeight * 0.28), 400);
   const wrap = el('div', 'levelup');
   const card = el('div', 'card');
   const unlocks = unlocksAt(level);

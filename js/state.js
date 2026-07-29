@@ -40,10 +40,18 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     nextOrderAt: 0,
     upgrades: {},
     selectedSeed: 'wheat',
-    settings: { sound: true },
+    settings: {
+      sound: true,
+      haptics: true,
+      motion: true,
+      confirmSell: false,     // ask before a Sell All
+      bigText: false,
+    },
     boosts: {},                                  // boost id -> expiry timestamp
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
+    fest: { cycle: -1, points: 0, claimed: [] },
+    tips: { seenFest: false },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
 }
@@ -134,6 +142,8 @@ function migrate(data) {
   data.goals = data.goals || {};
   data.boosts = data.boosts || {};
   data.daily = { ...base.daily, ...(data.daily || {}) };
+  data.fest = { ...base.fest, ...(data.fest || {}) };
+  data.tips = { ...base.tips, ...(data.tips || {}) };
   return data;
 }
 

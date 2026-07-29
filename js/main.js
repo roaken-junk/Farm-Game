@@ -6,8 +6,9 @@ import * as D from './data.js';
 import * as St from './state.js';
 import * as G from './game.js';
 import * as UI from './ui.js';
-import { setSound, unlockAudio } from './audio.js';
-import { el, fmt } from './util.js';
+import { setSound, unlockAudio, SFX } from './audio.js';
+import * as FX from './fx.js';
+import { el, fmt, setHaptics } from './util.js';
 
 const $ = id => document.getElementById(id);
 
@@ -108,17 +109,31 @@ function showOnboarding(slot) {
 
 let started = false;
 
+/** Push the saved preferences into the systems that act on them. */
+function applySettings() {
+  const st = St.S.settings;
+  setSound(st.sound !== false);
+  setHaptics(st.haptics !== false);
+  FX.setMotion(st.motion !== false);
+  document.body.classList.toggle('big-text', !!st.bigText);
+}
+
 function boot() {
   const S = St.S;
-  setSound(S.settings.sound !== false);
+  applySettings();
   $('title').hidden = true;
   $('onboard').hidden = true;
   $('app').hidden = false;
 
   if (!started) {
     started = true;
+    FX.bindTapFeedback();
     G.on('toast', t => UI.toast(t.msg, t.icon, t.bad));
     G.on('levelup', lv => UI.levelUpSplash(lv));
+    G.on('celebrate', e => {
+      FX.confetti(e && e.big ? 120 : 60);
+      if (e && e.big) setTimeout(() => FX.confetti(80), 260);
+    });
 
     // Heartbeat: advance the world, then repaint the cheap bits.
     setInterval(() => {

@@ -41,7 +41,16 @@ export const SFX = {
   coin:    () => chord([880, 1170], 0.13, 'sine', 0.05),
   buy:     () => chord([520, 700, 900], 0.14),
   error:   () => blip(150, 0.18, 'sawtooth', 0.04),
-  levelUp: () => chord([523, 659, 784, 1046], 0.30, 'triangle', 0.06),
+  // A proper little fanfare: rising triad, then the octave held over it.
+  levelUp: () => {
+    chord([523, 659, 784], 0.26, 'triangle', 0.055);
+    setTimeout(() => chord([1046, 1318], 0.42, 'triangle', 0.05), 240);
+    setTimeout(() => blip(1568, 0.5, 'sine', 0.035), 430);
+  },
+  fanfare: () => {
+    chord([392, 523, 659, 784], 0.3, 'triangle', 0.05);
+    setTimeout(() => chord([784, 988, 1174], 0.5, 'triangle', 0.045), 300);
+  },
   collect: () => chord([700, 950], 0.12),
   order:   () => chord([600, 800, 1000], 0.16),
 };
