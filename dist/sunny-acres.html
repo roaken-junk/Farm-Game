@@ -110,93 +110,132 @@ button, input { font: inherit; color: inherit; }
 /* --------------------------------- HUD ----------------------------------- */
 
 .hud {
-  flex-wrap: wrap;
-  padding: calc(var(--sat) + 8px) 12px 8px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
   flex-shrink: 0;
+  padding: calc(var(--sat) + 8px) 12px 9px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .28)),
+    var(--grain);
+  border-bottom: 3px solid rgba(156, 95, 38, .32);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* left half: who you are */
+.hud-who {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
 }
 
 .hud-avatar {
-  width: 46px; height: 46px;
+  position: relative;
+  width: 44px; height: 44px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 3px solid #fff;
-  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
+  background: radial-gradient(circle at 36% 30%, #fff2c9, #ffc95e);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
   display: grid; place-items: center;
-  font-size: 24px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
-  padding: 0;
-  position: relative;
+  font-size: 23px;
+  line-height: 1;
 }
-
 .hud-lvl {
   position: absolute;
-  bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--green);
+  right: -5px; bottom: -4px;
+  min-width: 21px; height: 21px;
+  padding: 0 4px;
+  border-radius: 11px;
+  border: 2.5px solid #fff;
+  background: linear-gradient(180deg, #86dd6e, var(--green-dk));
   color: #fff;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 0 5px;
-  line-height: 14px;
-  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+  text-align: center;
 }
 
-.hud-mid { flex: 1; min-width: 0; }
-
+.hud-id { flex: 1; min-width: 0; }
 .hud-name {
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  display: block;
+  font-size: var(--t-body);
+  font-weight: 900;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.15;
+}
+.hud-title {
+  display: block;
+  font-size: var(--t-tiny);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 1.2;
 }
 
 .xpbar {
-  height: 12px;
-  background: rgba(0, 0, 0, .22);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #fff;
-  margin-top: 3px;
+  display: block;
   position: relative;
+  height: 11px;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .16);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25);
+  overflow: hidden;
 }
 .xpbar > i {
   display: block;
   height: 100%;
   background: linear-gradient(180deg, #b6ff6e, var(--green-dk));
-  border-radius: 6px 0 0 6px;
-  transition: width .35s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+  transition: width .4s ease;
 }
 .xpbar > span {
   position: absolute; inset: 0;
-  font-size: 9px; font-weight: 800; color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
   display: grid; place-items: center;
-  letter-spacing: .2px;
+  font-size: 8.5px;
+  font-weight: 900;
+  color: #2f4a1e;
+  letter-spacing: .02em;
+}
+
+/* right half: what you own */
+.hud-wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .pill {
-  display: flex; align-items: center; gap: 4px;
-  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 92px;
+  padding: 3px 10px 3px 7px;
   border: 2.5px solid var(--wood-dk);
   border-radius: 999px;
-  padding: 4px 10px 4px 6px;
-  font-weight: 800;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .16);
+  font-size: var(--t-sub);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
-.pill em { font-style: normal; font-size: 15px; }
+.pill em { font-style: normal; font-size: 14px; line-height: 1; }
+.pill-coin { border-color: var(--gold-dk); }
+.pill-gem { border-color: #2f9dc8; }
 
 /* -------------------------------- tabbar --------------------------------- */
 
@@ -365,12 +404,11 @@ button, input { font: inherit; color: inherit; }
   color: rgba(255, 255, 255, .45);
 }
 .plot.ready { background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px), linear-gradient(180deg, #b98450, #7d5227); }
-.plot.ready .crop { animation: bob .9s ease-in-out infinite; }
+
 .plot.ready::before {
   content: '';
   position: absolute; inset: -30%;
   background: radial-gradient(circle, rgba(255, 240, 150, .55), transparent 62%);
-  animation: pulse 1.6s ease-in-out infinite;
 }
 .plot.locked { filter: grayscale(1) brightness(.75); }
 
@@ -397,8 +435,8 @@ button, input { font: inherit; color: inherit; }
   background: linear-gradient(90deg, #ffe07a, #8ce35a);
 }
 
-@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
-@keyframes pulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+ 50% { transform: translateY(-5px) } }
+ 50% { opacity: 1 } }
 
 /* seed picker strip */
 .seeds {
@@ -520,7 +558,7 @@ button.ic:hover::after { opacity: 1; }
   background: rgba(0, 0, 0, .45); color: #fff;
   border-radius: 6px; padding: 1px 0;
 }
-.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); animation: bob 1s ease-in-out infinite; }
+.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); border-color: var(--gold-dk); }
 .critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
 .critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
 
@@ -536,7 +574,7 @@ button.ic:hover::after { opacity: 1; }
   padding: 0;
 }
 .slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
-.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); animation: bob 1s ease-in-out infinite; }
+.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); box-shadow: 0 0 0 3px rgba(87, 192, 75, .3); }
 .slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
 .slot .ring {
   position: absolute; inset: -3px;
@@ -796,312 +834,9 @@ button.ic:hover::after { opacity: 1; }
   font-size: 15px;
 }
 
-/* =============================== farm map ================================= */
+/* =============================== farm scene =============================== */
 
 .view.flush { padding: 0; overflow: hidden; display: flex; }
-
-.map-wrap {
-  flex: 1;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  position: relative;
-}
-
-.map-canvas { position: relative; }
-
-.map {
-  position: relative;
-  transform-origin: top left;
-  /* Soft mown bands plus a fine turf speckle, so the grass has depth without
-     the hard stripes the old scene had. */
-  background:
-    radial-gradient(ellipse at 20% 6%, rgba(255, 255, 255, .38), transparent 52%),
-    repeating-linear-gradient(102deg, rgba(255, 255, 255, .05) 0 6px, transparent 6px 13px),
-    repeating-linear-gradient(90deg, #7ec84c 0 60px, #77c246 60px 120px);
-}
-
-.map-path {
-  position: absolute;
-  left: 0; right: 0;
-  top: 540px;
-  height: 52px;
-  background:
-    radial-gradient(circle at 12% 40%, rgba(255, 255, 255, .5), transparent 30%),
-    repeating-linear-gradient(76deg, #ecd8b0 0 9px, #e3cda3 9px 20px);
-  border-top: 3px solid var(--wood-dk);
-  border-bottom: 3px solid var(--wood-dk);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .07);
-}
-
-.map-pond {
-  position: absolute;
-  left: 486px; top: 1024px;
-  width: 190px; height: 120px;
-  border-radius: 50% 46% 52% 48%;
-  background: radial-gradient(circle at 35% 30%, #b8ecff, #56b9e8 70%);
-  border: 4px solid #8fd3ee;
-  box-shadow: inset 0 6px 10px rgba(255, 255, 255, .5);
-}
-
-.map-decor {
-  position: absolute;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
-  pointer-events: none;
-  animation: sway 4s ease-in-out infinite;
-}
-@keyframes sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2deg) } }
-
-/* ---- buildings ---- */
-
-.mp-bldg {
-  position: absolute;
-  width: 132px;
-  padding: 0;
-  border: 0;
-  background: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform .1s ease;
-  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .25));
-}
-.mp-bldg:active { transform: scale(.95); }
-
-.mp-bldg .roof {
-  width: 118px;
-  height: 40px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--roof) 78%, white), var(--roof));
-  background: var(--roof);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.mp-bldg .body {
-  width: 96px;
-  height: 62px;
-  margin-top: -2px;
-  background: linear-gradient(180deg, #fffaef, #f2e2c2);
-  border: 3px solid var(--wood-dk);
-  border-top: 0;
-  border-radius: 0 0 12px 12px;
-  display: grid;
-  place-items: center;
-}
-.mp-bldg .face { font-size: 32px; line-height: 1; }
-.mp-bldg .sign {
-  margin-top: 5px;
-  background: var(--wood);
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 8px;
-  padding: 1px 9px;
-  font-size: 11px;
-  font-weight: 900;
-  color: #4a2c0c;
-  white-space: nowrap;
-}
-.mp-bldg .ping {
-  position: absolute;
-  top: 26px; right: 8px;
-  min-width: 22px; height: 22px;
-  border-radius: 11px;
-  background: var(--red);
-  border: 2.5px solid #fff;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  display: grid; place-items: center;
-  padding: 0 4px;
-  animation: bob .9s ease-in-out infinite;
-}
-
-/* ---- fields ---- */
-
-.mp-plot {
-  position: absolute;
-  padding: 0;
-  border: 3px solid var(--wood-dk);
-  border-radius: var(--r-md);
-  /* ploughed rows, lit from above, matching the app's warm browns */
-  background:
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, .10) 0 2px,
-      rgba(0, 0, 0, .12) 2px 5px,
-      transparent 5px 15px),
-    linear-gradient(180deg, #c08a56, #96633a 60%, #86562f);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, .22),
-    inset 0 -5px 0 rgba(0, 0, 0, .2),
-    0 3px 0 rgba(0, 0, 0, .2);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  transition: transform .1s ease, box-shadow .15s ease;
-}
-.mp-plot:active { transform: scale(.95); }
-
-.mp-plot .seedme { font-size: 30px; font-weight: 900; color: rgba(255, 255, 255, .5); }
-.mp-plot .sprout {
-  font-size: 34px;
-  line-height: 1;
-  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
-}
-.mp-plot.ready {
-  border-color: var(--gold);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, .22),
-    inset 0 -5px 0 rgba(0, 0, 0, .2),
-    0 3px 0 rgba(0, 0, 0, .2),
-    0 0 0 3px rgba(255, 196, 46, .35);
-}
-.mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
-
-/* The completion bar: pinned across the top of every field, edge to edge.
-   Full and gold means ready — readable at a glance across the whole farm. */
-.mp-plot .grow {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 11px;
-  background: rgba(0, 0, 0, .34);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
-}
-.mp-plot .grow > i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(180deg, #d6f5a0, #7fce46);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
-  transition: width .6s linear;
-}
-.mp-plot.ready .grow > i {
-  background: linear-gradient(180deg, #ffe98a, var(--gold));
-  animation: barGlow 1.3s ease-in-out infinite;
-}
-@keyframes barGlow {
-  0%, 100% { filter: brightness(1); }
-  50%      { filter: brightness(1.22); }
-}
-
-.mp-plot .clock {
-  position: absolute;
-  top: 13px; left: 0; right: 0;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 900;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
-  letter-spacing: .02em;
-}
-.mp-plot.ready .clock { color: #fff8d8; }
-
-
-.mp-plot.wild {
-  border-style: dashed;
-  border-color: rgba(255, 255, 255, .65);
-  background: rgba(255, 255, 255, .16);
-  box-shadow: none;
-}
-.mp-plot.wild .wildtag { font-size: 26px; opacity: .8; }
-
-/* ---- pens ---- */
-
-.mp-pen {
-  position: absolute;
-  border: 3px solid var(--wood-dk);
-  border-radius: var(--r-lg);
-  background:
-    var(--grain),
-    linear-gradient(180deg, rgba(255, 250, 225, .78), rgba(240, 220, 175, .72));
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7), 0 3px 0 rgba(0, 0, 0, .14);
-  padding: 16px 7px 7px;
-}
-.mp-pen.locked { opacity: .75; filter: grayscale(.6); }
-
-.mp-pen .pen-sign {
-  position: absolute;
-  top: -13px; left: 8px;
-  background: var(--wood);
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 8px;
-  padding: 0 8px;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 20px;
-  color: #4a2c0c;
-  white-space: nowrap;
-}
-
-.pen-yard {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 4px 4px;
-  height: 100%;
-  padding-top: 6px;     /* headroom so the ready badge is not clipped */
-  overflow: hidden;
-}
-.pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
-
-.critter-m {
-  position: relative;
-  width: 44px; height: 44px;
-  border: 0;
-  padding: 0;
-  background: none;
-  font-size: 28px;
-  line-height: 1;
-}
-/* Only the animal wanders and turns around — flipping the button would
-   mirror its timer and product badge too. */
-.critter-m .beast {
-  display: block;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .28));
-  animation: graze 3.2s ease-in-out infinite;
-}
-.critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
-.critter-m .mark {
-  position: absolute;
-  top: -6px; right: -3px;
-  font-size: 15px;
-  background: #fffaef;
-  border: 2px solid var(--wood-dk);
-  border-radius: 50%;
-  padding: 1px;
-  line-height: 1;
-  animation: bob .9s ease-in-out infinite;
-}
-.critter-m .mark.waiting { animation: none; filter: grayscale(.5); opacity: .85; }
-
-/* Each animal carries its own little completion bar, same idea as a field. */
-.critter-m .agrow {
-  position: absolute;
-  left: 4px; right: 4px; bottom: -1px;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, .3);
-  overflow: hidden;
-}
-.critter-m .agrow > i {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, #d6f5a0, #7fce46);
-  transition: width .6s linear;
-}
-.critter-m.ready .agrow > i { background: linear-gradient(90deg, #ffe98a, var(--gold)); }
-.critter-m.hungry .agrow > i { background: #b9a88c; }
-
-.critter-m.add {
-  border: 3px dashed rgba(122, 74, 30, .55);
-  border-radius: 12px;
-  font-size: 20px;
-  color: var(--ink-soft);
-  background: rgba(255, 255, 255, .45);
-}
-@keyframes graze {
-  0%, 100% { transform: translateX(0) }
-  25% { transform: translateX(4px) }
-  50% { transform: translateX(0) scaleX(-1) }
-  75% { transform: translateX(-4px) scaleX(-1) }
-}
-
-/* ---- floating seed bar over the map ---- */
 
 .mapcol {
   display: flex;
@@ -1111,6 +846,213 @@ button.ic:hover::after { opacity: 1; }
   width: 100%;
 }
 
+.fieldscroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px 14px;
+}
+
+/* ---- silo / barn strip ---- */
+
+.storestrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.storecard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card-2));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.storecard:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0, 0, 0, .16); }
+.sc-ic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.sc-body { flex: 1; min-width: 0; }
+.sc-body b { display: block; font-size: var(--t-sub); font-weight: 900; }
+.sc-body small { display: block; font-size: var(--t-tiny); font-weight: 800; color: var(--ink-soft); margin-top: 2px; }
+.sc-meter {
+  display: block;
+  height: 7px;
+  margin-top: 3px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .14);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+  overflow: hidden;
+}
+.sc-meter > i {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #ffe08a, var(--gold-dk));
+  transition: width .4s ease;
+}
+.storecard.full .sc-meter > i { background: linear-gradient(180deg, #ffa2a2, #d33); }
+.storecard.full small { color: #c33; }
+
+/* ---- the field grid ---- */
+
+.fieldgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 9px;
+}
+
+.plotcard {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  /* ploughed rows, lit from above */
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .10) 0 2px,
+      rgba(0, 0, 0, .13) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #c68e58, #99653b 60%, #85552e);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -6px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: transform .1s ease, box-shadow .15s ease, border-color .2s ease;
+}
+.plotcard:active { transform: scale(.96); }
+
+/* the completion bar: full and gold means ready */
+.plotcard .fill {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 12px;
+  background: rgba(0, 0, 0, .34);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
+}
+.plotcard .fill > i {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #d9f7a4, #7fce46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: width .6s linear;
+}
+.plotcard.ready .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
+
+.plotcard .seedling {
+  font-size: 46px;
+  line-height: 1;
+  transform: scale(var(--s, 1));
+  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
+}
+
+.plotcard .plot-label {
+  position: absolute;
+  left: 0; right: 0; bottom: 6px;
+  text-align: center;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+}
+.plotcard.ready .plot-label { color: #fff6d2; letter-spacing: .06em; }
+
+.plotcard.ready {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -6px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2),
+    0 0 0 3px rgba(255, 196, 46, .4);
+}
+
+.plotcard.empty {
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .07) 0 2px,
+      rgba(0, 0, 0, .10) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #b98css, #8c5c34 60%, #7a4d29);
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .07) 0 2px,
+      rgba(0, 0, 0, .10) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #b9834f, #8c5c34 60%, #7a4d29);
+}
+.plotcard .sow { font-size: 40px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
+.plotcard.empty .plot-label { color: rgba(255, 255, 255, .72); font-weight: 800; }
+
+.plotcard.wild {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .18);
+  box-shadow: none;
+}
+.plotcard.wild .wild-ic { font-size: 34px; opacity: .85; }
+.plotcard.wild .wild-tag {
+  position: absolute;
+  left: 0; right: 0; bottom: 8px;
+  text-align: center;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #4a3520;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+/* ---- sowing and reaping ---- */
+
+.fx-sow .seedling { animation: sowDrop .55s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes sowDrop {
+  0%   { transform: translateY(-42px) scale(.25); opacity: 0; }
+  55%  { transform: translateY(3px) scale(var(--s, 1)); opacity: 1; }
+  75%  { transform: translateY(0) scaleY(.82) scaleX(1.12); }
+  100% { transform: scale(var(--s, 1)); }
+}
+
+.fx-reap { animation: reapShake .38s ease; }
+@keyframes reapShake {
+  0%, 100% { transform: scale(1); }
+  30%      { transform: scale(.94) rotate(-1.5deg); }
+  60%      { transform: scale(1.03) rotate(1deg); }
+}
+
+.reaped {
+  position: absolute;
+  font-size: 40px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4));
+  animation: reapFly .85s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+@keyframes reapFly {
+  0%   { transform: translate(-50%, -50%) scale(.8); opacity: 0; }
+  18%  { transform: translate(-50%, -70%) scale(1.32); opacity: 1; }
+  100% { transform: translate(-50%, -230%) scale(.55); opacity: 0; }
+}
+
+.speck {
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: speckOut var(--dur, .7s) cubic-bezier(.2, .7, .4, 1) forwards;
+}
+.speck.soil { background: #7a4d29; }
+.speck.leaf { background: #7fce46; border-radius: 2px; }
+@keyframes speckOut {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: .95; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 34px)) scale(.35); opacity: 0; }
+}
+
+/* ---- floating seed rack ---- */
+
 .seedbar {
   flex-shrink: 0;
   z-index: 5;
@@ -1118,10 +1060,8 @@ button.ic:hover::after { opacity: 1; }
   align-items: center;
   gap: 7px;
   padding: 7px 8px calc(7px + var(--sab));
-  background: linear-gradient(180deg, rgba(255, 250, 239, .82), var(--card));
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card));
   border-top: 3px solid var(--wood-dk);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .seedbar .strip {
   display: flex;
@@ -1137,17 +1077,21 @@ button.ic:hover::after { opacity: 1; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 54px;
-  padding: 3px 2px 2px;
+  width: 56px;
+  padding: 4px 2px 3px;
   border: 2.5px solid var(--wood-dk);
   border-radius: 11px;
   background: linear-gradient(180deg, #fff, var(--card-2));
-  font-size: 22px;
+  font-size: 23px;
   line-height: 1.1;
   box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
 }
 .seedchip small { font-size: 9px; font-weight: 800; color: var(--ink-soft); }
-.seedchip.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); }
+.seedchip.on {
+  border-color: var(--green-dk);
+  background: linear-gradient(180deg, #dcffcb, #b6f09a);
+  box-shadow: 0 2px 0 var(--green-dk);
+}
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
 
 /* boosts in the HUD */
@@ -2032,6 +1976,55 @@ function floatFrom(node, text, tone = 'good') {
   setTimeout(() => f.remove(), 1100);
 }
 
+/* ------------------------------ farm effects ----------------------------- */
+
+/** Scatters a few soil specks out of a plot. */
+function specks(node, count, cls) {
+  const host = document.getElementById('fx') || document.body;
+  const r = node.getBoundingClientRect();
+  for (let i = 0; i < count; i++) {
+    const s = el('i', 'speck ' + cls);
+    const a = Math.random() * Math.PI * 2;
+    const d = 18 + Math.random() * 38;
+    s.style.cssText = `
+      left:${r.left + r.width / 2}px; top:${r.top + r.height * 0.62}px;
+      --dx:${Math.cos(a) * d}px; --dy:${Math.sin(a) * d - 16}px;
+      --dur:${(0.5 + Math.random() * 0.35).toFixed(2)}s;`;
+    host.appendChild(s);
+    setTimeout(() => s.remove(), 950);
+  }
+}
+
+/** A seed drops in and the soil puffs. */
+function sowFx(node) {
+  if (!motion || !node) return;
+  node.classList.remove('fx-sow');
+  void node.offsetWidth;
+  node.classList.add('fx-sow');
+  setTimeout(() => node.classList.remove('fx-sow'), 620);
+  specks(node, 6, 'soil');
+}
+
+/** The crop leaps out of the ground and arcs away. */
+function reapFx(node, icon) {
+  if (!motion || !node) return;
+  const host = document.getElementById('fx') || document.body;
+  const r = node.getBoundingClientRect();
+
+  node.classList.remove('fx-reap');
+  void node.offsetWidth;
+  node.classList.add('fx-reap');
+  setTimeout(() => node.classList.remove('fx-reap'), 520);
+
+  const fly = el('div', 'reaped', icon);
+  fly.style.left = (r.left + r.width / 2) + 'px';
+  fly.style.top = (r.top + r.height / 2) + 'px';
+  host.appendChild(fly);
+  setTimeout(() => fly.remove(), 900);
+
+  specks(node, 8, 'leaf');
+}
+
 /** Every button in the app gets a press animation, without wiring each one. */
 function bindTapFeedback(root = document) {
   root.addEventListener('pointerdown', e => {
@@ -2039,7 +2032,7 @@ function bindTapFeedback(root = document) {
     if (b) pop(b);
   }, { passive: true });
 }
-return { setMotion, confetti, pop, floatFrom, bindTapFeedback, motionOn };
+return { setMotion, confetti, pop, floatFrom, sowFx, reapFx, bindTapFeedback, motionOn };
 })();
 
 /* ---------- js/state.js ---------- */
@@ -3113,14 +3106,15 @@ const __mod_map = (function () {
 const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
+const FX = __mod_fx;
 const {el, fmt, fmtTime, now, clamp, haptic} = __mod_util;
 /* ==========================================================================
-   map.js — the farm as a place you can look at.
+   map.js — the farm scene: nothing but the fields you grow in.
 
-   A scrollable world of absolutely-positioned pieces: fields you plant and
-   harvest by tapping the soil, pens with the animals standing in them, and
-   buildings you walk your finger over to open. ui.js owns the panels; this
-   file owns the scene and calls back when something is tapped.
+   Animals and buildings live in their own tabs now, so this is a single
+   responsive grid of large plots. Each one wears a fill bar across the top;
+   full and gold means ready, which is the only signal you need to read the
+   whole farm at a glance.
    ========================================================================== */
 
 
@@ -3128,229 +3122,82 @@ const {el, fmt, fmtTime, now, clamp, haptic} = __mod_util;
 
 
 
-/* ------------------------------- layout ---------------------------------- */
-
-const WORLD_W = 720;
-const WORLD_H = 1180;
-
-const PLOT_W = 96, PLOT_H = 78, PLOT_GAP = 8;
-const FIELD = { x: 48, y: 208, cols: 6 };
-
-/** Pens sit under the fields, two rows of them. */
-const PEN_SPOTS = {
-  chicken: { x: 40,  y: 604, w: 200, h: 132 },
-  duck:    { x: 260, y: 604, w: 190, h: 132 },
-  cow:     { x: 470, y: 604, w: 210, h: 132 },
-  pig:     { x: 40,  y: 754, w: 200, h: 132 },
-  goat:    { x: 260, y: 754, w: 190, h: 132 },
-  sheep:   { x: 470, y: 754, w: 210, h: 132 },
-  bee:     { x: 470, y: 100, w: 190, h: 92 },
-};
-
-const BUILDINGS = [
-  { id: 'silo',   name: 'Silo',      icon: '🛖', x: 46,  y: 60,  roof: '#8ec8f0' },
-  { id: 'barn',   name: 'Barn',      icon: '🏠', x: 190, y: 60,  roof: '#e2685f' },
-  { id: 'works',  name: 'Workshops', icon: '🏭', x: 46,  y: 924, roof: '#b79bd8' },
-  { id: 'orders', name: 'Orders',    icon: '📋', x: 205, y: 924, roof: '#f09ac0' },
-  { id: 'store',  name: 'Store',     icon: '🛒', x: 364, y: 924, roof: '#f2c14e' },
-  { id: 'goals',  name: 'Goals',     icon: '🏆', x: 523, y: 924, roof: '#7fd6a5' },
-];
-
-/** Purely decorative scenery, so the land doesn't read as a spreadsheet. */
-const DECOR = [
-  { icon: '🌳', x: 655, y: 40,  s: 44 }, { icon: '🌳', x: 12,  y: 520, s: 40 },
-  { icon: '🌳', x: 668, y: 520, s: 40 }, { icon: '🌲', x: 640, y: 880, s: 38 },
-  { icon: '🌻', x: 300, y: 176, s: 22 }, { icon: '🌷', x: 26,  y: 180, s: 20 },
-  { icon: '🪨', x: 660, y: 700, s: 26 }, { icon: '🐦', x: 350, y: 44,  s: 20 },
-  { icon: '🦋', x: 120, y: 560, s: 20 }, { icon: '🌼', x: 690, y: 300, s: 20 },
-];
-
-function plotPos(i) {
-  const c = i % FIELD.cols, r = Math.floor(i / FIELD.cols);
-  return { x: FIELD.x + c * (PLOT_W + PLOT_GAP), y: FIELD.y + r * (PLOT_H + PLOT_GAP) };
-}
-
-/* -------------------------------- build ---------------------------------- */
 
 /**
- * @param T      register a per-second updater (from ui.js)
- * @param open   open(kind, arg) — 'sell-silo' | 'sell-barn' | tab ids | 'plot'
+ * @param T     register a per-second updater (from ui.js)
+ * @param open  open('plot' | 'land', index)
  */
-function farmMap({ T, open }) {
-  const wrap = el('div', 'map-wrap');
-  const canvas = el('div', 'map-canvas');
-  const world = el('div', 'map');
-  world.style.width = WORLD_W + 'px';
-  world.style.height = WORLD_H + 'px';
-  canvas.appendChild(world);
-  wrap.appendChild(canvas);
+function fieldGrid({ T, open }) {
+  const grid = el('div', 'fieldgrid');
+  const nodes = [];
 
-  // Scale the farm down so its full width fits the phone, but never so far
-  // that a field stops being a comfortable tap target.
-  const fit = () => {
-    const z = clamp((wrap.clientWidth || 390) / WORLD_W, 0.46, 1);
-    world.style.transform = `scale(${z})`;
-    canvas.style.width = Math.round(WORLD_W * z) + 'px';
-    canvas.style.height = Math.round(WORLD_H * z) + 'px';
-  };
-  requestAnimationFrame(fit);
-  addEventListener('resize', fit);
-  T(fit);
+  const lay = () => {
+    grid.innerHTML = '';
+    nodes.length = 0;
+    const owned = St.S.plots.length;
+    // One row of overgrown patches ahead of you, so the next field to clear is
+    // visible without the rest of the map being dead space.
+    const preview = Math.min(D.MAX_PLOTS, owned + 3);
 
-  world.appendChild(el('div', 'map-pond'));
-  world.appendChild(el('div', 'map-path'));
-
-  for (const d of DECOR) {
-    const n = el('div', 'map-decor', d.icon);
-    n.style.cssText = `left:${d.x}px;top:${d.y}px;font-size:${d.s}px`;
-    world.appendChild(n);
-  }
-
-  /* ------------------------------ buildings ------------------------------ */
-  for (const b of BUILDINGS) {
-    const node = el('button', 'mp-bldg');
-    node.style.left = b.x + 'px';
-    node.style.top = b.y + 'px';
-    node.innerHTML =
-      `<span class="roof" style="--roof:${b.roof}"></span>
-       <span class="body"><span class="face">${b.icon}</span></span>
-       <span class="sign">${b.name}</span>
-       <span class="ping" hidden></span>`;
-    node.onclick = () => { haptic(); open(b.id); };
-    world.appendChild(node);
-
-    const ping = node.querySelector('.ping');
-    T(() => {
-      const n = buildingAlert(b.id);
-      ping.hidden = !n;
-      ping.textContent = n > 99 ? '99+' : n;
-    });
-  }
-
-  /* -------------------------------- fields ------------------------------- */
-  const fieldsWrap = el('div', 'mp-fields');
-  world.appendChild(fieldsWrap);
-  const plotNodes = [];
-
-  const layFields = () => {
-    fieldsWrap.innerHTML = '';
-    plotNodes.length = 0;
-    for (let i = 0; i < D.MAX_PLOTS; i++) {
-      const p = plotPos(i);
-      const owned = i < St.S.plots.length;
-      const node = el('button', 'mp-plot' + (owned ? '' : ' wild'));
-      node.style.cssText = `left:${p.x}px;top:${p.y}px;width:${PLOT_W}px;height:${PLOT_H}px`;
-      node.onclick = () => { haptic(); open(owned ? 'plot' : 'land', i); };
-      fieldsWrap.appendChild(node);
-      plotNodes.push(owned ? node : null);
-      if (!owned) node.innerHTML = '<span class="wildtag">🌿</span>';
+    for (let i = 0; i < preview; i++) {
+      const isOwned = i < owned;
+      const node = el('button', 'plotcard' + (isOwned ? '' : ' wild'));
+      node.onclick = () => { haptic(); open(isOwned ? 'plot' : 'land', i); };
+      grid.appendChild(node);
+      nodes.push(isOwned ? node : null);
+      if (!isOwned) {
+        node.innerHTML = `<span class="wild-ic">🌿</span><span class="wild-tag">Clear</span>`;
+      }
     }
   };
-  layFields();
+  lay();
 
   T(() => {
-    // A bought field can appear mid-session; rebuild the block when it does.
-    if (plotNodes.filter(Boolean).length !== St.S.plots.length) layFields();
+    const owned = St.S.plots.length;
+    if (nodes.filter(Boolean).length !== owned) lay();
 
-    for (let i = 0; i < plotNodes.length; i++) {
-      const node = plotNodes[i];
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
       if (!node) continue;
       const plot = St.S.plots[i];
       const state = G.plotState(plot);
-      node.className = 'mp-plot ' + state;
-      if (state === 'empty') { node.innerHTML = '<span class="seedme">+</span>'; continue; }
+
+      if (state === 'empty') {
+        if (node.dataset.state !== 'empty') {
+          node.dataset.state = 'empty';
+          node.dataset.crop = '';
+          node.className = 'plotcard empty';
+          node.innerHTML = `<span class="sow">＋</span><span class="plot-label">Tap to sow</span>`;
+        }
+        continue;
+      }
 
       const crop = D.ITEMS[plot.crop];
       const total = Math.max(1, plot.end - plot.at);
       const pct = clamp((now() - plot.at) / total, 0, 1);
-      if (node.dataset.crop !== plot.crop) {
+
+      if (node.dataset.crop !== plot.crop || node.dataset.state === 'empty') {
         node.dataset.crop = plot.crop;
-        node.innerHTML = `<span class="grow"><i></i></span>
-                          <span class="sprout">${crop.icon}</span>
-                          <span class="clock"></span>`;
+        node.innerHTML =
+          `<span class="fill"><i></i></span>
+           <span class="seedling">${crop.icon}</span>
+           <span class="plot-label"></span>`;
       }
-      // One bar across the top of every field: full means ready, and you can
-      // read the whole farm's state without looking at a single number.
-      node.querySelector('.grow > i').style.width = (pct * 100).toFixed(1) + '%';
-      node.querySelector('.sprout').style.transform = `scale(${(0.5 + 0.5 * pct).toFixed(2)})`;
-      node.querySelector('.clock').textContent =
+      node.dataset.state = state;
+      node.className = 'plotcard ' + state;
+      node.querySelector('.fill > i').style.width = (pct * 100).toFixed(1) + '%';
+      // Sprouts start small and fill out as the timer runs down.
+      node.querySelector('.seedling').style.setProperty('--s', (0.5 + 0.5 * pct).toFixed(2));
+      node.querySelector('.plot-label').textContent =
         state === 'ready' ? 'READY' : fmtTime((plot.end - now()) / 1000);
     }
   });
 
-  /* --------------------------------- pens -------------------------------- */
-  for (const type of D.ANIMALS) {
-    const spot = PEN_SPOTS[type.id];
-    if (!spot) continue;
-    const pen = el('div', 'mp-pen');
-    pen.style.cssText = `left:${spot.x}px;top:${spot.y}px;width:${spot.w}px;height:${spot.h}px`;
-    pen.innerHTML = `<span class="pen-sign">${type.icon} ${type.name2 || type.name + 's'}</span>
-                     <div class="pen-yard"></div>`;
-    world.appendChild(pen);
-    const yard = pen.querySelector('.pen-yard');
-
-    T(() => {
-      const locked = type.level > St.S.level;
-      pen.classList.toggle('locked', locked);
-      if (locked) {
-        if (yard.dataset.mode !== 'lock') {
-          yard.dataset.mode = 'lock';
-          yard.innerHTML = `<span class="pen-lock">🔒 Lv ${type.level}</span>`;
-        }
-        return;
-      }
-
-      const mine = St.animalsOf(type.id);
-      const want = mine.length + (mine.length < type.max ? 1 : 0);
-      if (yard.dataset.mode !== 'live' || yard.children.length !== want) {
-        yard.dataset.mode = 'live';
-        yard.innerHTML = '';
-        mine.forEach((an, idx) => {
-          const a = el('button', 'critter-m');
-          a.style.animationDelay = (idx * 0.37).toFixed(2) + 's';
-          a.onclick = () => { haptic(); open('animal', { type: type.id, idx }); };
-          yard.appendChild(a);
-        });
-        if (mine.length < type.max) {
-          const add = el('button', 'critter-m add', `<span>＋</span>`);
-          add.onclick = () => { haptic(); open('buy-animal', type.id); };
-          yard.appendChild(add);
-        }
-      }
-
-      mine.forEach((an, idx) => {
-        const a = yard.children[idx];
-        if (!a) return;
-        const st = G.animalState(an);
-        a.className = 'critter-m ' + st;
-        const cycle = Math.max(1, an.readyAt - an.fedAt);
-        const pct = st === 'working' ? clamp((now() - an.fedAt) / cycle, 0, 1) : st === 'ready' ? 1 : 0;
-        a.innerHTML =
-          `<span class="beast">${type.icon}</span>` +
-          `<span class="agrow"><i style="width:${(pct * 100).toFixed(1)}%"></i></span>` +
-          (st === 'ready' ? `<span class="mark">${D.ITEMS[type.product].icon}</span>` : '') +
-          (st === 'hungry' ? `<span class="mark waiting">🌾</span>` : '');
-      });
-    });
-  }
-
-  return wrap;
+  /** Lets ui.js play the right animation on the tile that was just used. */
+  grid.plotNode = i => nodes[i] || null;
+  return grid;
 }
-
-/** Red-dot count for a building: what's waiting for a tap inside it. */
-function buildingAlert(id) {
-  const S = St.S;
-  if (id === 'works') {
-    return Object.values(S.machines)
-      .reduce((n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0);
-  }
-  if (id === 'orders') return (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length;
-  if (id === 'goals') return G.goalsReady() + (G.dailyReady() ? 1 : 0);
-  if (id === 'silo') return St.siloUsed() >= S.siloCap ? 1 : 0;
-  if (id === 'barn') return St.barnUsed() >= S.barnCap ? 1 : 0;
-  return 0;
-}
-return { plotPos, farmMap, WORLD_W, WORLD_H };
+return { fieldGrid };
 })();
 
 /* ---------- js/ui.js ---------- */
@@ -3359,7 +3206,7 @@ const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
 const FX = __mod_fx;
-const {farmMap} = __mod_map;
+const {fieldGrid} = __mod_map;
 const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics} = __mod_util;
 const {SFX, setSound, soundOn} = __mod_audio;
 /* ==========================================================================
@@ -3426,18 +3273,22 @@ function renderHud() {
   const hud = $('hud');
   hud.innerHTML = '';
 
-  const av = el('button', 'hud-avatar', `${S.avatar}<span class="hud-lvl">LV ${S.level}</span>`);
-  av.onclick = () => { haptic(); profileSheet(); };
-  hud.appendChild(av);
+  const who = el('button', 'hud-who');
+  who.innerHTML =
+    `<span class="hud-avatar">${S.avatar}<span class="hud-lvl">${S.level}</span></span>
+     <span class="hud-id">
+       <span class="hud-name">${S.name}</span>
+       <span class="hud-title">${D.titleFor(S.level)}</span>
+       <span class="xpbar"><i></i><span></span></span>
+     </span>`;
+  who.onclick = () => { haptic(); profileSheet(); };
+  hud.appendChild(who);
 
-  const mid = el('div', 'hud-mid');
-  mid.appendChild(el('div', 'hud-name', `${S.name} · ${D.titleFor(S.level)}`));
-  const bar = el('div', 'xpbar', '<i></i><span></span>');
-  mid.appendChild(bar);
-  hud.appendChild(mid);
-
-  hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
-  hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
+  const wallet = el('div', 'hud-wallet');
+  wallet.innerHTML =
+    `<span class="pill pill-coin"><em>🪙</em><span id="hud-coins"></span></span>
+     <span class="pill pill-gem"><em>💎</em><span id="hud-gems"></span></span>`;
+  hud.appendChild(wallet);
   hud.appendChild(el('div', 'boostbar', ''));
 
   renderHudNumbers();
@@ -3453,8 +3304,9 @@ function renderHudNumbers() {
   const txt = document.querySelector('.xpbar > span');
   if (fill) fill.style.width = (p.pct * 100).toFixed(1) + '%';
   if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
+  // The badge is a small disc on the avatar; it holds the number alone.
   const lvl = document.querySelector('.hud-lvl');
-  if (lvl) lvl.textContent = 'LV ' + S.level;
+  if (lvl) lvl.textContent = String(S.level);
 
   const bar = document.querySelector('.boostbar');
   if (bar) {
@@ -3604,14 +3456,50 @@ function goalPanel() {
   return panel(null, row);
 }
 
+let gridRef = null;
+
 function farmView() {
   const frag = document.createDocumentFragment();
   const col = el('div', 'mapcol');
 
-  col.appendChild(farmMap({ T, open: mapTap }));
+  const scroller = el('div', 'fieldscroll');
+  scroller.appendChild(storageStrip());
+  gridRef = fieldGrid({ T, open: mapTap });
+  scroller.appendChild(gridRef);
+
+  col.appendChild(scroller);
   col.appendChild(seedBar());
   frag.appendChild(col);
   return frag;
+}
+
+/** Silo and barn at a glance, with selling one tap away. */
+function storageStrip() {
+  const S = St.S;
+  const strip = el('div', 'storestrip');
+
+  for (const kind of ['silo', 'barn']) {
+    const isSilo = kind === 'silo';
+    const card = el('button', 'storecard');
+    card.innerHTML =
+      `<span class="sc-ic">${isSilo ? '🛖' : '🏠'}</span>
+       <span class="sc-body">
+         <b>${isSilo ? 'Silo' : 'Barn'}</b>
+         <span class="sc-meter"><i></i></span>
+         <small></small>
+       </span>`;
+    card.onclick = () => { haptic(); sellSheet(kind); };
+    strip.appendChild(card);
+
+    T(() => {
+      const used = isSilo ? St.siloUsed() : St.barnUsed();
+      const cap = isSilo ? S.siloCap : S.barnCap;
+      card.querySelector('.sc-meter > i').style.width = clamp(used / cap, 0, 1) * 100 + '%';
+      card.querySelector('small').textContent = `${used} / ${cap} · Sell`;
+      card.classList.toggle('full', used >= cap);
+    });
+  }
+  return strip;
 }
 
 /** Everything the map can hand back to us. */
@@ -3619,10 +3507,19 @@ function mapTap(kind, arg) {
   const S = St.S;
   if (kind === 'plot') {
     const i = arg;
+    const node = gridRef && gridRef.plotNode(i);
     const state = G.plotState(S.plots[i]);
-    if (state === 'empty') G.plant(i, S.selectedSeed);
-    else if (state === 'ready') G.harvest(i);
-    else {
+
+    if (state === 'empty') {
+      if (G.plant(i, S.selectedSeed)) FX.sowFx(node);
+    } else if (state === 'ready') {
+      const icon = D.ITEMS[S.plots[i].crop].icon;
+      const got = G.harvest(i);
+      if (got) {
+        FX.reapFx(node, icon);
+        FX.floatFrom(node, `+${got} ${icon}`);
+      }
+    } else {
       speedSheet('field', () => { if (G.speedUpPlot(i)) render(); },
         (S.plots[i].end - now()) / 1000, D.ITEMS[S.plots[i].crop]);
       return;
@@ -3692,7 +3589,20 @@ function seedBar() {
 
   const harvestBtn = el('button', 'btn btn-sm btn-green', '🧺');
   harvestBtn.title = 'Harvest all';
-  harvestBtn.onclick = () => { haptic(); G.harvestAll(); refresh(); };
+  harvestBtn.onclick = () => {
+    haptic();
+    const ripe = [];
+    for (let i = 0; i < S.plots.length; i++) {
+      if (G.plotState(S.plots[i]) === 'ready') ripe.push([i, D.ITEMS[S.plots[i].crop].icon]);
+    }
+    if (G.harvestAll()) {
+      ripe.forEach(([i, icon], n) => {
+        const node = gridRef && gridRef.plotNode(i);
+        if (node) setTimeout(() => FX.reapFx(node, icon), n * 45);
+      });
+    }
+    refresh();
+  };
 
   const strip = el('div', 'strip');
   for (const c of D.CROPS) {
@@ -3721,7 +3631,17 @@ function seedBar() {
 
   const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
   plantBtn.title = 'Plant all';
-  plantBtn.onclick = () => { haptic(); G.plantAll(S.selectedSeed); refresh(); };
+  plantBtn.onclick = () => {
+    haptic();
+    const empty = [];
+    for (let i = 0; i < S.plots.length; i++) if (!S.plots[i]) empty.push(i);
+    const n = G.plantAll(S.selectedSeed);
+    empty.slice(0, n).forEach((i, k) => {
+      const node = gridRef && gridRef.plotNode(i);
+      if (node) setTimeout(() => FX.sowFx(node), k * 45);
+    });
+    refresh();
+  };
 
   bar.append(harvestBtn, strip, plantBtn);
   return bar;

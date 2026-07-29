@@ -40,18 +40,20 @@ and that version installs to the home screen with its proper icon.
 
 ## How to play
 
-The **Farm tab is a map of your land** — fields, animal pens, the silo, barn,
-workshops and store all sit on it. Tap the thing itself: soil to sow, a ripe
-crop to pull it, an animal to collect from it, a building to go inside.
+The **Farm tab is your growing land, and nothing else** — a grid of large
+fields with the silo and barn above them. Animals, workshops and the store each
+have their own tab, which keeps the scene about crops and lets the plots be big
+enough to read at arm's length.
 
-Every field and every animal wears a **fill bar**. It creeps left to right as
-the crop grows, and turns gold and full the moment it's ready — so you can read
-the state of the whole farm in one look without counting down timers. Buildings
-carry a red count of whatever is waiting inside them.
+Every field wears a **fill bar** across its top edge. It creeps left to right as
+the crop grows and turns gold and full the moment it's ready, so the state of
+the whole farm reads in one glance without counting down timers. Sowing drops
+the seed in with a puff of soil; harvesting pops the crop out of the ground and
+sends it flying to the silo.
 
 | Tab | What you do there |
 | --- | --- |
-| 🌾 **Farm** | The map. Plant and harvest by tapping soil; the seed rack sits under it. |
+| 🌾 **Farm** | The field grid. Plant and harvest by tapping soil; the seed rack sits under it. |
 | 🐔 **Animals** | Buy animals and collect eggs, milk, bacon, wool and honey. They feed themselves. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
@@ -169,7 +171,7 @@ css/style.css           all styling
 js/data.js              crops, animals, recipes, upgrades, economy curves
 js/state.js             the save file and every read/write against it
 js/game.js              player actions + the world clock
-js/map.js               the farm map: fields, pens, buildings, decoration
+js/map.js               the field grid
 js/fx.js                confetti, button pops, floating numbers
 js/ui.js                views, panels and sheets
 js/main.js              boot, onboarding, heartbeat

@@ -94,93 +94,132 @@ button, input { font: inherit; color: inherit; }
 /* --------------------------------- HUD ----------------------------------- */
 
 .hud {
-  flex-wrap: wrap;
-  padding: calc(var(--sat) + 8px) 12px 8px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
   flex-shrink: 0;
+  padding: calc(var(--sat) + 8px) 12px 9px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .28)),
+    var(--grain);
+  border-bottom: 3px solid rgba(156, 95, 38, .32);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* left half: who you are */
+.hud-who {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
 }
 
 .hud-avatar {
-  width: 46px; height: 46px;
+  position: relative;
+  width: 44px; height: 44px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 3px solid #fff;
-  background: linear-gradient(180deg, #ffe9a8, #ffc95e);
+  background: radial-gradient(circle at 36% 30%, #fff2c9, #ffc95e);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
   display: grid; place-items: center;
-  font-size: 24px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
-  padding: 0;
-  position: relative;
+  font-size: 23px;
+  line-height: 1;
 }
-
 .hud-lvl {
   position: absolute;
-  bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--green);
+  right: -5px; bottom: -4px;
+  min-width: 21px; height: 21px;
+  padding: 0 4px;
+  border-radius: 11px;
+  border: 2.5px solid #fff;
+  background: linear-gradient(180deg, #86dd6e, var(--green-dk));
   color: #fff;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 0 5px;
-  line-height: 14px;
-  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+  text-align: center;
 }
 
-.hud-mid { flex: 1; min-width: 0; }
-
+.hud-id { flex: 1; min-width: 0; }
 .hud-name {
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  display: block;
+  font-size: var(--t-body);
+  font-weight: 900;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.15;
+}
+.hud-title {
+  display: block;
+  font-size: var(--t-tiny);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 1.2;
 }
 
 .xpbar {
-  height: 12px;
-  background: rgba(0, 0, 0, .22);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #fff;
-  margin-top: 3px;
+  display: block;
   position: relative;
+  height: 11px;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .16);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25);
+  overflow: hidden;
 }
 .xpbar > i {
   display: block;
   height: 100%;
   background: linear-gradient(180deg, #b6ff6e, var(--green-dk));
-  border-radius: 6px 0 0 6px;
-  transition: width .35s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+  transition: width .4s ease;
 }
 .xpbar > span {
   position: absolute; inset: 0;
-  font-size: 9px; font-weight: 800; color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
   display: grid; place-items: center;
-  letter-spacing: .2px;
+  font-size: 8.5px;
+  font-weight: 900;
+  color: #2f4a1e;
+  letter-spacing: .02em;
+}
+
+/* right half: what you own */
+.hud-wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .pill {
-  display: flex; align-items: center; gap: 4px;
-  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 92px;
+  padding: 3px 10px 3px 7px;
   border: 2.5px solid var(--wood-dk);
   border-radius: 999px;
-  padding: 4px 10px 4px 6px;
-  font-weight: 800;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .16);
+  font-size: var(--t-sub);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
-.pill em { font-style: normal; font-size: 15px; }
+.pill em { font-style: normal; font-size: 14px; line-height: 1; }
+.pill-coin { border-color: var(--gold-dk); }
+.pill-gem { border-color: #2f9dc8; }
 
 /* -------------------------------- tabbar --------------------------------- */
 
@@ -349,12 +388,11 @@ button, input { font: inherit; color: inherit; }
   color: rgba(255, 255, 255, .45);
 }
 .plot.ready { background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.09) 0 3px, transparent 3px 13px), linear-gradient(180deg, #b98450, #7d5227); }
-.plot.ready .crop { animation: bob .9s ease-in-out infinite; }
+
 .plot.ready::before {
   content: '';
   position: absolute; inset: -30%;
   background: radial-gradient(circle, rgba(255, 240, 150, .55), transparent 62%);
-  animation: pulse 1.6s ease-in-out infinite;
 }
 .plot.locked { filter: grayscale(1) brightness(.75); }
 
@@ -381,8 +419,8 @@ button, input { font: inherit; color: inherit; }
   background: linear-gradient(90deg, #ffe07a, #8ce35a);
 }
 
-@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
-@keyframes pulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+ 50% { transform: translateY(-5px) } }
+ 50% { opacity: 1 } }
 
 /* seed picker strip */
 .seeds {
@@ -504,7 +542,7 @@ button.ic:hover::after { opacity: 1; }
   background: rgba(0, 0, 0, .45); color: #fff;
   border-radius: 6px; padding: 1px 0;
 }
-.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); animation: bob 1s ease-in-out infinite; }
+.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); border-color: var(--gold-dk); }
 .critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
 .critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
 
@@ -520,7 +558,7 @@ button.ic:hover::after { opacity: 1; }
   padding: 0;
 }
 .slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
-.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); animation: bob 1s ease-in-out infinite; }
+.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); box-shadow: 0 0 0 3px rgba(87, 192, 75, .3); }
 .slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
 .slot .ring {
   position: absolute; inset: -3px;
@@ -780,312 +818,9 @@ button.ic:hover::after { opacity: 1; }
   font-size: 15px;
 }
 
-/* =============================== farm map ================================= */
+/* =============================== farm scene =============================== */
 
 .view.flush { padding: 0; overflow: hidden; display: flex; }
-
-.map-wrap {
-  flex: 1;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  position: relative;
-}
-
-.map-canvas { position: relative; }
-
-.map {
-  position: relative;
-  transform-origin: top left;
-  /* Soft mown bands plus a fine turf speckle, so the grass has depth without
-     the hard stripes the old scene had. */
-  background:
-    radial-gradient(ellipse at 20% 6%, rgba(255, 255, 255, .38), transparent 52%),
-    repeating-linear-gradient(102deg, rgba(255, 255, 255, .05) 0 6px, transparent 6px 13px),
-    repeating-linear-gradient(90deg, #7ec84c 0 60px, #77c246 60px 120px);
-}
-
-.map-path {
-  position: absolute;
-  left: 0; right: 0;
-  top: 540px;
-  height: 52px;
-  background:
-    radial-gradient(circle at 12% 40%, rgba(255, 255, 255, .5), transparent 30%),
-    repeating-linear-gradient(76deg, #ecd8b0 0 9px, #e3cda3 9px 20px);
-  border-top: 3px solid var(--wood-dk);
-  border-bottom: 3px solid var(--wood-dk);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .07);
-}
-
-.map-pond {
-  position: absolute;
-  left: 486px; top: 1024px;
-  width: 190px; height: 120px;
-  border-radius: 50% 46% 52% 48%;
-  background: radial-gradient(circle at 35% 30%, #b8ecff, #56b9e8 70%);
-  border: 4px solid #8fd3ee;
-  box-shadow: inset 0 6px 10px rgba(255, 255, 255, .5);
-}
-
-.map-decor {
-  position: absolute;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
-  pointer-events: none;
-  animation: sway 4s ease-in-out infinite;
-}
-@keyframes sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2deg) } }
-
-/* ---- buildings ---- */
-
-.mp-bldg {
-  position: absolute;
-  width: 132px;
-  padding: 0;
-  border: 0;
-  background: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform .1s ease;
-  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .25));
-}
-.mp-bldg:active { transform: scale(.95); }
-
-.mp-bldg .roof {
-  width: 118px;
-  height: 40px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--roof) 78%, white), var(--roof));
-  background: var(--roof);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.mp-bldg .body {
-  width: 96px;
-  height: 62px;
-  margin-top: -2px;
-  background: linear-gradient(180deg, #fffaef, #f2e2c2);
-  border: 3px solid var(--wood-dk);
-  border-top: 0;
-  border-radius: 0 0 12px 12px;
-  display: grid;
-  place-items: center;
-}
-.mp-bldg .face { font-size: 32px; line-height: 1; }
-.mp-bldg .sign {
-  margin-top: 5px;
-  background: var(--wood);
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 8px;
-  padding: 1px 9px;
-  font-size: 11px;
-  font-weight: 900;
-  color: #4a2c0c;
-  white-space: nowrap;
-}
-.mp-bldg .ping {
-  position: absolute;
-  top: 26px; right: 8px;
-  min-width: 22px; height: 22px;
-  border-radius: 11px;
-  background: var(--red);
-  border: 2.5px solid #fff;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  display: grid; place-items: center;
-  padding: 0 4px;
-  animation: bob .9s ease-in-out infinite;
-}
-
-/* ---- fields ---- */
-
-.mp-plot {
-  position: absolute;
-  padding: 0;
-  border: 3px solid var(--wood-dk);
-  border-radius: var(--r-md);
-  /* ploughed rows, lit from above, matching the app's warm browns */
-  background:
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, .10) 0 2px,
-      rgba(0, 0, 0, .12) 2px 5px,
-      transparent 5px 15px),
-    linear-gradient(180deg, #c08a56, #96633a 60%, #86562f);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, .22),
-    inset 0 -5px 0 rgba(0, 0, 0, .2),
-    0 3px 0 rgba(0, 0, 0, .2);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  transition: transform .1s ease, box-shadow .15s ease;
-}
-.mp-plot:active { transform: scale(.95); }
-
-.mp-plot .seedme { font-size: 30px; font-weight: 900; color: rgba(255, 255, 255, .5); }
-.mp-plot .sprout {
-  font-size: 34px;
-  line-height: 1;
-  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
-}
-.mp-plot.ready {
-  border-color: var(--gold);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, .22),
-    inset 0 -5px 0 rgba(0, 0, 0, .2),
-    0 3px 0 rgba(0, 0, 0, .2),
-    0 0 0 3px rgba(255, 196, 46, .35);
-}
-.mp-plot.ready .sprout { animation: bob .9s ease-in-out infinite; }
-
-/* The completion bar: pinned across the top of every field, edge to edge.
-   Full and gold means ready — readable at a glance across the whole farm. */
-.mp-plot .grow {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 11px;
-  background: rgba(0, 0, 0, .34);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
-}
-.mp-plot .grow > i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(180deg, #d6f5a0, #7fce46);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
-  transition: width .6s linear;
-}
-.mp-plot.ready .grow > i {
-  background: linear-gradient(180deg, #ffe98a, var(--gold));
-  animation: barGlow 1.3s ease-in-out infinite;
-}
-@keyframes barGlow {
-  0%, 100% { filter: brightness(1); }
-  50%      { filter: brightness(1.22); }
-}
-
-.mp-plot .clock {
-  position: absolute;
-  top: 13px; left: 0; right: 0;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 900;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
-  letter-spacing: .02em;
-}
-.mp-plot.ready .clock { color: #fff8d8; }
-
-
-.mp-plot.wild {
-  border-style: dashed;
-  border-color: rgba(255, 255, 255, .65);
-  background: rgba(255, 255, 255, .16);
-  box-shadow: none;
-}
-.mp-plot.wild .wildtag { font-size: 26px; opacity: .8; }
-
-/* ---- pens ---- */
-
-.mp-pen {
-  position: absolute;
-  border: 3px solid var(--wood-dk);
-  border-radius: var(--r-lg);
-  background:
-    var(--grain),
-    linear-gradient(180deg, rgba(255, 250, 225, .78), rgba(240, 220, 175, .72));
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7), 0 3px 0 rgba(0, 0, 0, .14);
-  padding: 16px 7px 7px;
-}
-.mp-pen.locked { opacity: .75; filter: grayscale(.6); }
-
-.mp-pen .pen-sign {
-  position: absolute;
-  top: -13px; left: 8px;
-  background: var(--wood);
-  border: 2.5px solid var(--wood-dk);
-  border-radius: 8px;
-  padding: 0 8px;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 20px;
-  color: #4a2c0c;
-  white-space: nowrap;
-}
-
-.pen-yard {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 4px 4px;
-  height: 100%;
-  padding-top: 6px;     /* headroom so the ready badge is not clipped */
-  overflow: hidden;
-}
-.pen-lock { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: auto; }
-
-.critter-m {
-  position: relative;
-  width: 44px; height: 44px;
-  border: 0;
-  padding: 0;
-  background: none;
-  font-size: 28px;
-  line-height: 1;
-}
-/* Only the animal wanders and turns around — flipping the button would
-   mirror its timer and product badge too. */
-.critter-m .beast {
-  display: block;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .28));
-  animation: graze 3.2s ease-in-out infinite;
-}
-.critter-m.ready .beast { animation: bob .8s ease-in-out infinite; }
-.critter-m .mark {
-  position: absolute;
-  top: -6px; right: -3px;
-  font-size: 15px;
-  background: #fffaef;
-  border: 2px solid var(--wood-dk);
-  border-radius: 50%;
-  padding: 1px;
-  line-height: 1;
-  animation: bob .9s ease-in-out infinite;
-}
-.critter-m .mark.waiting { animation: none; filter: grayscale(.5); opacity: .85; }
-
-/* Each animal carries its own little completion bar, same idea as a field. */
-.critter-m .agrow {
-  position: absolute;
-  left: 4px; right: 4px; bottom: -1px;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, .3);
-  overflow: hidden;
-}
-.critter-m .agrow > i {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, #d6f5a0, #7fce46);
-  transition: width .6s linear;
-}
-.critter-m.ready .agrow > i { background: linear-gradient(90deg, #ffe98a, var(--gold)); }
-.critter-m.hungry .agrow > i { background: #b9a88c; }
-
-.critter-m.add {
-  border: 3px dashed rgba(122, 74, 30, .55);
-  border-radius: 12px;
-  font-size: 20px;
-  color: var(--ink-soft);
-  background: rgba(255, 255, 255, .45);
-}
-@keyframes graze {
-  0%, 100% { transform: translateX(0) }
-  25% { transform: translateX(4px) }
-  50% { transform: translateX(0) scaleX(-1) }
-  75% { transform: translateX(-4px) scaleX(-1) }
-}
-
-/* ---- floating seed bar over the map ---- */
 
 .mapcol {
   display: flex;
@@ -1095,6 +830,213 @@ button.ic:hover::after { opacity: 1; }
   width: 100%;
 }
 
+.fieldscroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px 14px;
+}
+
+/* ---- silo / barn strip ---- */
+
+.storestrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.storecard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card-2));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.storecard:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0, 0, 0, .16); }
+.sc-ic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.sc-body { flex: 1; min-width: 0; }
+.sc-body b { display: block; font-size: var(--t-sub); font-weight: 900; }
+.sc-body small { display: block; font-size: var(--t-tiny); font-weight: 800; color: var(--ink-soft); margin-top: 2px; }
+.sc-meter {
+  display: block;
+  height: 7px;
+  margin-top: 3px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .14);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+  overflow: hidden;
+}
+.sc-meter > i {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #ffe08a, var(--gold-dk));
+  transition: width .4s ease;
+}
+.storecard.full .sc-meter > i { background: linear-gradient(180deg, #ffa2a2, #d33); }
+.storecard.full small { color: #c33; }
+
+/* ---- the field grid ---- */
+
+.fieldgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 9px;
+}
+
+.plotcard {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-md);
+  /* ploughed rows, lit from above */
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .10) 0 2px,
+      rgba(0, 0, 0, .13) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #c68e58, #99653b 60%, #85552e);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -6px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: transform .1s ease, box-shadow .15s ease, border-color .2s ease;
+}
+.plotcard:active { transform: scale(.96); }
+
+/* the completion bar: full and gold means ready */
+.plotcard .fill {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 12px;
+  background: rgba(0, 0, 0, .34);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
+}
+.plotcard .fill > i {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #d9f7a4, #7fce46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: width .6s linear;
+}
+.plotcard.ready .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
+
+.plotcard .seedling {
+  font-size: 46px;
+  line-height: 1;
+  transform: scale(var(--s, 1));
+  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
+}
+
+.plotcard .plot-label {
+  position: absolute;
+  left: 0; right: 0; bottom: 6px;
+  text-align: center;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+}
+.plotcard.ready .plot-label { color: #fff6d2; letter-spacing: .06em; }
+
+.plotcard.ready {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22),
+    inset 0 -6px 0 rgba(0, 0, 0, .2),
+    0 3px 0 rgba(0, 0, 0, .2),
+    0 0 0 3px rgba(255, 196, 46, .4);
+}
+
+.plotcard.empty {
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .07) 0 2px,
+      rgba(0, 0, 0, .10) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #b98css, #8c5c34 60%, #7a4d29);
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, .07) 0 2px,
+      rgba(0, 0, 0, .10) 2px 5px,
+      transparent 5px 16px),
+    linear-gradient(180deg, #b9834f, #8c5c34 60%, #7a4d29);
+}
+.plotcard .sow { font-size: 40px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
+.plotcard.empty .plot-label { color: rgba(255, 255, 255, .72); font-weight: 800; }
+
+.plotcard.wild {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .18);
+  box-shadow: none;
+}
+.plotcard.wild .wild-ic { font-size: 34px; opacity: .85; }
+.plotcard.wild .wild-tag {
+  position: absolute;
+  left: 0; right: 0; bottom: 8px;
+  text-align: center;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #4a3520;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+/* ---- sowing and reaping ---- */
+
+.fx-sow .seedling { animation: sowDrop .55s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes sowDrop {
+  0%   { transform: translateY(-42px) scale(.25); opacity: 0; }
+  55%  { transform: translateY(3px) scale(var(--s, 1)); opacity: 1; }
+  75%  { transform: translateY(0) scaleY(.82) scaleX(1.12); }
+  100% { transform: scale(var(--s, 1)); }
+}
+
+.fx-reap { animation: reapShake .38s ease; }
+@keyframes reapShake {
+  0%, 100% { transform: scale(1); }
+  30%      { transform: scale(.94) rotate(-1.5deg); }
+  60%      { transform: scale(1.03) rotate(1deg); }
+}
+
+.reaped {
+  position: absolute;
+  font-size: 40px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4));
+  animation: reapFly .85s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+@keyframes reapFly {
+  0%   { transform: translate(-50%, -50%) scale(.8); opacity: 0; }
+  18%  { transform: translate(-50%, -70%) scale(1.32); opacity: 1; }
+  100% { transform: translate(-50%, -230%) scale(.55); opacity: 0; }
+}
+
+.speck {
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: speckOut var(--dur, .7s) cubic-bezier(.2, .7, .4, 1) forwards;
+}
+.speck.soil { background: #7a4d29; }
+.speck.leaf { background: #7fce46; border-radius: 2px; }
+@keyframes speckOut {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: .95; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 34px)) scale(.35); opacity: 0; }
+}
+
+/* ---- floating seed rack ---- */
+
 .seedbar {
   flex-shrink: 0;
   z-index: 5;
@@ -1102,10 +1044,8 @@ button.ic:hover::after { opacity: 1; }
   align-items: center;
   gap: 7px;
   padding: 7px 8px calc(7px + var(--sab));
-  background: linear-gradient(180deg, rgba(255, 250, 239, .82), var(--card));
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card));
   border-top: 3px solid var(--wood-dk);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .seedbar .strip {
   display: flex;
@@ -1121,17 +1061,21 @@ button.ic:hover::after { opacity: 1; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 54px;
-  padding: 3px 2px 2px;
+  width: 56px;
+  padding: 4px 2px 3px;
   border: 2.5px solid var(--wood-dk);
   border-radius: 11px;
   background: linear-gradient(180deg, #fff, var(--card-2));
-  font-size: 22px;
+  font-size: 23px;
   line-height: 1.1;
   box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
 }
 .seedchip small { font-size: 9px; font-weight: 800; color: var(--ink-soft); }
-.seedchip.on { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #b6f09a); }
+.seedchip.on {
+  border-color: var(--green-dk);
+  background: linear-gradient(180deg, #dcffcb, #b6f09a);
+  box-shadow: 0 2px 0 var(--green-dk);
+}
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
 
 /* boosts in the HUD */

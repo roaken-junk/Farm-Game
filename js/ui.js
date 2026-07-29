@@ -7,7 +7,7 @@
 import * as D from './data.js';
 import * as St from './state.js';
 import * as G from './game.js';
-import { farmMap } from './map.js';
+import { fieldGrid } from './map.js';
 import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics } from './util.js';
 import { SFX, setSound, soundOn } from './audio.js';
 import * as FX from './fx.js';
@@ -62,18 +62,22 @@ function renderHud() {
   const hud = $('hud');
   hud.innerHTML = '';
 
-  const av = el('button', 'hud-avatar', `${S.avatar}<span class="hud-lvl">LV ${S.level}</span>`);
-  av.onclick = () => { haptic(); profileSheet(); };
-  hud.appendChild(av);
+  const who = el('button', 'hud-who');
+  who.innerHTML =
+    `<span class="hud-avatar">${S.avatar}<span class="hud-lvl">${S.level}</span></span>
+     <span class="hud-id">
+       <span class="hud-name">${S.name}</span>
+       <span class="hud-title">${D.titleFor(S.level)}</span>
+       <span class="xpbar"><i></i><span></span></span>
+     </span>`;
+  who.onclick = () => { haptic(); profileSheet(); };
+  hud.appendChild(who);
 
-  const mid = el('div', 'hud-mid');
-  mid.appendChild(el('div', 'hud-name', `${S.name} · ${D.titleFor(S.level)}`));
-  const bar = el('div', 'xpbar', '<i></i><span></span>');
-  mid.appendChild(bar);
-  hud.appendChild(mid);
-
-  hud.appendChild(el('div', 'pill', `<em>🪙</em><span id="hud-coins"></span>`));
-  hud.appendChild(el('div', 'pill', `<em>💎</em><span id="hud-gems"></span>`));
+  const wallet = el('div', 'hud-wallet');
+  wallet.innerHTML =
+    `<span class="pill pill-coin"><em>🪙</em><span id="hud-coins"></span></span>
+     <span class="pill pill-gem"><em>💎</em><span id="hud-gems"></span></span>`;
+  hud.appendChild(wallet);
   hud.appendChild(el('div', 'boostbar', ''));
 
   renderHudNumbers();
@@ -89,8 +93,9 @@ function renderHudNumbers() {
   const txt = document.querySelector('.xpbar > span');
   if (fill) fill.style.width = (p.pct * 100).toFixed(1) + '%';
   if (txt) txt.textContent = `${fmt(p.have)} / ${fmt(p.need)} XP`;
+  // The badge is a small disc on the avatar; it holds the number alone.
   const lvl = document.querySelector('.hud-lvl');
-  if (lvl) lvl.textContent = 'LV ' + S.level;
+  if (lvl) lvl.textContent = String(S.level);
 
   const bar = document.querySelector('.boostbar');
   if (bar) {
@@ -240,14 +245,50 @@ function goalPanel() {
   return panel(null, row);
 }
 
+let gridRef = null;
+
 function farmView() {
   const frag = document.createDocumentFragment();
   const col = el('div', 'mapcol');
 
-  col.appendChild(farmMap({ T, open: mapTap }));
+  const scroller = el('div', 'fieldscroll');
+  scroller.appendChild(storageStrip());
+  gridRef = fieldGrid({ T, open: mapTap });
+  scroller.appendChild(gridRef);
+
+  col.appendChild(scroller);
   col.appendChild(seedBar());
   frag.appendChild(col);
   return frag;
+}
+
+/** Silo and barn at a glance, with selling one tap away. */
+function storageStrip() {
+  const S = St.S;
+  const strip = el('div', 'storestrip');
+
+  for (const kind of ['silo', 'barn']) {
+    const isSilo = kind === 'silo';
+    const card = el('button', 'storecard');
+    card.innerHTML =
+      `<span class="sc-ic">${isSilo ? '🛖' : '🏠'}</span>
+       <span class="sc-body">
+         <b>${isSilo ? 'Silo' : 'Barn'}</b>
+         <span class="sc-meter"><i></i></span>
+         <small></small>
+       </span>`;
+    card.onclick = () => { haptic(); sellSheet(kind); };
+    strip.appendChild(card);
+
+    T(() => {
+      const used = isSilo ? St.siloUsed() : St.barnUsed();
+      const cap = isSilo ? S.siloCap : S.barnCap;
+      card.querySelector('.sc-meter > i').style.width = clamp(used / cap, 0, 1) * 100 + '%';
+      card.querySelector('small').textContent = `${used} / ${cap} · Sell`;
+      card.classList.toggle('full', used >= cap);
+    });
+  }
+  return strip;
 }
 
 /** Everything the map can hand back to us. */
@@ -255,10 +296,19 @@ function mapTap(kind, arg) {
   const S = St.S;
   if (kind === 'plot') {
     const i = arg;
+    const node = gridRef && gridRef.plotNode(i);
     const state = G.plotState(S.plots[i]);
-    if (state === 'empty') G.plant(i, S.selectedSeed);
-    else if (state === 'ready') G.harvest(i);
-    else {
+
+    if (state === 'empty') {
+      if (G.plant(i, S.selectedSeed)) FX.sowFx(node);
+    } else if (state === 'ready') {
+      const icon = D.ITEMS[S.plots[i].crop].icon;
+      const got = G.harvest(i);
+      if (got) {
+        FX.reapFx(node, icon);
+        FX.floatFrom(node, `+${got} ${icon}`);
+      }
+    } else {
       speedSheet('field', () => { if (G.speedUpPlot(i)) render(); },
         (S.plots[i].end - now()) / 1000, D.ITEMS[S.plots[i].crop]);
       return;
@@ -328,7 +378,20 @@ function seedBar() {
 
   const harvestBtn = el('button', 'btn btn-sm btn-green', '🧺');
   harvestBtn.title = 'Harvest all';
-  harvestBtn.onclick = () => { haptic(); G.harvestAll(); refresh(); };
+  harvestBtn.onclick = () => {
+    haptic();
+    const ripe = [];
+    for (let i = 0; i < S.plots.length; i++) {
+      if (G.plotState(S.plots[i]) === 'ready') ripe.push([i, D.ITEMS[S.plots[i].crop].icon]);
+    }
+    if (G.harvestAll()) {
+      ripe.forEach(([i, icon], n) => {
+        const node = gridRef && gridRef.plotNode(i);
+        if (node) setTimeout(() => FX.reapFx(node, icon), n * 45);
+      });
+    }
+    refresh();
+  };
 
   const strip = el('div', 'strip');
   for (const c of D.CROPS) {
@@ -357,7 +420,17 @@ function seedBar() {
 
   const plantBtn = el('button', 'btn btn-sm btn-gold', '🌱');
   plantBtn.title = 'Plant all';
-  plantBtn.onclick = () => { haptic(); G.plantAll(S.selectedSeed); refresh(); };
+  plantBtn.onclick = () => {
+    haptic();
+    const empty = [];
+    for (let i = 0; i < S.plots.length; i++) if (!S.plots[i]) empty.push(i);
+    const n = G.plantAll(S.selectedSeed);
+    empty.slice(0, n).forEach((i, k) => {
+      const node = gridRef && gridRef.plotNode(i);
+      if (node) setTimeout(() => FX.sowFx(node), k * 45);
+    });
+    refresh();
+  };
 
   bar.append(harvestBtn, strip, plantBtn);
   return bar;

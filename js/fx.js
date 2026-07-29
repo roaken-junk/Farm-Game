@@ -72,6 +72,55 @@ export function floatFrom(node, text, tone = 'good') {
   setTimeout(() => f.remove(), 1100);
 }
 
+/* ------------------------------ farm effects ----------------------------- */
+
+/** Scatters a few soil specks out of a plot. */
+function specks(node, count, cls) {
+  const host = document.getElementById('fx') || document.body;
+  const r = node.getBoundingClientRect();
+  for (let i = 0; i < count; i++) {
+    const s = el('i', 'speck ' + cls);
+    const a = Math.random() * Math.PI * 2;
+    const d = 18 + Math.random() * 38;
+    s.style.cssText = `
+      left:${r.left + r.width / 2}px; top:${r.top + r.height * 0.62}px;
+      --dx:${Math.cos(a) * d}px; --dy:${Math.sin(a) * d - 16}px;
+      --dur:${(0.5 + Math.random() * 0.35).toFixed(2)}s;`;
+    host.appendChild(s);
+    setTimeout(() => s.remove(), 950);
+  }
+}
+
+/** A seed drops in and the soil puffs. */
+export function sowFx(node) {
+  if (!motion || !node) return;
+  node.classList.remove('fx-sow');
+  void node.offsetWidth;
+  node.classList.add('fx-sow');
+  setTimeout(() => node.classList.remove('fx-sow'), 620);
+  specks(node, 6, 'soil');
+}
+
+/** The crop leaps out of the ground and arcs away. */
+export function reapFx(node, icon) {
+  if (!motion || !node) return;
+  const host = document.getElementById('fx') || document.body;
+  const r = node.getBoundingClientRect();
+
+  node.classList.remove('fx-reap');
+  void node.offsetWidth;
+  node.classList.add('fx-reap');
+  setTimeout(() => node.classList.remove('fx-reap'), 520);
+
+  const fly = el('div', 'reaped', icon);
+  fly.style.left = (r.left + r.width / 2) + 'px';
+  fly.style.top = (r.top + r.height / 2) + 'px';
+  host.appendChild(fly);
+  setTimeout(() => fly.remove(), 900);
+
+  specks(node, 8, 'leaf');
+}
+
 /** Every button in the app gets a press animation, without wiring each one. */
 export function bindTapFeedback(root = document) {
   root.addEventListener('pointerdown', e => {
