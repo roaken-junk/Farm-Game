@@ -275,6 +275,52 @@ export function today(t = Date.now()) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
+/* -------------------------------- arcade -------------------------------- */
+
+/**
+ * The barn arcade: three cabinets in the spirit of the old Atari machines,
+ * with the farm painted over them. They pay gems, which nothing else on the
+ * farm hands out freely — that's the whole point of them.
+ *
+ * `gemAt` is a ladder of scores: you earn one gem for every rung you clear in
+ * a run, plus one more for a new personal best. `ARCADE_DAILY_GEMS` caps the
+ * day's total so the arcade stays a treat rather than a gem printer; coins
+ * keep paying after the cap, so a good run is never wasted.
+ */
+export const ARCADE = [
+  {
+    id: 'crows', name: 'Crow Patrol', icon: '🌽', cab: '🐦', level: 1,
+    tag: 'Invaders',
+    blurb: 'Crows are after the corn. Slide the scarecrow — it throws kernels itself.',
+    how: 'Drag anywhere to move. Clear a flock and the next one starts lower.',
+    gemAt: [120, 320, 700, 1300],
+  },
+  {
+    id: 'chicken', name: 'Chicken Run', icon: '🐔', cab: '🚜', level: 3,
+    tag: 'Crossing',
+    blurb: 'Get the hen across the tractor lanes. Every one home speeds them up.',
+    how: 'Tap the middle to hop forward, the sides to step across. Swipes work too.',
+    gemAt: [60, 150, 320, 600],
+  },
+  {
+    id: 'goat', name: 'Hungry Goat', icon: '🐐', cab: '🥬', level: 5,
+    tag: 'Snake',
+    blurb: 'Loose in the veg patch, and it never stops. Eat without doubling back.',
+    how: 'Tap the left half to turn left, the right half to turn right. Swipes work too.',
+    gemAt: [100, 260, 550, 1000],
+  },
+];
+
+export const ARCADE_DAILY_GEMS = 12;
+
+/** What one finished run is worth. */
+export function arcadeReward(game, score, level, isBest) {
+  let gems = 0;
+  for (const t of game.gemAt) if (score >= t) gems++;
+  if (isBest && score > 0) gems += 1;
+  return { gems, coins: Math.round(score * (1 + Math.max(1, level) * 0.6)) };
+}
+
 /* ------------------------------- economy -------------------------------- */
 
 /** Every harvested field yields this many crops. */
@@ -288,9 +334,23 @@ export const START_BARN = 40;
 export const BASE_QUEUE = 3;
 export const ORDER_SLOTS = 3;
 
-/** XP required to go from `level` to `level + 1`. */
+/**
+ * XP required to go from `level` to `level + 1`.
+ *
+ * Shaped so the opening levels fall in a minute or two — the first wheat
+ * harvest alone should carry you to level 2 — and then get steadily heavier,
+ * so the late ones read as milestones. `base` is a gentle power curve; `late`
+ * is a compounding factor that only starts biting past level 10.
+ *
+ *   level  1 →     12 XP        level 15 →   2,100
+ *   level  5 →    200 XP        level 20 →   5,400
+ *   level 10 →    675 XP        level 29 →  22,300
+ */
 export function xpToNext(level) {
-  return Math.floor(55 * Math.pow(level, 1.55));
+  const lv = Math.max(1, level);
+  const base = 12 * Math.pow(lv, 1.75);
+  const late = Math.pow(1.09, Math.max(0, lv - 10));
+  return Math.round(base * late);
 }
 
 /** Coin price of the next field, and the level needed to buy it. */

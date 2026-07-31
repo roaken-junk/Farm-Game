@@ -59,6 +59,7 @@ sends it flying to the silo.
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
 | 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
+| 🕹️ **Arcade** | Three mini-games in the back of the barn. They pay gems. |
 | 🛒 **Shop** | Boosts, the market, land, storage and permanent upgrades. |
 
 The core loop: **grow → process → sell/deliver → level up → unlock more**.
@@ -100,6 +101,28 @@ animal good, 4 per craft, 15 per order), so you are never asked to do anything
 special; the prizes scale with your level and get large fast. Claim as you go,
 because the bar resets when the next festival starts.
 
+### The Barn Arcade
+
+Three cabinets in the spirit of the old Atari machines, with the farm painted
+over them. They are the only place that hands out **gems** freely, and they are
+built for one thumb in portrait:
+
+| Cabinet | Plays like | Controls |
+| --- | --- | --- |
+| 🌽 **Crow Patrol** | Space Invaders | Drag anywhere to slide the scarecrow — it throws kernels on its own. |
+| 🐔 **Chicken Run** | Frogger | Tap the middle to hop forward, the sides to step across. |
+| 🐐 **Hungry Goat** | Snake | Tap the left half to turn left, the right half to turn right. |
+
+Swipes and arrow keys work everywhere too. Crow Patrol is open from the start;
+Chicken Run unlocks at level 3 and Hungry Goat at level 5.
+
+Each cabinet has **four score rungs**. Clear a rung during a run and it pays a
+gem, so one good run beats four mediocre ones, and beating your own best always
+pays an extra gem however small the run. **12 gems a day**, resetting at local
+midnight — after that, coins keep paying, and they scale with your farm level,
+so a late-game run is worth real money. Walking out mid-game still banks
+whatever you had scored.
+
 ### Boosts
 
 The shop sells six timed boosts — these are the profit levers, and buying one
@@ -127,6 +150,10 @@ Tap your farmer, then **Settings**: sound effects, vibration, animations (turn
 this off and confetti, bounces and floating numbers all stop), larger text, and
 a confirm-before-Sell-All safety toggle. The game also honours the system's
 reduce-motion preference on its own.
+
+**Larger text is the default** — it is the size the game was designed to be read
+at, at arm's length on a phone. Turning it off gives you the compact scale, and
+that choice sticks.
 
 Tapping any item icon — in the sell list, in a recipe, in a workshop — opens a
 detail card: how many you hold, what it sells for right now against its base
@@ -219,6 +246,13 @@ Sync is two-way and newest-wins per slot, and the merge is a pure function
 
 ### Progression
 
+**The early levels go fast and the later ones are milestones.** Level 1 costs
+12 XP — two rounds of the starting wheat — and the cost climbs steeply from
+there: 200 by level 5, 675 by level 10, 5,400 by level 20, and 22,300 by level
+29. That's a gentle power curve with a compounding factor that only starts
+biting past level 10, so the first sitting carries you several levels in while
+the top of the tree still means something.
+
 Every level opens something new. 13 crops, 7 animals, 12 workshops, 22 craftable
 goods, 24 fields, and 8 permanent upgrades that make the grind disappear:
 
@@ -247,6 +281,7 @@ js/store.js             durability: the IndexedDB mirror, backups, restore
 js/cloud.js             optional sign-in + server sync (off until configured)
 js/game.js              player actions + the world clock
 js/map.js               the field grid
+js/arcade.js            the three arcade cabinets, on one canvas
 js/fx.js                confetti, button pops, floating numbers
 js/ui.js                views, panels and sheets
 js/main.js              boot, onboarding, heartbeat
@@ -263,8 +298,11 @@ scripts/build-single.mjs bundles everything into dist/
 node scripts/build-single.mjs
 ```
 
-Tuning the game means editing `js/data.js` — grow times, prices, XP curve,
-unlock levels and upgrade costs all live there.
+Tuning the game means editing `js/data.js` — grow times, prices, the XP curve,
+unlock levels, upgrade costs and the arcade's score rungs all live there. The
+cabinets themselves are in `js/arcade.js`: an engine that owns the loop, the
+input and the results card, and three small factories that own nothing but
+their own rules.
 
 To regenerate the app icons after changing the artwork:
 

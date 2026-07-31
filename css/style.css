@@ -246,7 +246,9 @@ button, input { font: inherit; color: inherit; }
   position: relative;
   transition: transform .12s ease;
 }
-.tab em { font-style: normal; font-size: 22px; line-height: 1; filter: saturate(.75) opacity(.75); }
+.tab em { font-style: normal; font-size: 21px; line-height: 1; filter: saturate(.75) opacity(.75); }
+/* Seven tabs on a narrow phone: let the labels use every pixel they can. */
+.tab { min-width: 0; padding-left: 1px; padding-right: 1px; letter-spacing: -.2px; }
 .tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
 .tab.on em { filter: none; transform: translateY(-2px) scale(1.12); }
 .tab:active { transform: scale(.94); }
@@ -1306,6 +1308,127 @@ button.ic:hover::after { opacity: 1; }
 /* icons on the map give a satisfying squish too */
 .mp-plot:active .sprout { transform: scale(.82) !important; }
 .critter-m:active .beast { transform: scale(.85); }
+
+/* ------------------------------ the arcade ------------------------------- */
+
+.chip-tag { background: #efe6f8; border-color: #8e6bbd; }
+
+/* The cabinet takes the whole screen: a wooden bezel around one canvas. */
+.cab {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #4b3a22 0%, transparent 60%),
+    linear-gradient(180deg, #3a2a17, #241708);
+  padding: calc(6px + var(--sat)) 8px calc(8px + var(--sab));
+  animation: cab-in .2s ease-out;
+}
+@keyframes cab-in { from { opacity: 0; transform: scale(.97); } }
+
+.cab-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 8px;
+  color: #ffe6ba;
+  flex-shrink: 0;
+}
+.cab-name {
+  font-weight: 900;
+  font-size: var(--t-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cab-stat {
+  margin-left: auto;
+  font-weight: 900;
+  font-size: var(--t-title);
+  font-variant-numeric: tabular-nums;
+  color: #ffd44a;
+  text-shadow: 0 0 10px rgba(255, 196, 46, .5);
+}
+.cab-lives { margin-left: 0; font-size: var(--t-sub); letter-spacing: -1px; }
+.cab-x {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 230, 186, .35);
+  background: rgba(255, 255, 255, .08);
+  color: #ffe6ba;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+.cab-x:active { transform: scale(.9); }
+
+.cab-stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.cab-screen {
+  display: block;
+  border-radius: 12px;
+  border: 3px solid #12324a;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .55), inset 0 0 40px rgba(0, 0, 0, .18);
+  touch-action: none;            /* the game owns every gesture on the screen */
+}
+
+.cab-hint {
+  flex-shrink: 0;
+  padding: 8px 4px 0;
+  text-align: center;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: rgba(255, 230, 186, .72);
+  line-height: 1.4;
+}
+
+/* the results card, floated over the frozen last frame */
+.cab-over {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(300px, 92%);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card));
+  border: 3px solid var(--wood-dk);
+  border-radius: var(--r-lg);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, .3);
+  padding: 14px;
+  text-align: center;
+  animation: cab-in .22s ease-out;
+}
+.cab-final small {
+  display: block;
+  font-size: var(--t-sub);
+  font-weight: 800;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.cab-final b {
+  display: block;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: var(--ink);
+}
+.cab-best { font-weight: 900; font-size: var(--t-body); margin-top: 2px; }
+.cab-best.muted { font-weight: 700; }
+.cab-pay { justify-content: center; margin: 8px 0 4px; }
+.cab-note {
+  margin: 0 0 10px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
 
 /* ---------------------------- accessibility ------------------------------ */
 

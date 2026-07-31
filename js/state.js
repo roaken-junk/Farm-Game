@@ -47,14 +47,18 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
       haptics: true,
       motion: true,
       confirmSell: false,     // ask before a Sell All
-      bigText: false,
+      bigText: true,          // the roomier type scale is the default
     },
     boosts: {},                                  // boost id -> expiry timestamp
     goals: {},                                   // goal id -> tiers claimed
     daily: { day: '', streak: 0 },
     fest: { cycle: -1, points: 0, claimed: [] },
     trough: { units: 24, grazedAt: now() },
-    tips: { seenFest: false },
+    arcade: { day: '', gems: 0, plays: 0, best: {} },
+    // textLifted is set by migrate(), which is also what makes it false here:
+    // a `true` default would be spread back over an older save and swallow the
+    // one-time lift to larger text below.
+    tips: { seenFest: false, textLifted: false },
     stats: { harvested: 0, sold: 0, earned: 0, crafted: 0, orders: 0, collected: 0 },
   };
 }
@@ -153,7 +157,15 @@ function migrate(data) {
     data.trough.units = Math.min(D.TROUGH_CAP, data.trough.units + data.barn.feed);
     delete data.barn.feed;
   }
+  data.arcade = { ...base.arcade, ...(data.arcade || {}) };
+  data.arcade.best = data.arcade.best || {};
   data.tips = { ...base.tips, ...(data.tips || {}) };
+  // Larger text became the default. Lift older farms up to it exactly once, so
+  // it still sticks if the player turns it back off afterwards.
+  if (!data.tips.textLifted) {
+    data.tips.textLifted = true;
+    data.settings.bigText = true;
+  }
   return data;
 }
 

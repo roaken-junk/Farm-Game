@@ -625,6 +625,55 @@ export function claimDaily() {
   return true;
 }
 
+/* -------------------------------- arcade -------------------------------- */
+
+/** The arcade's day-book, rolled over at local midnight. */
+export function arcadeDay() {
+  const S = St.S;
+  if (!S.arcade) S.arcade = { day: '', gems: 0, plays: 0, best: {} };
+  if (S.arcade.day !== D.today()) {
+    S.arcade.day = D.today();
+    S.arcade.gems = 0;
+    S.arcade.plays = 0;
+  }
+  return S.arcade;
+}
+
+export const arcadeGemsLeft = () => Math.max(0, D.ARCADE_DAILY_GEMS - arcadeDay().gems);
+export const arcadeBest = id => arcadeDay().best[id] || 0;
+export const arcadeOpen = game => St.S.level >= game.level;
+
+/**
+ * Banks a finished run. Gems are capped for the day; coins never are, so a
+ * good run past the cap still pays. Returns everything the results card shows.
+ */
+export function arcadeFinish(gameId, rawScore) {
+  const S = St.S;
+  const game = D.ARCADE.find(g => g.id === gameId);
+  if (!game) return null;
+
+  const a = arcadeDay();
+  const score = Math.max(0, Math.round(rawScore) || 0);
+  const prev = a.best[gameId] || 0;
+  const isBest = score > prev;
+  if (isBest) a.best[gameId] = score;
+
+  const earned = D.arcadeReward(game, score, S.level, isBest);
+  const gems = Math.min(earned.gems, arcadeGemsLeft());
+  const capped = gems < earned.gems;
+
+  a.gems += gems;
+  a.plays += 1;
+  S.gems += gems;
+  St.earnCoins(earned.coins);
+
+  if (gems) SFX.fanfare();
+  else if (earned.coins) SFX.coin();
+  St.save();
+
+  return { game, score, prev, isBest, gems, coins: earned.coins, capped };
+}
+
 /* --------------------------------- clock -------------------------------- */
 
 /** Runs about once a second, and once on load to settle offline progress. */

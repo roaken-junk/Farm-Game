@@ -8,6 +8,7 @@ import * as D from './data.js';
 import * as St from './state.js';
 import * as G from './game.js';
 import { fieldGrid } from './map.js';
+import * as Arcade from './arcade.js';
 import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics } from './util.js';
 import { SFX, setSound, soundOn } from './audio.js';
 import * as FX from './fx.js';
@@ -26,6 +27,7 @@ const TABS = [
   { id: 'craft',   icon: '🏭', label: 'Craft' },
   { id: 'orders',  icon: '📋', label: 'Orders' },
   { id: 'goals',   icon: '🏆', label: 'Goals' },
+  { id: 'arcade',  icon: '🕹️', label: 'Arcade' },
   { id: 'shop',    icon: '🛒', label: 'Shop' },
 ];
 
@@ -48,7 +50,8 @@ export function render() {
   host.innerHTML = '';
   host.classList.toggle('flush', view === 'farm');
   const builder = { farm: farmView, animals: animalsView, craft: craftView,
-                    orders: ordersView, goals: goalsView, shop: shopView }[view];
+                    orders: ordersView, goals: goalsView, arcade: arcadeView,
+                    shop: shopView }[view];
   host.appendChild(builder());
 }
 
@@ -135,6 +138,7 @@ function renderTabBadges() {
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
     orders: (S.orders || []).filter(o => o && o.oid && G.canDeliver(o)).length,
     goals: G.goalsReady() + (G.dailyReady() ? 1 : 0) + G.festReady(),
+    arcade: 0,
     shop: 0,
   };
   for (const t of TABS) {
@@ -854,6 +858,108 @@ function goalsView() {
   return frag;
 }
 
+/* -------------------------------- ARCADE --------------------------------- */
+
+function arcadeView() {
+  const frag = document.createDocumentFragment();
+  const left = G.arcadeGemsLeft();
+  const won = D.ARCADE_DAILY_GEMS - left;
+
+  const head = panel(`<em>🕹️</em>Barn Arcade<span class="spacer"></span>
+                      <span class="tag">💎 ${left} left today</span>`);
+  head.classList.add('panel-feature');
+  head.appendChild(el('div', 'muted',
+    'Three cabinets in the back of the barn, in the spirit of the old ones. ' +
+    'They pay gems — the one thing the farm itself never hands out freely.'));
+  head.appendChild(meter(won / D.ARCADE_DAILY_GEMS,
+    `${won} of ${D.ARCADE_DAILY_GEMS} arcade gems won today`, 'meter-fest'));
+  if (!left) {
+    head.appendChild(el('div', 'muted',
+      "That's the day's gems. Coins still pay on every run, and the gems reset at midnight."));
+  }
+  frag.appendChild(head);
+
+  const list = panel(`<em>🎮</em>Cabinets`);
+  for (const game of D.ARCADE) {
+    const unlocked = G.arcadeOpen(game);
+    const best = G.arcadeBest(game.id);
+    const next = game.gemAt.find(t => t > best);
+
+    const chips = [{ text: game.tag, cls: 'chip-tag' }];
+    chips.push(best ? { text: `🏆 Best ${fmt(best)}`, cls: 'done' }
+                    : { text: 'Not played yet' });
+    if (unlocked) {
+      chips.push(next ? { text: `💎 at ${fmt(next)}`, cls: 'chip-gem' }
+                      : { text: '💎 all rungs cleared', cls: 'chip-gem' });
+    }
+
+    const play = costBtn('▶ Play', {
+      tone: 'green',
+      disabled: !unlocked,
+      onTap: () => Arcade.open(game.id, () => render()),
+    });
+
+    list.appendChild(row({
+      icon: game.cab,
+      title: `${game.icon} ${game.name}`,
+      sub: unlocked ? game.blurb : `🔒 Unlocks at level ${game.level}`,
+      chips,
+      locked: !unlocked,
+      trail: play,
+      onIcon: unlocked ? () => arcadeSheet(game) : null,
+    }));
+  }
+  frag.appendChild(list);
+
+  const rules = panel(`<em>💎</em>How the prizes work`);
+  rules.appendChild(el('div', 'muted',
+    'Every cabinet has four score rungs. Clear a rung in a run and it pays a ' +
+    'gem, so a better run is worth more than a longer one.'));
+  const r = el('div');
+  r.innerHTML =
+    `<div class="row"><div class="ic">💎</div><div class="body"><b>One gem per rung cleared</b>
+       <small>All four rungs in a single run pays 💎 4.</small></div></div>
+     <div class="row"><div class="ic">🏆</div><div class="body"><b>+1 for a new personal best</b>
+       <small>Beating your own score always pays, however small the run.</small></div></div>
+     <div class="row"><div class="ic">🪙</div><div class="body"><b>Coins scale with your level</b>
+       <small>Paid on every run, with no daily limit — a late-game run is worth real money.</small></div></div>
+     <div class="row"><div class="ic">🌙</div><div class="body"><b>${D.ARCADE_DAILY_GEMS} gems a day</b>
+       <small>The gem limit resets at midnight, wherever you are.</small></div></div>`;
+  rules.appendChild(r);
+  frag.appendChild(rules);
+  return frag;
+}
+
+/** The cabinet's own card: what it is, how it plays, what each rung pays. */
+function arcadeSheet(game) {
+  openSheet((sheet, close) => {
+    const best = G.arcadeBest(game.id);
+    sheet.appendChild(el('div', 'sheet-hero',
+      `<span class="hero-ic">${game.cab}</span>
+       <div><h2>${game.icon} ${game.name}</h2>
+       <p class="sub">${game.tag} · best ${fmt(best)}</p></div>`));
+    sheet.appendChild(el('div', 'note', game.blurb));
+    sheet.appendChild(el('div', 'fld-label', 'Controls'));
+    sheet.appendChild(el('div', 'note', game.how));
+
+    sheet.appendChild(el('div', 'fld-label', 'Gem rungs'));
+    game.gemAt.forEach((at, i) => {
+      sheet.appendChild(row({
+        icon: '💎',
+        title: `${fmt(at)} points`,
+        sub: best >= at ? 'Cleared before — still pays every run' : 'Not reached yet',
+        chips: [{ text: `Gem ${i + 1} of ${game.gemAt.length}`, cls: best >= at ? 'done' : '' }],
+        locked: best < at,
+      }));
+    });
+
+    const go = el('button', 'btn btn-big btn-green', '▶ Play');
+    go.style.marginTop = '12px';
+    go.onclick = () => { close(); Arcade.open(game.id, () => render()); };
+    sheet.appendChild(go);
+  });
+}
+
 /* --------------------------------- SHOP ---------------------------------- */
 
 function shopView() {
@@ -1563,7 +1669,19 @@ function unlocksAt(level) {
   return out;
 }
 
+/**
+ * Levels come fast early on, and a single order can carry you through two or
+ * three at once. Splashes queue rather than stack, so each level still gets
+ * its own moment and its own list of unlocks.
+ */
+const pendingLevels = [];
+
 export function levelUpSplash(level) {
+  if (document.querySelector('.levelup')) { pendingLevels.push(level); return; }
+  showLevelUp(level);
+}
+
+function showLevelUp(level) {
   SFX.levelUp();
   FX.confetti(90);
   setTimeout(() => FX.confetti(50, innerWidth * 0.25, innerHeight * 0.28), 220);
@@ -1575,11 +1693,17 @@ export function levelUpSplash(level) {
   card.innerHTML = `<div class="big">🎉</div><h2>Level ${level}!</h2>
     <p>${newTitle ? `You are now a ${D.titleFor(level)} · ` : ''}+🪙${fmt(level * 120)} · +💎${level % 5 === 0 ? 3 : 1}</p>
     ${unlocks.length ? `<div class="unlock-list">${unlocks.map(u => `<span class="chip">${u}</span>`).join('')}</div>` : ''}`;
-  const b = el('button', 'btn btn-big btn-green', 'Nice!');
-  b.onclick = () => { wrap.remove(); render(); };
+  const dismiss = () => {
+    wrap.remove();
+    const nextLevel = pendingLevels.shift();
+    if (nextLevel != null) showLevelUp(nextLevel);
+    else render();
+  };
+  const b = el('button', 'btn btn-big btn-green', pendingLevels.length ? 'Next!' : 'Nice!');
+  b.onclick = dismiss;
   card.appendChild(b);
   wrap.appendChild(card);
-  wrap.onclick = e => { if (e.target === wrap) { wrap.remove(); render(); } };
+  wrap.onclick = e => { if (e.target === wrap) dismiss(); };
   document.body.appendChild(wrap);
 }
 
