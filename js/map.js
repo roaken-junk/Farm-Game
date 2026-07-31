@@ -68,17 +68,16 @@ export function fieldGrid({ T, open }) {
 
       if (node.dataset.crop !== plot.crop || node.dataset.state === 'empty') {
         node.dataset.crop = plot.crop;
+        // The crop fills the tile at a constant size, and the completion bar
+        // runs along the bottom edge with the countdown sitting on top of it.
         node.innerHTML =
-          `<span class="fill"><i></i></span>
-           <span class="seedling">${crop.icon}</span>
-           <span class="plot-label"></span>`;
+          `<span class="seedling">${crop.icon}</span>
+           <span class="fill"><i></i><b></b></span>`;
       }
       node.dataset.state = state;
       node.className = 'plotcard ' + state;
       node.querySelector('.fill > i').style.width = (pct * 100).toFixed(1) + '%';
-      // Sprouts start small and fill out as the timer runs down.
-      node.querySelector('.seedling').style.setProperty('--s', (0.5 + 0.5 * pct).toFixed(2));
-      node.querySelector('.plot-label').textContent =
+      node.querySelector('.fill > b').textContent =
         state === 'ready' ? 'READY' : fmtTime((plot.end - now()) / 1000);
     }
   });

@@ -3,33 +3,49 @@
    Tuned so early levels move fast (seconds) and later tiers reward planning.
    ========================================================================== */
 
-/** Crops live in the SILO. Grow time in seconds. */
+/**
+ * Crops live in the SILO. Grow time in seconds.
+ *
+ * Prices are set so every crop earns about the same per field-hour (~2,160
+ * coins and ~90 XP). That is deliberate: unlocking a longer crop used to make
+ * a field *less* productive, which made progress feel like a punishment. Flat
+ * rates mean the upgrade a new crop gives you is the thing that matters — far
+ * fewer taps for the same money — while the farm's income still grows with
+ * every field you clear.
+ */
 export const CROPS = [
   { id: 'wheat',      name: 'Wheat',      icon: '🌾', level: 1,  seed: 3,   grow: 25,   price: 9,    xp: 1 },
-  { id: 'corn',       name: 'Corn',       icon: '🌽', level: 2,  seed: 8,   grow: 70,   price: 22,   xp: 2 },
-  { id: 'carrot',     name: 'Carrot',     icon: '🥕', level: 4,  seed: 16,  grow: 180,  price: 48,   xp: 4 },
-  { id: 'tomato',     name: 'Tomato',     icon: '🍅', level: 7,  seed: 30,  grow: 420,  price: 92,   xp: 7 },
-  { id: 'strawberry', name: 'Strawberry', icon: '🍓', level: 10, seed: 55,  grow: 900,  price: 175,  xp: 12 },
-  { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 330,  xp: 20 },
-  { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 580,  xp: 32 },
-  { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1050, xp: 50 },
-  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 62,   xp: 5 },
-  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 142,  xp: 10 },
-  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 225,  xp: 15 },
-  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 435,  xp: 26 },
-  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 830,  xp: 42 },
+  { id: 'corn',       name: 'Corn',       icon: '🌽', level: 2,  seed: 8,   grow: 70,   price: 25,   xp: 2 },
+  { id: 'carrot',     name: 'Carrot',     icon: '🥕', level: 4,  seed: 16,  grow: 180,  price: 62,   xp: 5 },
+  { id: 'tomato',     name: 'Tomato',     icon: '🍅', level: 7,  seed: 30,  grow: 420,  price: 141,  xp: 11 },
+  { id: 'strawberry', name: 'Strawberry', icon: '🍓', level: 10, seed: 55,  grow: 900,  price: 300,  xp: 23 },
+  { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 590,  xp: 45 },
+  { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 990,  xp: 75 },
+  { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1780, xp: 135 },
+  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 83,   xp: 6 },
+  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 238,  xp: 18 },
+  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 395,  xp: 30 },
+  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 785,  xp: 60 },
+  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 1390, xp: 105 },
 ];
 
 /** Seed racks are shown in unlock order, not the order they were written. */
 CROPS.sort((a, b) => a.level - b.level || a.seed - b.seed);
 
-/** Animals live in pens, eat FEED, and drop goods into the BARN. */
+/**
+ * Animals live in pens, eat FEED, and drop goods into the BARN.
+ *
+ * Each tier earns strictly more per hour than the one before, and asks for a
+ * longer payback in exchange — 600/h for a chicken up to 1,300/h for a hive.
+ * A later animal that earned no more than an earlier one was the same trap the
+ * crops had.
+ */
 export const ANIMALS = [
-  { id: 'chicken', name: 'Chicken', icon: '🐔', level: 3,  cost: 200,   max: 8, feed: 1, cycle: 180,  product: 'egg' },
+  { id: 'chicken', name: 'Chicken', icon: '🐓', level: 3,  cost: 200,   max: 8, feed: 1, cycle: 180,  product: 'egg' },
   { id: 'cow',     name: 'Cow',     icon: '🐄', level: 6,  cost: 900,   max: 6, feed: 2, cycle: 360,  product: 'milk' },
   { id: 'pig',     name: 'Pig',     icon: '🐖', level: 12, cost: 2500,  max: 6, feed: 3, cycle: 720,  product: 'bacon' },
   { id: 'sheep',   name: 'Sheep',   name2: 'Sheep', icon: '🐑', level: 16, cost: 6000,  max: 5, feed: 4, cycle: 1200, product: 'wool' },
-  { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 14000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
+  { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 11000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
   { id: 'duck',    name: 'Duck',    icon: '🦆', level: 5,  cost: 450,   max: 6, feed: 1, cycle: 240,  product: 'feather' },
   { id: 'goat',    name: 'Goat',    icon: '🐐', level: 14, cost: 4200,  max: 5, feed: 3, cycle: 900,  product: 'goatmilk' },
 ];
@@ -38,12 +54,12 @@ ANIMALS.sort((a, b) => a.level - b.level);
 /** Goods produced by animals. Stored in the BARN. */
 export const ANIMAL_GOODS = [
   { id: 'egg',   name: 'Egg',   icon: '🥚', price: 30,  xp: 3 },
-  { id: 'milk',  name: 'Milk',  icon: '🥛', price: 70,  xp: 6 },
-  { id: 'bacon', name: 'Bacon', icon: '🥓', price: 140, xp: 11 },
-  { id: 'wool',  name: 'Wool',  icon: '🧶', price: 240, xp: 18 },
-  { id: 'honey', name: 'Honey', icon: '🍯', price: 400, xp: 28 },
+  { id: 'milk',  name: 'Milk',  icon: '🥛', price: 85,  xp: 7 },
+  { id: 'bacon', name: 'Bacon', icon: '🥓', price: 190, xp: 16 },
+  { id: 'wool',  name: 'Wool',  icon: '🧶', price: 380, xp: 32 },
+  { id: 'honey', name: 'Honey', icon: '🍯', price: 650, xp: 54 },
   { id: 'feather',  name: 'Down',      icon: '🪶', price: 50,  xp: 4 },
-  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 195, xp: 15 },
+  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 260, xp: 22 },
 ];
 
 /** Crafting stations. Jobs run one after another in a shared queue. */
@@ -63,7 +79,14 @@ export const MACHINES = [
 ];
 MACHINES.sort((a, b) => a.level - b.level);
 
-/** Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`). */
+/**
+ * Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`).
+ *
+ * Every recipe is worth at least 1.5x its ingredients — three of them used to
+ * be worth *less* than what went in, which is a trap rather than a choice.
+ * Craft times are then set so the margin per hour lands in a band that rises
+ * with the recipe's level.
+ */
 export const RECIPES = [
   { id: 'feed',    machine: 'mill',   level: 3,  time: 20,  out: 'feed',    qty: 2, in: { wheat: 2, corn: 1 } },
   { id: 'bread',   machine: 'bakery', level: 5,  time: 45,  out: 'bread',   qty: 1, in: { wheat: 3 } },
@@ -71,22 +94,23 @@ export const RECIPES = [
   { id: 'butter',  machine: 'dairy',  level: 8,  time: 100, out: 'butter',  qty: 1, in: { milk: 2 } },
   { id: 'cheese',  machine: 'dairy',  level: 10, time: 180, out: 'cheese',  qty: 1, in: { milk: 3 } },
   { id: 'cjuice',  machine: 'juice',  level: 11, time: 150, out: 'cjuice',  qty: 1, in: { carrot: 3 } },
-  { id: 'tjuice',  machine: 'juice',  level: 13, time: 240, out: 'tjuice',  qty: 1, in: { tomato: 3 } },
-  { id: 'jam',     machine: 'jam',    level: 15, time: 300, out: 'jam',     qty: 1, in: { strawberry: 3 } },
-  { id: 'pie',     machine: 'jam',    level: 16, time: 420, out: 'pie',     qty: 1, in: { pumpkin: 2, wheat: 2 } },
+  { id: 'tjuice',  machine: 'juice',  level: 13, time: 300, out: 'tjuice',  qty: 1, in: { tomato: 3 } },
+  { id: 'jam',     machine: 'jam',    level: 15, time: 360, out: 'jam',     qty: 1, in: { strawberry: 3 } },
+  { id: 'pie',     machine: 'jam',    level: 16, time: 480, out: 'pie',     qty: 1, in: { pumpkin: 2, wheat: 2 } },
   { id: 'ribs',    machine: 'grill',  level: 19, time: 480, out: 'ribs',    qty: 1, in: { bacon: 2, corn: 2 } },
   { id: 'burger',  machine: 'grill',  level: 21, time: 600, out: 'burger',  qty: 1, in: { bacon: 1, bread: 1, cheese: 1 } },
   { id: 'sweater', machine: 'loom',   level: 23, time: 900, out: 'sweater', qty: 1, in: { wool: 3 } },
-  { id: 'hotsauce',machine: 'loom',   level: 24, time: 720, out: 'hotsauce',qty: 1, in: { chili: 2, tomato: 2 } },
+  // A textile mill has no business making hot sauce; the jam kitchen preserves.
+  { id: 'hotsauce',machine: 'jam',    level: 24, time: 780, out: 'hotsauce',qty: 1, in: { chili: 1, tomato: 2 } },
   { id: 'wine',    machine: 'winery', level: 25, time: 1200,out: 'wine',    qty: 1, in: { grape: 3 } },
-  { id: 'fries',   machine: 'fryer',  level: 7,  time: 120, out: 'fries',   qty: 1, in: { potato: 3 } },
+  { id: 'fries',   machine: 'fryer',  level: 7,  time: 150, out: 'fries',   qty: 1, in: { potato: 3 } },
   { id: 'omelette',machine: 'fryer',  level: 10, time: 200, out: 'omelette',qty: 1, in: { egg: 2, eggplant: 1 } },
-  { id: 'oil',     machine: 'press',  level: 13, time: 240, out: 'oil',     qty: 1, in: { sunflower: 3 } },
-  { id: 'gcheese', machine: 'dairy',  level: 15, time: 260, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
-  { id: 'candy',   machine: 'sweets', level: 18, time: 360, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
+  { id: 'oil',     machine: 'press',  level: 13, time: 480, out: 'oil',     qty: 1, in: { sunflower: 3 } },
+  { id: 'gcheese', machine: 'dairy',  level: 15, time: 360, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
+  { id: 'candy',   machine: 'sweets', level: 18, time: 720, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
   { id: 'stew',    machine: 'grill',  level: 20, time: 540, out: 'stew',    qty: 1, in: { potato: 2, bacon: 1, eggplant: 1 } },
   { id: 'quilt',   machine: 'loom',   level: 23, time: 780, out: 'quilt',   qty: 1, in: { feather: 3, wool: 1 } },
-  { id: 'espresso',machine: 'cafe',   level: 26, time: 900, out: 'espresso',qty: 1, in: { beans: 3 } },
+  { id: 'espresso',machine: 'cafe',   level: 26, time: 1200,out: 'espresso',qty: 1, in: { beans: 3 } },
 ];
 
 /** Crafted goods. Stored in the BARN. */
@@ -94,25 +118,25 @@ export const CRAFTED = [
   { id: 'feed',     name: 'Feed',          icon: '🌰', price: 6,    xp: 1 },
   { id: 'bread',    name: 'Bread',         icon: '🍞', price: 60,   xp: 6 },
   { id: 'cookie',   name: 'Cookies',       icon: '🍪', price: 185,  xp: 15 },
-  { id: 'butter',   name: 'Butter',        icon: '🧈', price: 190,  xp: 15 },
-  { id: 'cheese',   name: 'Cheese',        icon: '🧀', price: 320,  xp: 24 },
-  { id: 'cjuice',   name: 'Carrot Juice',  icon: '🥤', price: 250,  xp: 19 },
-  { id: 'tjuice',   name: 'Tomato Juice',  icon: '🧃', price: 430,  xp: 31 },
-  { id: 'jam',      name: 'Berry Jam',     icon: '🫙', price: 780,  xp: 48 },
-  { id: 'pie',      name: 'Pumpkin Pie',   icon: '🥧', price: 1150, xp: 66 },
+  { id: 'butter',   name: 'Butter',        icon: '🧈', price: 280,  xp: 21 },
+  { id: 'cheese',   name: 'Cheese',        icon: '🧀', price: 430,  xp: 31 },
+  { id: 'cjuice',   name: 'Carrot Juice',  icon: '🥤', price: 310,  xp: 24 },
+  { id: 'tjuice',   name: 'Tomato Juice',  icon: '🧃', price: 700,  xp: 46 },
+  { id: 'jam',      name: 'Berry Jam',     icon: '🫙', price: 1500, xp: 88 },
+  { id: 'pie',      name: 'Pumpkin Pie',   icon: '🥧', price: 2000, xp: 112 },
   { id: 'ribs',     name: 'BBQ Ribs',      icon: '🍖', price: 1250, xp: 72 },
   { id: 'burger',   name: 'Farm Burger',   icon: '🍔', price: 2300, xp: 120 },
-  { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1600, xp: 92 },
-  { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 1900, xp: 105 },
-  { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 2700, xp: 140 },
-  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 215,  xp: 17 },
-  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 330,  xp: 25 },
-  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 770,  xp: 47 },
-  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 690,  xp: 43 },
-  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 1180, xp: 68 },
-  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1450, xp: 82 },
+  { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1900, xp: 104 },
+  { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 3400, xp: 172 },
+  { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 4900, xp: 235 },
+  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 415,  xp: 31 },
+  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 500,  xp: 36 },
+  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 1950, xp: 108 },
+  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 1300, xp: 76 },
+  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 3700, xp: 186 },
+  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1600, xp: 90 },
   { id: 'quilt',    name: 'Down Quilt',    icon: '🛏️', price: 1850, xp: 104 },
-  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 2550, xp: 132 },
+  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 6900, xp: 320 },
 ];
 
 /** One flat lookup for anything that can sit in storage or fill an order. */
@@ -245,12 +269,17 @@ export const FEST_TIERS = [
 export const festCycle = (t = Date.now()) => Math.floor(t / FEST_MS);
 export const festEndsAt = (t = Date.now()) => (festCycle(t) + 1) * FEST_MS;
 
-/** Rewards scale with level so the prize stays worth chasing. */
+/**
+ * Rewards scale with level so the prize stays worth chasing. Sized against the
+ * rest of the game rather than in isolation: four festivals a day at the old
+ * numbers paid more gems than every other source put together, and a Grand
+ * Prize out-earned three hours of farming.
+ */
 export function festReward(tier, level) {
   const mult = [1, 3, 9][tier];
   return {
-    coins: Math.round(1200 * mult * Math.max(1, level) / 2),
-    gems: [3, 6, 15][tier],
+    coins: Math.round(800 * mult * Math.max(1, level) / 3),
+    gems: [2, 4, 8][tier],
     xp: Math.round(D_xpHint(level) * [0.15, 0.35, 0.9][tier]),
   };
 }
@@ -296,7 +325,7 @@ export const ARCADE = [
     gemAt: [120, 320, 700, 1300],
   },
   {
-    id: 'chicken', name: 'Chicken Run', icon: '🐔', cab: '🚜', level: 3,
+    id: 'chicken', name: 'Chicken Run', icon: '🐓', cab: '🚜', level: 3,
     tag: 'Crossing',
     blurb: 'Get the hen across the tractor lanes. Every one home speeds them up.',
     how: 'Tap the middle to hop forward, the sides to step across. Swipes work too.',
@@ -353,19 +382,32 @@ export function xpToNext(level) {
   return Math.round(base * late);
 }
 
-/** Coin price of the next field, and the level needed to buy it. */
+/**
+ * Coin price of the next field, and the level needed to buy it.
+ *
+ * Land is the farm's main coin sink, so the last few fields are meant to be
+ * real goals — the old curve made field 19 cost about forty minutes of income.
+ * The level gate was worse: at two levels a field, the 24th field needed level
+ * 37, which is ten levels past the last thing the game unlocks. At 1.4 levels
+ * a field the whole map is reachable by level 26, just before the Combine.
+ */
 export function plotCost(owned) {
-  return Math.floor(180 * Math.pow(1.52, owned - START_PLOTS));
+  return Math.floor(220 * Math.pow(1.55, owned - START_PLOTS));
 }
 export function plotLevel(owned) {
-  return 3 + (owned - START_PLOTS) * 2;
+  return 3 + Math.floor((owned - START_PLOTS) * 1.4);
 }
 
+/**
+ * Storage steps compound: a silo big enough to hold half a day's harvest is
+ * an endgame purchase, not pocket change. Both ladders start cheap enough to
+ * buy on your first afternoon.
+ */
 export function siloUpgradeCost(cap) {
-  return Math.floor(120 * Math.pow(1.42, (cap - START_SILO) / 25));
+  return Math.floor(160 * Math.pow(1.65, (cap - START_SILO) / SILO_STEP));
 }
 export function barnUpgradeCost(cap) {
-  return Math.floor(160 * Math.pow(1.42, (cap - START_BARN) / 15));
+  return Math.floor(200 * Math.pow(1.65, (cap - START_BARN) / BARN_STEP));
 }
 
 export const SILO_STEP = 25;

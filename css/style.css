@@ -43,6 +43,8 @@
     repeating-linear-gradient(90deg, rgba(0, 0, 0, .06) 0 1px, transparent 1px 14px);
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -88,7 +90,8 @@ button, input { font: inherit; color: inherit; }
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 10px 12px calc(18px + var(--sab));
+  /* No bottom safe-area here: the tab bar sits below this and already owns it. */
+  padding: 10px max(12px, var(--sar)) 18px max(12px, var(--sal));
 }
 
 /* --------------------------------- HUD ----------------------------------- */
@@ -223,11 +226,21 @@ button, input { font: inherit; color: inherit; }
 
 /* -------------------------------- tabbar --------------------------------- */
 
+/**
+ * The bar has to clear two different bits of iPhone hardware: the home
+ * indicator at the bottom (that's `--sab`), and the rounded corners of the
+ * display itself, which crop the outermost tabs. The safe-area insets are 0
+ * on the sides in portrait, so the corner clearance is the `max()` floor —
+ * 12px of inline padding keeps "Farm" and "Shop" clear of the curve, and the
+ * extra bottom padding lifts every label off the indicator.
+ */
 .tabbar {
   display: flex;
   background: linear-gradient(180deg, var(--wood), #c07b36);
   border-top: 3px solid var(--wood-dk);
-  padding-bottom: var(--sab);
+  padding-left: max(12px, var(--sal));
+  padding-right: max(12px, var(--sar));
+  padding-bottom: max(var(--sab), 8px);
   flex-shrink: 0;
 }
 
@@ -517,36 +530,66 @@ button.ic:hover::after { opacity: 1; }
 .chip.miss { background: #ffe4e4; border-color: #eaa; color: #b33; }
 .chip.done { background: #e2ffd9; border-color: #9d9; }
 
-/* pens & machines */
-.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 7px; margin-top: 9px; }
+/* pens & machines — a pen tile is a field tile wearing grass */
+.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 9px; }
 
 .critter {
   position: relative;
   aspect-ratio: 1;
-  border: 2.5px solid rgba(156, 95, 38, .35);
+  border: 3px solid var(--wood-dk);
   border-radius: var(--r-md);
-  background: linear-gradient(180deg, #d6f3a6, #a8dc72);
+  background:
+    repeating-linear-gradient(102deg,
+      rgba(255, 255, 255, .10) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #d6f3a6, #8fce62);
   display: grid; place-items: center;
-  font-size: 30px;
   padding: 0;
-  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
-  transition: transform .1s ease;
+  overflow: hidden;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .3),
+    inset 0 -6px 0 rgba(0, 0, 0, .12),
+    0 3px 0 rgba(0, 0, 0, .18);
+  transition: transform .1s ease, border-color .2s ease;
 }
-.critter:active { transform: scale(.94); }
+.critter:active { transform: scale(.96); }
+.critter .beastie {
+  font-size: clamp(46px, 14vw, 66px);
+  line-height: 1;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .3));
+}
 .critter .mark {
-  position: absolute; top: -6px; right: -4px;
-  font-size: 17px;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3));
+  position: absolute; top: 3px; right: 4px;
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35));
 }
-.critter .tag {
-  position: absolute; bottom: 2px; left: 2px; right: 2px;
-  font-size: 9px; font-weight: 800;
-  background: rgba(0, 0, 0, .45); color: #fff;
-  border-radius: 6px; padding: 1px 0;
+.critter.ready {
+  border-color: var(--gold);
+  background:
+    repeating-linear-gradient(102deg,
+      rgba(255, 255, 255, .12) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #ffe9a0, #ffcd4d);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .3),
+    inset 0 -6px 0 rgba(0, 0, 0, .12),
+    0 3px 0 rgba(0, 0, 0, .18),
+    0 0 0 3px rgba(255, 196, 46, .4);
 }
-.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); border-color: var(--gold-dk); }
 .critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
-.critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
+.critter.hungry > .fill > i { background: linear-gradient(180deg, #ffb4b4, #e06a6a); }
+.critter.add {
+  background: rgba(255, 255, 255, .5);
+  border-style: dashed;
+  border-color: rgba(156, 95, 38, .5);
+  font-size: 34px;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+.critter.add .tag {
+  position: absolute; left: 0; right: 0; bottom: 6px;
+  font-size: var(--t-sub); font-weight: 900; color: var(--ink-soft);
+}
 
 .slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
 .slot {
@@ -914,27 +957,44 @@ button.ic:hover::after { opacity: 1; }
 }
 .plotcard:active { transform: scale(.96); }
 
-/* the completion bar: full and gold means ready */
-.plotcard .fill {
+/* The completion bar runs along the bottom edge, with the countdown centred on
+   top of it. Full and gold means ready — shared by the fields and the pens. */
+.fill {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 12px;
-  background: rgba(0, 0, 0, .34);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
+  left: 0; right: 0; bottom: 0;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .46);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .2);
+  overflow: hidden;
 }
-.plotcard .fill > i {
-  display: block; height: 100%;
+.fill > i {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
   background: linear-gradient(180deg, #d9f7a4, #7fce46);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
   transition: width .6s linear;
 }
-.plotcard.ready .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
-
-.plotcard .seedling {
-  font-size: 46px;
+.fill > b {
+  position: relative;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #fff;
   line-height: 1;
-  transform: scale(var(--s, 1));
-  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .8);
+  font-variant-numeric: tabular-nums;
+}
+.ready > .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
+.ready > .fill > b { color: #4a3520; text-shadow: 0 1px 0 rgba(255, 255, 255, .5); letter-spacing: .06em; }
+
+/* The crop sits at one size the whole way through — it used to scale up as the
+   timer ran down, which read as the tile jittering rather than as growth. */
+.plotcard .seedling {
+  font-size: clamp(54px, 16.5vw, 76px);
+  line-height: 1;
+  margin-bottom: 18px;
   filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
 }
 
@@ -947,7 +1007,6 @@ button.ic:hover::after { opacity: 1; }
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
 }
-.plotcard.ready .plot-label { color: #fff6d2; letter-spacing: .06em; }
 
 .plotcard.ready {
   border-color: var(--gold);
@@ -964,15 +1023,9 @@ button.ic:hover::after { opacity: 1; }
       rgba(255, 255, 255, .07) 0 2px,
       rgba(0, 0, 0, .10) 2px 5px,
       transparent 5px 16px),
-    linear-gradient(180deg, #b98css, #8c5c34 60%, #7a4d29);
-  background:
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, .07) 0 2px,
-      rgba(0, 0, 0, .10) 2px 5px,
-      transparent 5px 16px),
     linear-gradient(180deg, #b9834f, #8c5c34 60%, #7a4d29);
 }
-.plotcard .sow { font-size: 40px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
+.plotcard .sow { font-size: 52px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
 .plotcard.empty .plot-label { color: rgba(255, 255, 255, .72); font-weight: 800; }
 
 .plotcard.wild {
@@ -997,9 +1050,9 @@ button.ic:hover::after { opacity: 1; }
 .fx-sow .seedling { animation: sowDrop .55s cubic-bezier(.2, 1.5, .4, 1); }
 @keyframes sowDrop {
   0%   { transform: translateY(-42px) scale(.25); opacity: 0; }
-  55%  { transform: translateY(3px) scale(var(--s, 1)); opacity: 1; }
+  55%  { transform: translateY(3px) scale(1); opacity: 1; }
   75%  { transform: translateY(0) scaleY(.82) scaleX(1.12); }
-  100% { transform: scale(var(--s, 1)); }
+  100% { transform: none; }
 }
 
 .fx-reap { animation: reapShake .38s ease; }
@@ -1043,9 +1096,10 @@ button.ic:hover::after { opacity: 1; }
   flex-shrink: 0;
   z-index: 5;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 7px;
-  padding: 7px 8px calc(7px + var(--sab));
+  /* Sits above the tab bar, so the bottom inset is not this element's to pay. */
+  padding: 4px max(8px, var(--sar)) 7px max(8px, var(--sal));
   background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card));
   border-top: 3px solid var(--wood-dk);
 }
@@ -1055,6 +1109,8 @@ button.ic:hover::after { opacity: 1; }
   overflow-x: auto;
   flex: 1;
   scrollbar-width: none;
+  /* Room inside the scroller for the "NEW" flag, which overhangs its chip. */
+  padding-top: 9px;
 }
 .seedbar .strip::-webkit-scrollbar { display: none; }
 
@@ -1079,6 +1135,36 @@ button.ic:hover::after { opacity: 1; }
   box-shadow: 0 2px 0 var(--green-dk);
 }
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
+
+/* A seed you have unlocked but never picked off the rack. */
+.seedchip.fresh {
+  overflow: visible;
+  border-color: var(--green-dk);
+  animation: seedNudge 1.9s ease-in-out infinite;
+}
+.seedchip .newflag {
+  position: absolute;
+  top: -7px; left: 50%;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  color: #fff;
+  background: linear-gradient(180deg, #6bd44f, var(--green-dk));
+  border: 1.5px solid #fff;
+  border-radius: 999px;
+  padding: 0 5px;
+  line-height: 13px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+.seedchip { position: relative; }
+@keyframes seedNudge {
+  0%, 82%, 100% { transform: none; }
+  88%           { transform: translateY(-4px); }
+  94%           { transform: translateY(-1px); }
+}
 
 /* boosts in the HUD */
 .boostbar {

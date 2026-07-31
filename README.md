@@ -46,16 +46,22 @@ fields with the silo and barn above them. Animals, workshops and the store each
 have their own tab, which keeps the scene about crops and lets the plots be big
 enough to read at arm's length.
 
-Every field wears a **fill bar** across its top edge. It creeps left to right as
-the crop grows and turns gold and full the moment it's ready, so the state of
-the whole farm reads in one glance without counting down timers. Sowing drops
-the seed in with a puff of soil; harvesting pops the crop out of the ground and
-sends it flying to the silo.
+Every field and every pen wears the same **fill bar** along its bottom edge,
+with the countdown sitting on top of it. The bar creeps left to right and turns
+gold and full the moment the tile is ready, so the state of the whole farm reads
+in one glance. The crop or animal fills its tile at a constant size — it used to
+scale up as the timer ran down, which read as jitter rather than as growth.
+Sowing drops the seed in with a puff of soil; harvesting pops the crop out of
+the ground and sends it flying to the silo.
+
+When levelling opens a seed you have never planted, its chip in the rack wears a
+**NEW** flag and the Farm tab carries a badge, so a new crop never slips by
+unnoticed. Picking the seed up clears both.
 
 | Tab | What you do there |
 | --- | --- |
 | 🌾 **Farm** | The field grid. Plant and harvest by tapping soil; the seed rack sits under it. |
-| 🐔 **Animals** | Buy animals and collect eggs, milk, bacon, wool and honey. They feed themselves. |
+| 🐓 **Animals** | Buy animals and collect eggs, milk, bacon, wool and honey. They feed themselves. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
 | 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
 | 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
@@ -68,7 +74,8 @@ The core loop: **grow → process → sell/deliver → level up → unlock more*
 - **Gems** 💎 skip any timer. You earn them from levelling and the odd order.
 - **XP** comes from harvesting, collecting, crafting and — mostly — orders.
 - **Storage is the real constraint.** The silo holds crops, the barn holds
-  goods. Both fill fast; expanding them is one of the best early buys.
+  goods. Both fill fast; the first expansions are pocket change and the last
+  ones are serious money.
 - **Prices move.** Every good drifts between roughly 0.7x and 1.3x of its base
   value on its own slow cycle. The sell list shows ▲ or ▼ against each item, so
   holding a full silo until it swings green is worth real money.
@@ -110,7 +117,7 @@ built for one thumb in portrait:
 | Cabinet | Plays like | Controls |
 | --- | --- | --- |
 | 🌽 **Crow Patrol** | Space Invaders | Drag anywhere to slide the scarecrow — it throws kernels on its own. |
-| 🐔 **Chicken Run** | Frogger | Tap the middle to hop forward, the sides to step across. |
+| 🐓 **Chicken Run** | Frogger | Tap the middle to hop forward, the sides to step across. |
 | 🐐 **Hungry Goat** | Snake | Tap the left half to turn left, the right half to turn right. |
 
 Swipes and arrow keys work everywhere too. Crow Patrol is open from the start;
@@ -243,6 +250,38 @@ both the OAuth handshake and the database and speaks plain REST — no SDK:
 
 Sync is two-way and newest-wins per slot, and the merge is a pure function
 (`merge()` in `js/cloud.js`) so it can be reasoned about without a network.
+
+## Balance
+
+The numbers are checked against each other rather than set one at a time, and a
+few of them were quietly working against the player:
+
+- **Every crop now earns about the same per field-hour** (~2,160 coins, ~90 XP).
+  Before, a longer crop earned *less* per field than wheat, all the way from
+  carrots to watermelon — so unlocking one made your farm worse. Flat rates mean
+  the upgrade a new crop gives you is the real one: far fewer taps for the same
+  money, and the farm's income grows with every field you clear instead.
+- **Every animal tier out-earns the one before it**, 600 coins/hour for a
+  chicken up to 1,300 for a hive, and asks a longer payback in exchange (20
+  minutes, up to 8.5 hours). A pig used to earn exactly what a cow did while
+  costing three times as much and unlocking six levels later.
+- **No recipe is worth less than its ingredients.** Hot Sauce, Melon Candy and
+  Goat Cheese all sold for less than what went into them, and Espresso cleared
+  2%. Every recipe now returns at least 1.5x, and craft times are set so the
+  margin per hour rises with the recipe's level. Hot Sauce also moved out of the
+  Textile Mill, which had no business making it, and into the Jam Kitchen.
+- **The whole map is reachable.** At two levels a field, the 24th field needed
+  level 37 — ten levels past the last thing the game unlocks. At 1.4 levels a
+  field, the last field lands at level 26, just before the Combine.
+- **Land and storage cost something now.** Field 19 used to be forty minutes of
+  income; the last field is now a genuine goal. The silo ladder still starts at
+  160 coins and ends somewhere you have to save for.
+- **The festival no longer drowns out everything else.** Four cycles a day paid
+  96 gems — more than every other source put together, which made the arcade
+  pointless and gems close to free. A full festival now pays 14.
+
+`scripts/` has no balance tool in it, but the assertions that hold these in
+place live in the test suite, so a change that re-breaks one of them fails.
 
 ### Progression
 

@@ -23,7 +23,7 @@ let seedScroll = 0;      // horizontal position of the seed rack, kept across re
 
 const TABS = [
   { id: 'farm',    icon: '🌾', label: 'Farm' },
-  { id: 'animals', icon: '🐔', label: 'Animals' },
+  { id: 'animals', icon: '🐓', label: 'Animals' },
   { id: 'craft',   icon: '🏭', label: 'Craft' },
   { id: 'orders',  icon: '📋', label: 'Orders' },
   { id: 'goals',   icon: '🏆', label: 'Goals' },
@@ -132,7 +132,7 @@ function renderTabs() {
 function renderTabBadges() {
   const S = St.S;
   const counts = {
-    farm: S.plots.filter(p => G.plotState(p) === 'ready').length,
+    farm: S.plots.filter(p => G.plotState(p) === 'ready').length + G.newCrops().length,
     animals: S.animals.filter(a => G.animalState(a) === 'ready').length,
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
@@ -402,12 +402,23 @@ function seedBar() {
   const strip = el('div', 'strip');
   for (const c of D.CROPS) {
     const locked = c.level > S.level;
-    const chip = el('button', 'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
-      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>`);
+    const fresh = !locked && G.isNewCrop(c.id);
+    const chip = el('button',
+      'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : '') + (fresh ? ' fresh' : ''),
+      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>` +
+      (fresh ? '<i class="newflag">NEW</i>' : ''));
     chip.onclick = () => {
       haptic();
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
+      // Picking it up is what clears the flag; drop it in place so the rack
+      // doesn't have to be rebuilt and lose its scroll.
+      if (G.markCropSeen(c.id)) {
+        chip.classList.remove('fresh');
+        const flag = chip.querySelector('.newflag');
+        if (flag) flag.remove();
+        renderTabBadges();
+      }
       St.saveSoon();
       // Swap the highlight in place. Re-rendering here would reset the
       // strip's horizontal scroll and throw you back to wheat.
@@ -487,7 +498,7 @@ function animalsView() {
   cb.style.marginBottom = '10px';
   cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
 
-  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`,
+  frag.appendChild(panel(`<em>🐄</em>Barnyard<span class="spacer"></span>`,
     storageBar('barn'), cb, troughPanel()));
 
   const soon = [];
@@ -549,8 +560,17 @@ export function troughPanel() {
   return wrap;
 }
 
+/**
+ * A pen tile, built to read exactly like a field: one big animal, and the same
+ * completion bar along the bottom with its countdown sitting on top of it.
+ * Built once and then only updated, so the DOM isn't thrown away every second.
+ */
 function critterTile(an, type) {
   const b = el('button', 'critter');
+  b.innerHTML =
+    `<span class="beastie">${type.icon}</span>
+     <span class="mark"></span>
+     <span class="fill"><i></i><b></b></span>`;
   b.onclick = () => {
     haptic();
     const st = G.animalState(an);
@@ -558,12 +578,24 @@ function critterTile(an, type) {
     else if (st === 'ready') { G.collectAnimal(an); render(); }
     else speedSheet(type.name.toLowerCase(), () => { if (G.speedUpAnimal(an)) render(); }, (an.readyAt - now()) / 1000, D.ITEMS[type.product]);
   };
+
+  const mark = b.querySelector('.mark');
+  const fillBar = b.querySelector('.fill > i');
+  const fillTxt = b.querySelector('.fill > b');
+
   T(() => {
     const st = G.animalState(an);
     b.className = 'critter ' + st;
-    const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
-    const tag = st === 'ready' ? 'TAP!' : st === 'hungry' ? 'Feed' : fmtTime((an.readyAt - now()) / 1000);
-    b.innerHTML = `<span>${type.icon}</span>${mark ? `<span class="mark">${mark}</span>` : ''}<span class="tag">${tag}</span>`;
+    // Feeding is automatic, so 'hungry' only ever means the trough ran dry.
+    const cycle = Math.max(1, (an.readyAt || 0) - (an.fedAt || 0));
+    const pct = st === 'ready' ? 1
+      : st === 'hungry' ? 0
+      : clamp((now() - an.fedAt) / cycle, 0, 1);
+    fillBar.style.width = (pct * 100).toFixed(1) + '%';
+    fillTxt.textContent = st === 'ready' ? 'TAP!'
+      : st === 'hungry' ? 'No feed'
+      : fmtTime((an.readyAt - now()) / 1000);
+    mark.textContent = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
   });
   return b;
 }

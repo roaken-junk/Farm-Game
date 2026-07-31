@@ -336,7 +336,7 @@ function makeChicken() {
     glyph(ctx, '🏠', W / 2, yOf(ROWS), 30);
 
     ctx.globalAlpha = hurt > 0 && Math.floor(hurt * 12) % 2 ? 0.35 : 1;
-    glyph(ctx, '🐔', cx, yOf(row), 26);
+    glyph(ctx, '🐓', cx, yOf(row), 26);
     ctx.globalAlpha = 1;
 
     label(ctx, `HOME ${g.homes}`, 8, 14, 11, 'rgba(30,60,30,.7)');

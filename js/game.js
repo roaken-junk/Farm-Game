@@ -625,6 +625,31 @@ export function claimDaily() {
   return true;
 }
 
+/* ----------------------------- new seed alerts --------------------------- */
+
+/**
+ * Crops you can plant but have never picked off the rack. Levelling opens a
+ * seed quietly otherwise — the rack just grows one chip longer — so these
+ * drive a badge on the Farm tab and a flag on the chip itself.
+ */
+export function newCrops() {
+  const S = St.S;
+  const seen = (S.seen && S.seen.crops) || {};
+  return D.CROPS.filter(c => c.level <= S.level && !seen[c.id]);
+}
+
+export const isNewCrop = id => newCrops().some(c => c.id === id);
+
+export function markCropSeen(id) {
+  const S = St.S;
+  if (!S.seen) S.seen = { crops: {} };
+  if (!S.seen.crops) S.seen.crops = {};
+  if (S.seen.crops[id]) return false;
+  S.seen.crops[id] = true;
+  St.saveSoon();
+  return true;
+}
+
 /* -------------------------------- arcade -------------------------------- */
 
 /** The arcade's day-book, rolled over at local midnight. */

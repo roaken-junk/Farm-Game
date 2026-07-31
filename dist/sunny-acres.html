@@ -59,6 +59,8 @@
     repeating-linear-gradient(90deg, rgba(0, 0, 0, .06) 0 1px, transparent 1px 14px);
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -104,7 +106,8 @@ button, input { font: inherit; color: inherit; }
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 10px 12px calc(18px + var(--sab));
+  /* No bottom safe-area here: the tab bar sits below this and already owns it. */
+  padding: 10px max(12px, var(--sar)) 18px max(12px, var(--sal));
 }
 
 /* --------------------------------- HUD ----------------------------------- */
@@ -239,11 +242,21 @@ button, input { font: inherit; color: inherit; }
 
 /* -------------------------------- tabbar --------------------------------- */
 
+/**
+ * The bar has to clear two different bits of iPhone hardware: the home
+ * indicator at the bottom (that's `--sab`), and the rounded corners of the
+ * display itself, which crop the outermost tabs. The safe-area insets are 0
+ * on the sides in portrait, so the corner clearance is the `max()` floor —
+ * 12px of inline padding keeps "Farm" and "Shop" clear of the curve, and the
+ * extra bottom padding lifts every label off the indicator.
+ */
 .tabbar {
   display: flex;
   background: linear-gradient(180deg, var(--wood), #c07b36);
   border-top: 3px solid var(--wood-dk);
-  padding-bottom: var(--sab);
+  padding-left: max(12px, var(--sal));
+  padding-right: max(12px, var(--sar));
+  padding-bottom: max(var(--sab), 8px);
   flex-shrink: 0;
 }
 
@@ -533,36 +546,66 @@ button.ic:hover::after { opacity: 1; }
 .chip.miss { background: #ffe4e4; border-color: #eaa; color: #b33; }
 .chip.done { background: #e2ffd9; border-color: #9d9; }
 
-/* pens & machines */
-.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 7px; margin-top: 9px; }
+/* pens & machines — a pen tile is a field tile wearing grass */
+.pen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 9px; }
 
 .critter {
   position: relative;
   aspect-ratio: 1;
-  border: 2.5px solid rgba(156, 95, 38, .35);
+  border: 3px solid var(--wood-dk);
   border-radius: var(--r-md);
-  background: linear-gradient(180deg, #d6f3a6, #a8dc72);
+  background:
+    repeating-linear-gradient(102deg,
+      rgba(255, 255, 255, .10) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #d6f3a6, #8fce62);
   display: grid; place-items: center;
-  font-size: 30px;
   padding: 0;
-  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
-  transition: transform .1s ease;
+  overflow: hidden;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .3),
+    inset 0 -6px 0 rgba(0, 0, 0, .12),
+    0 3px 0 rgba(0, 0, 0, .18);
+  transition: transform .1s ease, border-color .2s ease;
 }
-.critter:active { transform: scale(.94); }
+.critter:active { transform: scale(.96); }
+.critter .beastie {
+  font-size: clamp(46px, 14vw, 66px);
+  line-height: 1;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .3));
+}
 .critter .mark {
-  position: absolute; top: -6px; right: -4px;
-  font-size: 17px;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3));
+  position: absolute; top: 3px; right: 4px;
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35));
 }
-.critter .tag {
-  position: absolute; bottom: 2px; left: 2px; right: 2px;
-  font-size: 9px; font-weight: 800;
-  background: rgba(0, 0, 0, .45); color: #fff;
-  border-radius: 6px; padding: 1px 0;
+.critter.ready {
+  border-color: var(--gold);
+  background:
+    repeating-linear-gradient(102deg,
+      rgba(255, 255, 255, .12) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #ffe9a0, #ffcd4d);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .3),
+    inset 0 -6px 0 rgba(0, 0, 0, .12),
+    0 3px 0 rgba(0, 0, 0, .18),
+    0 0 0 3px rgba(255, 196, 46, .4);
 }
-.critter.ready { background: linear-gradient(180deg, #ffe9a0, #ffcd4d); border-color: var(--gold-dk); }
 .critter.hungry { background: linear-gradient(180deg, #f3ded0, #d9bda6); }
-.critter.add { background: rgba(255, 255, 255, .5); border-style: dashed; font-size: 24px; color: var(--ink-soft); }
+.critter.hungry > .fill > i { background: linear-gradient(180deg, #ffb4b4, #e06a6a); }
+.critter.add {
+  background: rgba(255, 255, 255, .5);
+  border-style: dashed;
+  border-color: rgba(156, 95, 38, .5);
+  font-size: 34px;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+.critter.add .tag {
+  position: absolute; left: 0; right: 0; bottom: 6px;
+  font-size: var(--t-sub); font-weight: 900; color: var(--ink-soft);
+}
 
 .slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
 .slot {
@@ -930,27 +973,44 @@ button.ic:hover::after { opacity: 1; }
 }
 .plotcard:active { transform: scale(.96); }
 
-/* the completion bar: full and gold means ready */
-.plotcard .fill {
+/* The completion bar runs along the bottom edge, with the countdown centred on
+   top of it. Full and gold means ready — shared by the fields and the pens. */
+.fill {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 12px;
-  background: rgba(0, 0, 0, .34);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
+  left: 0; right: 0; bottom: 0;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .46);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .2);
+  overflow: hidden;
 }
-.plotcard .fill > i {
-  display: block; height: 100%;
+.fill > i {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
   background: linear-gradient(180deg, #d9f7a4, #7fce46);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
   transition: width .6s linear;
 }
-.plotcard.ready .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
-
-.plotcard .seedling {
-  font-size: 46px;
+.fill > b {
+  position: relative;
+  font-size: var(--t-sub);
+  font-weight: 900;
+  color: #fff;
   line-height: 1;
-  transform: scale(var(--s, 1));
-  transition: transform .6s cubic-bezier(.2, 1.4, .4, 1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .8);
+  font-variant-numeric: tabular-nums;
+}
+.ready > .fill > i { background: linear-gradient(180deg, #ffe98a, var(--gold)); }
+.ready > .fill > b { color: #4a3520; text-shadow: 0 1px 0 rgba(255, 255, 255, .5); letter-spacing: .06em; }
+
+/* The crop sits at one size the whole way through — it used to scale up as the
+   timer ran down, which read as the tile jittering rather than as growth. */
+.plotcard .seedling {
+  font-size: clamp(54px, 16.5vw, 76px);
+  line-height: 1;
+  margin-bottom: 18px;
   filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
 }
 
@@ -963,7 +1023,6 @@ button.ic:hover::after { opacity: 1; }
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
 }
-.plotcard.ready .plot-label { color: #fff6d2; letter-spacing: .06em; }
 
 .plotcard.ready {
   border-color: var(--gold);
@@ -980,15 +1039,9 @@ button.ic:hover::after { opacity: 1; }
       rgba(255, 255, 255, .07) 0 2px,
       rgba(0, 0, 0, .10) 2px 5px,
       transparent 5px 16px),
-    linear-gradient(180deg, #b98css, #8c5c34 60%, #7a4d29);
-  background:
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, .07) 0 2px,
-      rgba(0, 0, 0, .10) 2px 5px,
-      transparent 5px 16px),
     linear-gradient(180deg, #b9834f, #8c5c34 60%, #7a4d29);
 }
-.plotcard .sow { font-size: 40px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
+.plotcard .sow { font-size: 52px; font-weight: 900; color: rgba(255, 255, 255, .5); line-height: 1; }
 .plotcard.empty .plot-label { color: rgba(255, 255, 255, .72); font-weight: 800; }
 
 .plotcard.wild {
@@ -1013,9 +1066,9 @@ button.ic:hover::after { opacity: 1; }
 .fx-sow .seedling { animation: sowDrop .55s cubic-bezier(.2, 1.5, .4, 1); }
 @keyframes sowDrop {
   0%   { transform: translateY(-42px) scale(.25); opacity: 0; }
-  55%  { transform: translateY(3px) scale(var(--s, 1)); opacity: 1; }
+  55%  { transform: translateY(3px) scale(1); opacity: 1; }
   75%  { transform: translateY(0) scaleY(.82) scaleX(1.12); }
-  100% { transform: scale(var(--s, 1)); }
+  100% { transform: none; }
 }
 
 .fx-reap { animation: reapShake .38s ease; }
@@ -1059,9 +1112,10 @@ button.ic:hover::after { opacity: 1; }
   flex-shrink: 0;
   z-index: 5;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 7px;
-  padding: 7px 8px calc(7px + var(--sab));
+  /* Sits above the tab bar, so the bottom inset is not this element's to pay. */
+  padding: 4px max(8px, var(--sar)) 7px max(8px, var(--sal));
   background: var(--grain), linear-gradient(180deg, #fffdf7, var(--card));
   border-top: 3px solid var(--wood-dk);
 }
@@ -1071,6 +1125,8 @@ button.ic:hover::after { opacity: 1; }
   overflow-x: auto;
   flex: 1;
   scrollbar-width: none;
+  /* Room inside the scroller for the "NEW" flag, which overhangs its chip. */
+  padding-top: 9px;
 }
 .seedbar .strip::-webkit-scrollbar { display: none; }
 
@@ -1095,6 +1151,36 @@ button.ic:hover::after { opacity: 1; }
   box-shadow: 0 2px 0 var(--green-dk);
 }
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
+
+/* A seed you have unlocked but never picked off the rack. */
+.seedchip.fresh {
+  overflow: visible;
+  border-color: var(--green-dk);
+  animation: seedNudge 1.9s ease-in-out infinite;
+}
+.seedchip .newflag {
+  position: absolute;
+  top: -7px; left: 50%;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  color: #fff;
+  background: linear-gradient(180deg, #6bd44f, var(--green-dk));
+  border: 1.5px solid #fff;
+  border-radius: 999px;
+  padding: 0 5px;
+  line-height: 13px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+.seedchip { position: relative; }
+@keyframes seedNudge {
+  0%, 82%, 100% { transform: none; }
+  88%           { transform: translateY(-4px); }
+  94%           { transform: translateY(-1px); }
+}
 
 /* boosts in the HUD */
 .boostbar {
@@ -1682,33 +1768,49 @@ const __mod_data = (function () {
    Tuned so early levels move fast (seconds) and later tiers reward planning.
    ========================================================================== */
 
-/** Crops live in the SILO. Grow time in seconds. */
+/**
+ * Crops live in the SILO. Grow time in seconds.
+ *
+ * Prices are set so every crop earns about the same per field-hour (~2,160
+ * coins and ~90 XP). That is deliberate: unlocking a longer crop used to make
+ * a field *less* productive, which made progress feel like a punishment. Flat
+ * rates mean the upgrade a new crop gives you is the thing that matters — far
+ * fewer taps for the same money — while the farm's income still grows with
+ * every field you clear.
+ */
 const CROPS = [
   { id: 'wheat',      name: 'Wheat',      icon: '🌾', level: 1,  seed: 3,   grow: 25,   price: 9,    xp: 1 },
-  { id: 'corn',       name: 'Corn',       icon: '🌽', level: 2,  seed: 8,   grow: 70,   price: 22,   xp: 2 },
-  { id: 'carrot',     name: 'Carrot',     icon: '🥕', level: 4,  seed: 16,  grow: 180,  price: 48,   xp: 4 },
-  { id: 'tomato',     name: 'Tomato',     icon: '🍅', level: 7,  seed: 30,  grow: 420,  price: 92,   xp: 7 },
-  { id: 'strawberry', name: 'Strawberry', icon: '🍓', level: 10, seed: 55,  grow: 900,  price: 175,  xp: 12 },
-  { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 330,  xp: 20 },
-  { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 580,  xp: 32 },
-  { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1050, xp: 50 },
-  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 62,   xp: 5 },
-  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 142,  xp: 10 },
-  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 225,  xp: 15 },
-  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 435,  xp: 26 },
-  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 830,  xp: 42 },
+  { id: 'corn',       name: 'Corn',       icon: '🌽', level: 2,  seed: 8,   grow: 70,   price: 25,   xp: 2 },
+  { id: 'carrot',     name: 'Carrot',     icon: '🥕', level: 4,  seed: 16,  grow: 180,  price: 62,   xp: 5 },
+  { id: 'tomato',     name: 'Tomato',     icon: '🍅', level: 7,  seed: 30,  grow: 420,  price: 141,  xp: 11 },
+  { id: 'strawberry', name: 'Strawberry', icon: '🍓', level: 10, seed: 55,  grow: 900,  price: 300,  xp: 23 },
+  { id: 'pumpkin',    name: 'Pumpkin',    icon: '🎃', level: 14, seed: 100, grow: 1800, price: 590,  xp: 45 },
+  { id: 'grape',      name: 'Grapes',     icon: '🍇', level: 18, seed: 180, grow: 3000, price: 990,  xp: 75 },
+  { id: 'chili',      name: 'Chili',      icon: '🌶️', level: 22, seed: 320, grow: 5400, price: 1780, xp: 135 },
+  { id: 'potato',     name: 'Potato',     icon: '🥔', level: 5,  seed: 22,  grow: 240,  price: 83,   xp: 6 },
+  { id: 'eggplant',   name: 'Eggplant',   icon: '🍆', level: 9,  seed: 44,  grow: 720,  price: 238,  xp: 18 },
+  { id: 'sunflower',  name: 'Sunflower',  icon: '🌻', level: 12, seed: 70,  grow: 1200, price: 395,  xp: 30 },
+  { id: 'melon',      name: 'Watermelon', icon: '🍉', level: 16, seed: 130, grow: 2400, price: 785,  xp: 60 },
+  { id: 'beans',      name: 'Coffee',     icon: '🫘', level: 24, seed: 260, grow: 4200, price: 1390, xp: 105 },
 ];
 
 /** Seed racks are shown in unlock order, not the order they were written. */
 CROPS.sort((a, b) => a.level - b.level || a.seed - b.seed);
 
-/** Animals live in pens, eat FEED, and drop goods into the BARN. */
+/**
+ * Animals live in pens, eat FEED, and drop goods into the BARN.
+ *
+ * Each tier earns strictly more per hour than the one before, and asks for a
+ * longer payback in exchange — 600/h for a chicken up to 1,300/h for a hive.
+ * A later animal that earned no more than an earlier one was the same trap the
+ * crops had.
+ */
 const ANIMALS = [
-  { id: 'chicken', name: 'Chicken', icon: '🐔', level: 3,  cost: 200,   max: 8, feed: 1, cycle: 180,  product: 'egg' },
+  { id: 'chicken', name: 'Chicken', icon: '🐓', level: 3,  cost: 200,   max: 8, feed: 1, cycle: 180,  product: 'egg' },
   { id: 'cow',     name: 'Cow',     icon: '🐄', level: 6,  cost: 900,   max: 6, feed: 2, cycle: 360,  product: 'milk' },
   { id: 'pig',     name: 'Pig',     icon: '🐖', level: 12, cost: 2500,  max: 6, feed: 3, cycle: 720,  product: 'bacon' },
   { id: 'sheep',   name: 'Sheep',   name2: 'Sheep', icon: '🐑', level: 16, cost: 6000,  max: 5, feed: 4, cycle: 1200, product: 'wool' },
-  { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 14000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
+  { id: 'bee',     name: 'Bee Hive',name2: 'Hives', icon: '🐝', level: 20, cost: 11000, max: 4, feed: 2, cycle: 1800, product: 'honey' },
   { id: 'duck',    name: 'Duck',    icon: '🦆', level: 5,  cost: 450,   max: 6, feed: 1, cycle: 240,  product: 'feather' },
   { id: 'goat',    name: 'Goat',    icon: '🐐', level: 14, cost: 4200,  max: 5, feed: 3, cycle: 900,  product: 'goatmilk' },
 ];
@@ -1717,12 +1819,12 @@ ANIMALS.sort((a, b) => a.level - b.level);
 /** Goods produced by animals. Stored in the BARN. */
 const ANIMAL_GOODS = [
   { id: 'egg',   name: 'Egg',   icon: '🥚', price: 30,  xp: 3 },
-  { id: 'milk',  name: 'Milk',  icon: '🥛', price: 70,  xp: 6 },
-  { id: 'bacon', name: 'Bacon', icon: '🥓', price: 140, xp: 11 },
-  { id: 'wool',  name: 'Wool',  icon: '🧶', price: 240, xp: 18 },
-  { id: 'honey', name: 'Honey', icon: '🍯', price: 400, xp: 28 },
+  { id: 'milk',  name: 'Milk',  icon: '🥛', price: 85,  xp: 7 },
+  { id: 'bacon', name: 'Bacon', icon: '🥓', price: 190, xp: 16 },
+  { id: 'wool',  name: 'Wool',  icon: '🧶', price: 380, xp: 32 },
+  { id: 'honey', name: 'Honey', icon: '🍯', price: 650, xp: 54 },
   { id: 'feather',  name: 'Down',      icon: '🪶', price: 50,  xp: 4 },
-  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 195, xp: 15 },
+  { id: 'goatmilk', name: 'Goat Milk', icon: '🍶', price: 260, xp: 22 },
 ];
 
 /** Crafting stations. Jobs run one after another in a shared queue. */
@@ -1742,7 +1844,14 @@ const MACHINES = [
 ];
 MACHINES.sort((a, b) => a.level - b.level);
 
-/** Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`). */
+/**
+ * Recipes: `in` = {itemId: qty}, output is 1 of `out` (or `qty`).
+ *
+ * Every recipe is worth at least 1.5x its ingredients — three of them used to
+ * be worth *less* than what went in, which is a trap rather than a choice.
+ * Craft times are then set so the margin per hour lands in a band that rises
+ * with the recipe's level.
+ */
 const RECIPES = [
   { id: 'feed',    machine: 'mill',   level: 3,  time: 20,  out: 'feed',    qty: 2, in: { wheat: 2, corn: 1 } },
   { id: 'bread',   machine: 'bakery', level: 5,  time: 45,  out: 'bread',   qty: 1, in: { wheat: 3 } },
@@ -1750,22 +1859,23 @@ const RECIPES = [
   { id: 'butter',  machine: 'dairy',  level: 8,  time: 100, out: 'butter',  qty: 1, in: { milk: 2 } },
   { id: 'cheese',  machine: 'dairy',  level: 10, time: 180, out: 'cheese',  qty: 1, in: { milk: 3 } },
   { id: 'cjuice',  machine: 'juice',  level: 11, time: 150, out: 'cjuice',  qty: 1, in: { carrot: 3 } },
-  { id: 'tjuice',  machine: 'juice',  level: 13, time: 240, out: 'tjuice',  qty: 1, in: { tomato: 3 } },
-  { id: 'jam',     machine: 'jam',    level: 15, time: 300, out: 'jam',     qty: 1, in: { strawberry: 3 } },
-  { id: 'pie',     machine: 'jam',    level: 16, time: 420, out: 'pie',     qty: 1, in: { pumpkin: 2, wheat: 2 } },
+  { id: 'tjuice',  machine: 'juice',  level: 13, time: 300, out: 'tjuice',  qty: 1, in: { tomato: 3 } },
+  { id: 'jam',     machine: 'jam',    level: 15, time: 360, out: 'jam',     qty: 1, in: { strawberry: 3 } },
+  { id: 'pie',     machine: 'jam',    level: 16, time: 480, out: 'pie',     qty: 1, in: { pumpkin: 2, wheat: 2 } },
   { id: 'ribs',    machine: 'grill',  level: 19, time: 480, out: 'ribs',    qty: 1, in: { bacon: 2, corn: 2 } },
   { id: 'burger',  machine: 'grill',  level: 21, time: 600, out: 'burger',  qty: 1, in: { bacon: 1, bread: 1, cheese: 1 } },
   { id: 'sweater', machine: 'loom',   level: 23, time: 900, out: 'sweater', qty: 1, in: { wool: 3 } },
-  { id: 'hotsauce',machine: 'loom',   level: 24, time: 720, out: 'hotsauce',qty: 1, in: { chili: 2, tomato: 2 } },
+  // A textile mill has no business making hot sauce; the jam kitchen preserves.
+  { id: 'hotsauce',machine: 'jam',    level: 24, time: 780, out: 'hotsauce',qty: 1, in: { chili: 1, tomato: 2 } },
   { id: 'wine',    machine: 'winery', level: 25, time: 1200,out: 'wine',    qty: 1, in: { grape: 3 } },
-  { id: 'fries',   machine: 'fryer',  level: 7,  time: 120, out: 'fries',   qty: 1, in: { potato: 3 } },
+  { id: 'fries',   machine: 'fryer',  level: 7,  time: 150, out: 'fries',   qty: 1, in: { potato: 3 } },
   { id: 'omelette',machine: 'fryer',  level: 10, time: 200, out: 'omelette',qty: 1, in: { egg: 2, eggplant: 1 } },
-  { id: 'oil',     machine: 'press',  level: 13, time: 240, out: 'oil',     qty: 1, in: { sunflower: 3 } },
-  { id: 'gcheese', machine: 'dairy',  level: 15, time: 260, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
-  { id: 'candy',   machine: 'sweets', level: 18, time: 360, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
+  { id: 'oil',     machine: 'press',  level: 13, time: 480, out: 'oil',     qty: 1, in: { sunflower: 3 } },
+  { id: 'gcheese', machine: 'dairy',  level: 15, time: 360, out: 'gcheese', qty: 1, in: { goatmilk: 3 } },
+  { id: 'candy',   machine: 'sweets', level: 18, time: 720, out: 'candy',   qty: 1, in: { melon: 2, honey: 1 } },
   { id: 'stew',    machine: 'grill',  level: 20, time: 540, out: 'stew',    qty: 1, in: { potato: 2, bacon: 1, eggplant: 1 } },
   { id: 'quilt',   machine: 'loom',   level: 23, time: 780, out: 'quilt',   qty: 1, in: { feather: 3, wool: 1 } },
-  { id: 'espresso',machine: 'cafe',   level: 26, time: 900, out: 'espresso',qty: 1, in: { beans: 3 } },
+  { id: 'espresso',machine: 'cafe',   level: 26, time: 1200,out: 'espresso',qty: 1, in: { beans: 3 } },
 ];
 
 /** Crafted goods. Stored in the BARN. */
@@ -1773,25 +1883,25 @@ const CRAFTED = [
   { id: 'feed',     name: 'Feed',          icon: '🌰', price: 6,    xp: 1 },
   { id: 'bread',    name: 'Bread',         icon: '🍞', price: 60,   xp: 6 },
   { id: 'cookie',   name: 'Cookies',       icon: '🍪', price: 185,  xp: 15 },
-  { id: 'butter',   name: 'Butter',        icon: '🧈', price: 190,  xp: 15 },
-  { id: 'cheese',   name: 'Cheese',        icon: '🧀', price: 320,  xp: 24 },
-  { id: 'cjuice',   name: 'Carrot Juice',  icon: '🥤', price: 250,  xp: 19 },
-  { id: 'tjuice',   name: 'Tomato Juice',  icon: '🧃', price: 430,  xp: 31 },
-  { id: 'jam',      name: 'Berry Jam',     icon: '🫙', price: 780,  xp: 48 },
-  { id: 'pie',      name: 'Pumpkin Pie',   icon: '🥧', price: 1150, xp: 66 },
+  { id: 'butter',   name: 'Butter',        icon: '🧈', price: 280,  xp: 21 },
+  { id: 'cheese',   name: 'Cheese',        icon: '🧀', price: 430,  xp: 31 },
+  { id: 'cjuice',   name: 'Carrot Juice',  icon: '🥤', price: 310,  xp: 24 },
+  { id: 'tjuice',   name: 'Tomato Juice',  icon: '🧃', price: 700,  xp: 46 },
+  { id: 'jam',      name: 'Berry Jam',     icon: '🫙', price: 1500, xp: 88 },
+  { id: 'pie',      name: 'Pumpkin Pie',   icon: '🥧', price: 2000, xp: 112 },
   { id: 'ribs',     name: 'BBQ Ribs',      icon: '🍖', price: 1250, xp: 72 },
   { id: 'burger',   name: 'Farm Burger',   icon: '🍔', price: 2300, xp: 120 },
-  { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1600, xp: 92 },
-  { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 1900, xp: 105 },
-  { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 2700, xp: 140 },
-  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 215,  xp: 17 },
-  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 330,  xp: 25 },
-  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 770,  xp: 47 },
-  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 690,  xp: 43 },
-  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 1180, xp: 68 },
-  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1450, xp: 82 },
+  { id: 'sweater',  name: 'Wool Sweater',  icon: '🧥', price: 1900, xp: 104 },
+  { id: 'hotsauce', name: 'Hot Sauce',     icon: '🌶️', price: 3400, xp: 172 },
+  { id: 'wine',     name: 'Grape Wine',    icon: '🍷', price: 4900, xp: 235 },
+  { id: 'fries',    name: 'Fries',         icon: '🍟', price: 415,  xp: 31 },
+  { id: 'omelette', name: 'Omelette',      icon: '🍳', price: 500,  xp: 36 },
+  { id: 'oil',      name: 'Sunflower Oil', icon: '🫗', price: 1950, xp: 108 },
+  { id: 'gcheese',  name: 'Goat Cheese',   icon: '🧆', price: 1300, xp: 76 },
+  { id: 'candy',    name: 'Melon Candy',   icon: '🍬', price: 3700, xp: 186 },
+  { id: 'stew',     name: 'Farm Stew',     icon: '🍲', price: 1600, xp: 90 },
   { id: 'quilt',    name: 'Down Quilt',    icon: '🛏️', price: 1850, xp: 104 },
-  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 2550, xp: 132 },
+  { id: 'espresso', name: 'Espresso',      icon: '☕', price: 6900, xp: 320 },
 ];
 
 /** One flat lookup for anything that can sit in storage or fill an order. */
@@ -1924,12 +2034,17 @@ const FEST_TIERS = [
 const festCycle = (t = Date.now()) => Math.floor(t / FEST_MS);
 const festEndsAt = (t = Date.now()) => (festCycle(t) + 1) * FEST_MS;
 
-/** Rewards scale with level so the prize stays worth chasing. */
+/**
+ * Rewards scale with level so the prize stays worth chasing. Sized against the
+ * rest of the game rather than in isolation: four festivals a day at the old
+ * numbers paid more gems than every other source put together, and a Grand
+ * Prize out-earned three hours of farming.
+ */
 function festReward(tier, level) {
   const mult = [1, 3, 9][tier];
   return {
-    coins: Math.round(1200 * mult * Math.max(1, level) / 2),
-    gems: [3, 6, 15][tier],
+    coins: Math.round(800 * mult * Math.max(1, level) / 3),
+    gems: [2, 4, 8][tier],
     xp: Math.round(D_xpHint(level) * [0.15, 0.35, 0.9][tier]),
   };
 }
@@ -1975,7 +2090,7 @@ const ARCADE = [
     gemAt: [120, 320, 700, 1300],
   },
   {
-    id: 'chicken', name: 'Chicken Run', icon: '🐔', cab: '🚜', level: 3,
+    id: 'chicken', name: 'Chicken Run', icon: '🐓', cab: '🚜', level: 3,
     tag: 'Crossing',
     blurb: 'Get the hen across the tractor lanes. Every one home speeds them up.',
     how: 'Tap the middle to hop forward, the sides to step across. Swipes work too.',
@@ -2032,19 +2147,32 @@ function xpToNext(level) {
   return Math.round(base * late);
 }
 
-/** Coin price of the next field, and the level needed to buy it. */
+/**
+ * Coin price of the next field, and the level needed to buy it.
+ *
+ * Land is the farm's main coin sink, so the last few fields are meant to be
+ * real goals — the old curve made field 19 cost about forty minutes of income.
+ * The level gate was worse: at two levels a field, the 24th field needed level
+ * 37, which is ten levels past the last thing the game unlocks. At 1.4 levels
+ * a field the whole map is reachable by level 26, just before the Combine.
+ */
 function plotCost(owned) {
-  return Math.floor(180 * Math.pow(1.52, owned - START_PLOTS));
+  return Math.floor(220 * Math.pow(1.55, owned - START_PLOTS));
 }
 function plotLevel(owned) {
-  return 3 + (owned - START_PLOTS) * 2;
+  return 3 + Math.floor((owned - START_PLOTS) * 1.4);
 }
 
+/**
+ * Storage steps compound: a silo big enough to hold half a day's harvest is
+ * an endgame purchase, not pocket change. Both ladders start cheap enough to
+ * buy on your first afternoon.
+ */
 function siloUpgradeCost(cap) {
-  return Math.floor(120 * Math.pow(1.42, (cap - START_SILO) / 25));
+  return Math.floor(160 * Math.pow(1.65, (cap - START_SILO) / SILO_STEP));
 }
 function barnUpgradeCost(cap) {
-  return Math.floor(160 * Math.pow(1.42, (cap - START_BARN) / 15));
+  return Math.floor(200 * Math.pow(1.65, (cap - START_BARN) / BARN_STEP));
 }
 
 const SILO_STEP = 25;
@@ -2768,6 +2896,7 @@ function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     fest: { cycle: -1, points: 0, claimed: [] },
     trough: { units: 24, grazedAt: now() },
     arcade: { day: '', gems: 0, plays: 0, best: {} },
+    seen: { crops: { wheat: true } },   // which seeds you have already picked up
     // textLifted is set by migrate(), which is also what makes it false here:
     // a `true` default would be spread back over an older save and swallow the
     // one-time lift to larger text below.
@@ -2872,7 +3001,15 @@ function migrate(data) {
   }
   data.arcade = { ...base.arcade, ...(data.arcade || {}) };
   data.arcade.best = data.arcade.best || {};
+  data.seen = { ...base.seen, ...(data.seen || {}) };
+  data.seen.crops = { ...data.seen.crops };
   data.tips = { ...base.tips, ...(data.tips || {}) };
+  // A farm already twenty levels in shouldn't light up with "NEW" on every
+  // seed it has been planting for hours — only on the ones it unlocks next.
+  if (!data.tips.seedsMarked) {
+    data.tips.seedsMarked = true;
+    for (const c of D.CROPS) if (c.level <= data.level) data.seen.crops[c.id] = true;
+  }
   // Larger text became the default. Lift older farms up to it exactly once, so
   // it still sticks if the player turns it back off afterwards.
   if (!data.tips.textLifted) {
@@ -3770,6 +3907,31 @@ function claimDaily() {
   return true;
 }
 
+/* ----------------------------- new seed alerts --------------------------- */
+
+/**
+ * Crops you can plant but have never picked off the rack. Levelling opens a
+ * seed quietly otherwise — the rack just grows one chip longer — so these
+ * drive a badge on the Farm tab and a flag on the chip itself.
+ */
+function newCrops() {
+  const S = St.S;
+  const seen = (S.seen && S.seen.crops) || {};
+  return D.CROPS.filter(c => c.level <= S.level && !seen[c.id]);
+}
+
+const isNewCrop = id => newCrops().some(c => c.id === id);
+
+function markCropSeen(id) {
+  const S = St.S;
+  if (!S.seen) S.seen = { crops: {} };
+  if (!S.seen.crops) S.seen.crops = {};
+  if (S.seen.crops[id]) return false;
+  S.seen.crops[id] = true;
+  St.saveSoon();
+  return true;
+}
+
 /* -------------------------------- arcade -------------------------------- */
 
 /** The arcade's day-book, rolled over at local midnight. */
@@ -3873,7 +4035,7 @@ function settleOffline() {
   tick();
   return { away, ready, ripe, crafts };
 }
-return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, buyHay, grazeWait, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, festState, festTiers, claimFest, dailyReady, claimDaily, arcadeDay, arcadeFinish, tick, settleOffline, goalsReady, festReady, festLeft, arcadeGemsLeft, arcadeBest, arcadeOpen };
+return { on, emit, growSeconds, plotState, plant, plantAll, harvest, harvestAll, speedUpPlot, buyAnimal, animalState, feedAnimal, collectAnimal, collectAllAnimals, buyHay, grazeWait, speedUpAnimal, buyMachine, craftTime, enqueue, jobReady, collectJob, collectAllJobs, speedUpJob, marketFactor, sellPrice, marketMovers, sell, buyPlot, upgradeSilo, upgradeBarn, buyBoost, buyUpgrade, tickOrders, canDeliver, deliverOrder, declineOrder, goalValue, goalState, claimGoal, festState, festTiers, claimFest, dailyReady, claimDaily, newCrops, markCropSeen, arcadeDay, arcadeFinish, tick, settleOffline, goalsReady, festReady, festLeft, isNewCrop, arcadeGemsLeft, arcadeBest, arcadeOpen };
 })();
 
 /* ---------- js/map.js ---------- */
@@ -3953,17 +4115,16 @@ function fieldGrid({ T, open }) {
 
       if (node.dataset.crop !== plot.crop || node.dataset.state === 'empty') {
         node.dataset.crop = plot.crop;
+        // The crop fills the tile at a constant size, and the completion bar
+        // runs along the bottom edge with the countdown sitting on top of it.
         node.innerHTML =
-          `<span class="fill"><i></i></span>
-           <span class="seedling">${crop.icon}</span>
-           <span class="plot-label"></span>`;
+          `<span class="seedling">${crop.icon}</span>
+           <span class="fill"><i></i><b></b></span>`;
       }
       node.dataset.state = state;
       node.className = 'plotcard ' + state;
       node.querySelector('.fill > i').style.width = (pct * 100).toFixed(1) + '%';
-      // Sprouts start small and fill out as the timer runs down.
-      node.querySelector('.seedling').style.setProperty('--s', (0.5 + 0.5 * pct).toFixed(2));
-      node.querySelector('.plot-label').textContent =
+      node.querySelector('.fill > b').textContent =
         state === 'ready' ? 'READY' : fmtTime((plot.end - now()) / 1000);
     }
   });
@@ -4321,7 +4482,7 @@ function makeChicken() {
     glyph(ctx, '🏠', W / 2, yOf(ROWS), 30);
 
     ctx.globalAlpha = hurt > 0 && Math.floor(hurt * 12) % 2 ? 0.35 : 1;
-    glyph(ctx, '🐔', cx, yOf(row), 26);
+    glyph(ctx, '🐓', cx, yOf(row), 26);
     ctx.globalAlpha = 1;
 
     label(ctx, `HOME ${g.homes}`, 8, 14, 11, 'rgba(30,60,30,.7)');
@@ -4702,7 +4863,7 @@ let seedScroll = 0;      // horizontal position of the seed rack, kept across re
 
 const TABS = [
   { id: 'farm',    icon: '🌾', label: 'Farm' },
-  { id: 'animals', icon: '🐔', label: 'Animals' },
+  { id: 'animals', icon: '🐓', label: 'Animals' },
   { id: 'craft',   icon: '🏭', label: 'Craft' },
   { id: 'orders',  icon: '📋', label: 'Orders' },
   { id: 'goals',   icon: '🏆', label: 'Goals' },
@@ -4811,7 +4972,7 @@ function renderTabs() {
 function renderTabBadges() {
   const S = St.S;
   const counts = {
-    farm: S.plots.filter(p => G.plotState(p) === 'ready').length,
+    farm: S.plots.filter(p => G.plotState(p) === 'ready').length + G.newCrops().length,
     animals: S.animals.filter(a => G.animalState(a) === 'ready').length,
     craft: Object.values(S.machines).reduce(
       (n, m) => n + (m.owned ? m.queue.filter(G.jobReady).length : 0), 0),
@@ -5081,12 +5242,23 @@ function seedBar() {
   const strip = el('div', 'strip');
   for (const c of D.CROPS) {
     const locked = c.level > S.level;
-    const chip = el('button', 'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : ''),
-      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>`);
+    const fresh = !locked && G.isNewCrop(c.id);
+    const chip = el('button',
+      'seedchip' + (c.id === S.selectedSeed ? ' on' : '') + (locked ? ' locked' : '') + (fresh ? ' fresh' : ''),
+      `${c.icon}<small>${locked ? 'Lv' + c.level : '🪙' + c.seed}</small>` +
+      (fresh ? '<i class="newflag">NEW</i>' : ''));
     chip.onclick = () => {
       haptic();
       if (locked) { SFX.error(); toast(`${c.name} unlocks at level ${c.level}`, '🔒', true); return; }
       S.selectedSeed = c.id;
+      // Picking it up is what clears the flag; drop it in place so the rack
+      // doesn't have to be rebuilt and lose its scroll.
+      if (G.markCropSeen(c.id)) {
+        chip.classList.remove('fresh');
+        const flag = chip.querySelector('.newflag');
+        if (flag) flag.remove();
+        renderTabBadges();
+      }
       St.saveSoon();
       // Swap the highlight in place. Re-rendering here would reset the
       // strip's horizontal scroll and throw you back to wheat.
@@ -5166,7 +5338,7 @@ function animalsView() {
   cb.style.marginBottom = '10px';
   cb.onclick = () => { haptic(); G.collectAllAnimals(); render(); };
 
-  frag.appendChild(panel(`<em>🐮</em>Barnyard<span class="spacer"></span>`,
+  frag.appendChild(panel(`<em>🐄</em>Barnyard<span class="spacer"></span>`,
     storageBar('barn'), cb, troughPanel()));
 
   const soon = [];
@@ -5228,8 +5400,17 @@ function troughPanel() {
   return wrap;
 }
 
+/**
+ * A pen tile, built to read exactly like a field: one big animal, and the same
+ * completion bar along the bottom with its countdown sitting on top of it.
+ * Built once and then only updated, so the DOM isn't thrown away every second.
+ */
 function critterTile(an, type) {
   const b = el('button', 'critter');
+  b.innerHTML =
+    `<span class="beastie">${type.icon}</span>
+     <span class="mark"></span>
+     <span class="fill"><i></i><b></b></span>`;
   b.onclick = () => {
     haptic();
     const st = G.animalState(an);
@@ -5237,12 +5418,24 @@ function critterTile(an, type) {
     else if (st === 'ready') { G.collectAnimal(an); render(); }
     else speedSheet(type.name.toLowerCase(), () => { if (G.speedUpAnimal(an)) render(); }, (an.readyAt - now()) / 1000, D.ITEMS[type.product]);
   };
+
+  const mark = b.querySelector('.mark');
+  const fillBar = b.querySelector('.fill > i');
+  const fillTxt = b.querySelector('.fill > b');
+
   T(() => {
     const st = G.animalState(an);
     b.className = 'critter ' + st;
-    const mark = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
-    const tag = st === 'ready' ? 'TAP!' : st === 'hungry' ? 'Feed' : fmtTime((an.readyAt - now()) / 1000);
-    b.innerHTML = `<span>${type.icon}</span>${mark ? `<span class="mark">${mark}</span>` : ''}<span class="tag">${tag}</span>`;
+    // Feeding is automatic, so 'hungry' only ever means the trough ran dry.
+    const cycle = Math.max(1, (an.readyAt || 0) - (an.fedAt || 0));
+    const pct = st === 'ready' ? 1
+      : st === 'hungry' ? 0
+      : clamp((now() - an.fedAt) / cycle, 0, 1);
+    fillBar.style.width = (pct * 100).toFixed(1) + '%';
+    fillTxt.textContent = st === 'ready' ? 'TAP!'
+      : st === 'hungry' ? 'No feed'
+      : fmtTime((an.readyAt - now()) / 1000);
+    mark.textContent = st === 'ready' ? D.ITEMS[type.product].icon : st === 'hungry' ? '❗' : '';
   });
   return b;
 }

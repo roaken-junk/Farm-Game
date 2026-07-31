@@ -55,6 +55,7 @@ export function freshState(name = 'Farmer', avatar = '🧑‍🌾') {
     fest: { cycle: -1, points: 0, claimed: [] },
     trough: { units: 24, grazedAt: now() },
     arcade: { day: '', gems: 0, plays: 0, best: {} },
+    seen: { crops: { wheat: true } },   // which seeds you have already picked up
     // textLifted is set by migrate(), which is also what makes it false here:
     // a `true` default would be spread back over an older save and swallow the
     // one-time lift to larger text below.
@@ -159,7 +160,15 @@ function migrate(data) {
   }
   data.arcade = { ...base.arcade, ...(data.arcade || {}) };
   data.arcade.best = data.arcade.best || {};
+  data.seen = { ...base.seen, ...(data.seen || {}) };
+  data.seen.crops = { ...data.seen.crops };
   data.tips = { ...base.tips, ...(data.tips || {}) };
+  // A farm already twenty levels in shouldn't light up with "NEW" on every
+  // seed it has been planting for hours — only on the ones it unlocks next.
+  if (!data.tips.seedsMarked) {
+    data.tips.seedsMarked = true;
+    for (const c of D.CROPS) if (c.level <= data.level) data.seen.crops[c.id] = true;
+  }
   // Larger text became the default. Lift older farms up to it exactly once, so
   // it still sticks if the player turns it back off afterwards.
   if (!data.tips.textLifted) {
