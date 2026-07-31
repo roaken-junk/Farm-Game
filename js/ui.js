@@ -11,6 +11,8 @@ import { fieldGrid } from './map.js';
 import { el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics } from './util.js';
 import { SFX, setSound, soundOn } from './audio.js';
 import * as FX from './fx.js';
+import * as Store from './store.js';
+import * as Cloud from './cloud.js';
 
 const $ = id => document.getElementById(id);
 
@@ -1156,10 +1158,10 @@ function profileSheet() {
     swap.onclick = () => { St.save(); location.reload(); };
     sheet.appendChild(swap);
 
-    const xfer = el('button', 'btn btn-big', '📤 Move this farm to another device');
-    xfer.style.marginTop = '8px';
-    xfer.onclick = () => transferSheet();
-    sheet.appendChild(xfer);
+    const backup = el('button', 'btn btn-big btn-gold', '🛟 Backup & Safety');
+    backup.style.marginTop = '8px';
+    backup.onclick = () => { close(); backupSheet(); };
+    sheet.appendChild(backup);
 
     const reset = el('button', 'btn btn-big btn-red', '🗑️ Delete this farm');
     reset.style.marginTop = '8px';
@@ -1325,6 +1327,158 @@ export function settingsSheet() {
     done.onclick = () => { close(); render(); };
     sheet.appendChild(done);
   });
+}
+
+/** Where your farm lives, how safe it is, and every way to copy it. */
+export function backupSheet() {
+  openSheet(async (sheet, close) => {
+    sheet.appendChild(el('h2', null, '🛟 Backup & Safety'));
+    sheet.appendChild(el('p', 'sub', 'Where this farm is stored, and how to keep it.'));
+
+    /* --- how safe are we right now --- */
+    const status = el('div');
+    sheet.appendChild(status);
+    const paint = async () => {
+      const r = await Store.report();
+      status.innerHTML = '';
+      const safe = r.installed || r.persisted;
+      status.appendChild(row({
+        icon: safe ? '🛡️' : '⚠️',
+        title: safe ? 'Your farm is protected' : 'Your farm is only in this browser',
+        sub: safe
+          ? 'This browser has marked the game as permanent, so it will not be cleared automatically.'
+          : 'Safari clears data for sites you have not opened in a while. Add the game to your ' +
+            'Home Screen, or keep a backup file, and that stops being a risk.',
+        tone: safe ? 'good' : 'warn',
+      }));
+      status.appendChild(row({
+        icon: '💾',
+        title: 'Saved in two places on this device',
+        sub: `Browser storage${r.mirrored ? ' and a database mirror' : ''}. ` +
+             `The last few snapshots are kept, so a bad write can be undone.`,
+      }));
+      if (!r.installed) {
+        status.appendChild(row({
+          icon: '📲',
+          title: 'Add to Home Screen',
+          sub: 'In Safari tap Share, then Add to Home Screen. Installed games are exempt from ' +
+               'the automatic clear-out — this is the single best thing you can do.',
+        }));
+      }
+    };
+    await paint();
+
+    /* --- the file that nothing can evict --- */
+    sheet.appendChild(el('div', 'fld-label', 'Backup file'));
+    sheet.appendChild(el('div', 'note',
+      'Saves all three farms to a file. Keep it in Files, iCloud Drive or email it to yourself — ' +
+      'nothing on the phone can delete that copy.'));
+
+    const dl = el('button', 'btn btn-big btn-green', '⬇️ Download backup file');
+    dl.style.marginTop = '8px';
+    dl.onclick = () => {
+      haptic();
+      const stamp = new Date().toISOString().slice(0, 10);
+      Store.downloadBackup(St.exportAll(), `sunny-acres-${stamp}.json`);
+      toast('Backup saved', '💾');
+    };
+    sheet.appendChild(dl);
+
+    const picker = el('input');
+    picker.type = 'file';
+    picker.accept = 'application/json,.json';
+    picker.style.display = 'none';
+    picker.onchange = async () => {
+      const f = picker.files && picker.files[0];
+      if (!f) return;
+      try {
+        const payload = await Store.readBackupFile(f);
+        const n = St.importAll(payload);
+        toast(`Restored ${n} farm${n > 1 ? 's' : ''}`, '✅');
+        setTimeout(() => location.reload(), 700);
+      } catch (err) {
+        SFX.error();
+        toast(err.message, '⚠️', true);
+      }
+    };
+    const up = el('button', 'btn btn-big', '⬆️ Restore from a backup file');
+    up.style.marginTop = '8px';
+    up.onclick = () => { haptic(); picker.click(); };
+    sheet.append(picker, up);
+
+    /* --- code transfer --- */
+    sheet.appendChild(el('div', 'fld-label', 'Move one farm'));
+    const xfer = el('button', 'btn btn-big', '📤 Copy this farm as a code');
+    xfer.onclick = () => transferSheet();
+    sheet.appendChild(xfer);
+
+    /* --- cloud --- */
+    sheet.appendChild(el('div', 'fld-label', 'Sign in to sync'));
+    sheet.appendChild(cloudSection());
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** The login block — real when cloud.js is configured, explanatory when not. */
+function cloudSection() {
+  const wrap = el('div');
+
+  if (!Cloud.configured()) {
+    wrap.appendChild(el('div', 'note',
+      'Signing in with Google, Apple or Facebook needs a server to hold the saves and to keep ' +
+      'the login secrets, which a page like this cannot do on its own. The code for it ships ' +
+      'with the game — see "Cloud saves" in the README to switch it on. Until then the backup ' +
+      'file above is the way to move a farm between devices.'));
+    const dead = el('div', 'provider-row');
+    for (const p of Cloud.PROVIDERS) {
+      dead.appendChild(el('span', 'provider off', `${p.icon} ${p.name}`));
+    }
+    wrap.appendChild(dead);
+    return wrap;
+  }
+
+  const acct = Cloud.account();
+  if (acct) {
+    wrap.appendChild(row({
+      icon: '☁️',
+      title: 'Signed in',
+      sub: acct.email || 'Your farms sync to this account.',
+      trail: costBtn('Sign out', { tone: 'red', onTap: () => { Cloud.signOut(); backupSheet(); } }),
+    }));
+    const syncBtn = el('button', 'btn btn-big btn-green', '🔄 Sync now');
+    syncBtn.onclick = async () => {
+      haptic();
+      syncBtn.disabled = true;
+      syncBtn.textContent = 'Syncing…';
+      try {
+        const { notes } = await Cloud.sync(St.exportAll().slots);
+        toast(`Synced · ${notes.pulled} down, ${notes.pushed} up`, '☁️');
+        setTimeout(() => location.reload(), 700);
+      } catch (err) {
+        SFX.error();
+        toast(err.message, '⚠️', true);
+        syncBtn.disabled = false;
+        syncBtn.textContent = '🔄 Sync now';
+      }
+    };
+    wrap.appendChild(syncBtn);
+    return wrap;
+  }
+
+  wrap.appendChild(el('div', 'note',
+    'Sign in and your farms are copied to your account. Log in on any device to pick them up.'));
+  const rowEl = el('div', 'provider-row');
+  for (const p of Cloud.PROVIDERS) {
+    const b = el('button', 'provider', `${p.icon} ${p.name}`);
+    b.onclick = () => { haptic(); Cloud.signIn(p.id); };
+    rowEl.appendChild(b);
+  }
+  wrap.appendChild(rowEl);
+  return wrap;
 }
 
 /** A farm's whole save as a code you can paste on another phone. */

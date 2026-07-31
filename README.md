@@ -7,7 +7,8 @@ crops, raise animals, craft goods, fill orders, and level up to unlock the next
 stage of the farm.
 
 No build step, no dependencies, no network calls at runtime — it's plain HTML,
-CSS and ES modules. Your farm saves to the phone itself.
+CSS and ES modules. Your farm saves to the phone itself, in two places at once,
+and restores itself if either one is lost. See [Saves](#saves).
 
 ## Play it on your iPhone
 
@@ -139,10 +140,82 @@ Three save slots, picked from the title screen. Each is a separate farm with its
 own level, coins and land; deleting one leaves the others alone. Slot 1 uses the
 original storage key, so a farm from an earlier build still loads.
 
-The game autosaves constantly — there's nothing to press. To move a farm to
-another phone, open your farmer (tap the avatar) → **Move this farm to another
-device**, copy the code, and paste it into **Load from a code** on the title
-screen of the other device. The farm you copied from is left untouched.
+The game autosaves constantly — there's nothing to press.
+
+### Not losing your farm
+
+Everything below lives behind the farmer avatar → **🛟 Backup & Safety**, which
+tells you in plain words how safe your farm currently is.
+
+**Every save is written twice**, to `localStorage` and to IndexedDB, and a
+rolling set of the last five snapshots is kept alongside them. At boot the game
+checks the primary copy of each slot; if it's missing or corrupt it restores it
+from the mirror, or failing that from the newest good backup, and tells you it
+did. That covers the two things that actually eat saves in practice: a partial
+write and a browser evicting one store but not the other.
+
+**Add it to your home screen.** This matters more than anything else on iPhone.
+Safari clears the storage of *websites* you haven't visited in seven days —
+but not of pages installed to the home screen. Tap *Share → Add to Home Screen*
+and the seven-day clock stops applying. The game also asks the browser for
+persistent storage on first run, which some browsers grant outright.
+
+**Backup file.** *Download backup file* saves every slot as
+`sunny-acres-YYYY-MM-DD.json` to your Files/Downloads. *Restore from a file*
+reads one back. This is the copy that survives a wiped phone, and it's worth
+taking one after a long session.
+
+**Transfer code.** To move a farm to another phone without a file, open your
+farmer → **Move this farm to another device**, copy the code, and paste it into
+**Load from a code** on the title screen of the other device. The farm you
+copied from is left untouched.
+
+### Cloud saves (sign in with Google, Apple or Facebook)
+
+The code for this is written and wired up — `js/cloud.js` — but it ships
+**switched off**, because it cannot work without two things only you can supply:
+
+1. **A server to hold the saves.** "Sign in with Google" means exchanging a
+   secret with Google's servers, and a page made of static files has nowhere to
+   keep a secret. Something server-side has to complete the handshake and own
+   the database.
+2. **A developer account with each provider.** Google and Facebook are free to
+   register. Apple charges $99/year for the developer account that Sign in with
+   Apple requires.
+
+Until it's configured the login buttons appear greyed out with an explanation,
+no network call is ever made, and the game runs entirely on the device.
+
+To switch it on, the least work is [Supabase](https://supabase.com), which hosts
+both the OAuth handshake and the database and speaks plain REST — no SDK:
+
+1. Create a free project, and copy its URL and **anon** key into `CONFIG` at the
+   top of `js/cloud.js`. (The anon key is designed to be public; it is safe in
+   client code. Row-level security is what protects the data.)
+2. *Authentication → Providers*: switch on Google / Apple / Facebook and paste
+   in the client ID and secret from each provider's console.
+3. *Authentication → URL Configuration*: add the URL you host the game at.
+4. Run this SQL so a player can only ever touch their own row:
+
+   ```sql
+   create table saves (
+     user_id uuid references auth.users on delete cascade,
+     slot    int  not null,
+     data    jsonb not null,
+     updated_at timestamptz default now(),
+     primary key (user_id, slot)
+   );
+   alter table saves enable row level security;
+   create policy "own saves" on saves
+     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+   ```
+
+5. Rebuild (`node scripts/build-single.mjs`) and host the result somewhere with
+   a real URL — OAuth redirects back to an origin, so `file://` and the
+   published artifact link can't take part.
+
+Sync is two-way and newest-wins per slot, and the merge is a pure function
+(`merge()` in `js/cloud.js`) so it can be reasoned about without a network.
 
 ### Progression
 
@@ -170,6 +243,8 @@ index.html              app shell
 css/style.css           all styling
 js/data.js              crops, animals, recipes, upgrades, economy curves
 js/state.js             the save file and every read/write against it
+js/store.js             durability: the IndexedDB mirror, backups, restore
+js/cloud.js             optional sign-in + server sync (off until configured)
 js/game.js              player actions + the world clock
 js/map.js               the field grid
 js/fx.js                confetti, button pops, floating numbers
@@ -199,8 +274,9 @@ node scripts/make-icons.mjs
 
 ## Notes
 
-- Saves live in `localStorage` (`sunnyacres.save.v1`, `…slot2`, `…slot3`), on
-  that device only. Clearing Safari's website data wipes them, so use a transfer
-  code if a farm matters to you.
+- Saves live under `sunnyacres.save.v1`, `…slot2`, `…slot3` — in `localStorage`
+  and mirrored into the `sunnyacres` IndexedDB database, on that device only
+  until cloud saves are configured. Deliberately clearing all website data wipes
+  both, so keep a backup file if a farm matters to you.
 - After changing any game file, bump `CACHE` in `sw.js` so installed phones
   pick up the new build.

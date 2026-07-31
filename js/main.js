@@ -8,6 +8,8 @@ import * as G from './game.js';
 import * as UI from './ui.js';
 import { setSound, unlockAudio, SFX } from './audio.js';
 import * as FX from './fx.js';
+import * as Store from './store.js';
+import * as Cloud from './cloud.js';
 import { el, fmt, setHaptics } from './util.js';
 
 const $ = id => document.getElementById(id);
@@ -62,6 +64,15 @@ function showTitle() {
       };
       card.appendChild(del);
     }
+  }
+
+  // A quiet line about durability, shown once there is something to lose.
+  const note = $('title-note');
+  if (note) {
+    const anyFarm = St.slotSummaries().some(x => !x.empty);
+    note.hidden = !anyFarm || Store.isInstalled();
+    note.textContent = 'Tip: add Sunny Acres to your Home Screen, or keep a backup file, ' +
+                       'so your farm is never cleared. Both are under Backup & Safety.';
   }
 
   $('load-code').onclick = () => {
@@ -165,7 +176,30 @@ function boot() {
 
 /* --------------------------------- start --------------------------------- */
 
-showTitle();
+/**
+ * Before anything reads a save: pick up an OAuth redirect if there is one,
+ * restore any slot that localStorage lost from the IndexedDB mirror, and ask
+ * the browser to stop evicting us.
+ */
+async function start() {
+  Cloud.captureRedirect();
+
+  let restored = [];
+  try {
+    restored = await Store.hydrate(St.allSlotKeys());
+  } catch { /* storage unavailable — carry on with whatever is there */ }
+
+  Store.requestPersistence();
+  showTitle();
+
+  if (restored.length) {
+    setTimeout(() => alert(
+      'Your farm was restored from this device\'s backup copy — the browser had cleared its ' +
+      'main storage. Open Backup & Safety to keep a file copy so this cannot bite you.'), 400);
+  }
+}
+
+start();
 
 /* @strip-in-bundle:start — the single-file build ships no sw.js to register */
 // Offline play is a bonus, never a requirement, so failure here is silent.

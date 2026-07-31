@@ -1393,6 +1393,51 @@ body.no-motion *::after {
 .meter-hay.low > i { background: linear-gradient(180deg, #ffb0a0, #d64b3a); }
 .trough .muted { margin-top: 6px; }
 
+/* --------------------------- backup & sign-in ---------------------------- */
+
+.title-note {
+  margin: 0 0 10px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, .6);
+  border: 2px solid rgba(156, 95, 38, .22);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.row.tone-good { border-color: rgba(61, 145, 52, .5); background: linear-gradient(180deg, #f4fff0, #e6f8e0); }
+.row.tone-warn { border-color: rgba(211, 143, 0, .55); background: linear-gradient(180deg, #fffaea, #fff1cf); }
+
+.provider-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 8px;
+}
+.provider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 11px 4px;
+  border: 2.5px solid var(--wood-dk);
+  border-radius: var(--r-sm);
+  background: linear-gradient(180deg, #fff, var(--card-2));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
+  font-size: var(--t-sub);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.provider.off {
+  opacity: .45;
+  filter: grayscale(1);
+  box-shadow: none;
+  border-style: dashed;
+}
+
 </style>
 
 <div id="app" hidden>
@@ -1408,6 +1453,7 @@ body.no-motion *::after {
     <h1>Sunny Acres</h1>
     <p class="sub">Grow it. Raise it. Sell it.</p>
     <div id="slots" class="slots-list"></div>
+    <p class="title-note" id="title-note" hidden></p>
     <button class="btn btn-big" id="load-code">📥 Load from a code</button>
   </div>
 </div>
@@ -2035,9 +2081,452 @@ function bindTapFeedback(root = document) {
 return { setMotion, confetti, pop, floatFrom, sowFx, reapFx, bindTapFeedback, motionOn };
 })();
 
+/* ---------- js/store.js ---------- */
+const __mod_store = (function () {
+/* ==========================================================================
+   store.js — keeping a farm alive.
+
+   localStorage on its own is the weakest link: Safari clears script-writable
+   storage for sites you have not opened in seven days, a half-written record
+   can corrupt the only copy, and clearing website data wipes it outright.
+   So every save is written three ways:
+
+     1. localStorage  — the fast synchronous copy the game reads on boot
+     2. IndexedDB     — a mirror with its own quota, restored from if 1 is gone
+     3. rolling backups — the last few good snapshots, to undo a bad write
+
+   On top of that we ask the browser to mark the origin as persistent, and we
+   tell the player plainly when their farm is only as safe as their browser
+   cache. A downloadable backup file is the one copy nothing can evict.
+   ========================================================================== */
+
+const DB = 'sunnyacres';
+const STORE = 'saves';
+const BACKUPS = 'backups';
+const KEEP_BACKUPS = 5;
+
+/* ------------------------------- validity -------------------------------- */
+
+/** Cheap structural check — enough to reject a truncated or foreign record. */
+function looksLikeSave(text) {
+  if (!text || typeof text !== 'string') return false;
+  try {
+    const d = JSON.parse(text);
+    return !!d && typeof d === 'object' && d.v === 1 &&
+      Array.isArray(d.plots) && typeof d.coins === 'number' && typeof d.level === 'number';
+  } catch {
+    return false;
+  }
+}
+
+/* ------------------------------- IndexedDB ------------------------------- */
+
+let dbPromise = null;
+
+function open() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise(resolve => {
+    if (!('indexedDB' in globalThis)) return resolve(null);
+    let req;
+    try {
+      req = indexedDB.open(DB, 1);
+    } catch {
+      return resolve(null);
+    }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+      if (!db.objectStoreNames.contains(BACKUPS)) db.createObjectStore(BACKUPS, { autoIncrement: true });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);        // private mode, quota, whatever
+    req.onblocked = () => resolve(null);
+  });
+  return dbPromise;
+}
+
+function tx(db, store, mode, run) {
+  return new Promise(resolve => {
+    let out;
+    try {
+      const t = db.transaction(store, mode);
+      out = run(t.objectStore(store));
+      t.oncomplete = () => resolve(out && out.result !== undefined ? out.result : out);
+      t.onerror = t.onabort = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+async function idbGet(key) {
+  const db = await open();
+  if (!db) return null;
+  const v = await tx(db, STORE, 'readonly', s => s.get(key));
+  return typeof v === 'string' ? v : null;
+}
+
+async function idbSet(key, value) {
+  const db = await open();
+  if (!db) return false;
+  await tx(db, STORE, 'readwrite', s => s.put(value, key));
+  return true;
+}
+
+async function idbDel(key) {
+  const db = await open();
+  if (!db) return;
+  await tx(db, STORE, 'readwrite', s => s.delete(key));
+}
+
+/* -------------------------------- backups -------------------------------- */
+
+/** Keeps the last KEEP_BACKUPS good snapshots, newest last. */
+async function pushBackup(key, value) {
+  const db = await open();
+  if (!db) return;
+  await tx(db, BACKUPS, 'readwrite', s => s.add({ key, value, at: Date.now() }));
+
+  const all = await listBackups();
+  const mine = all.filter(b => b.key === key);
+  if (mine.length > KEEP_BACKUPS) {
+    const drop = mine.slice(0, mine.length - KEEP_BACKUPS);
+    await tx(db, BACKUPS, 'readwrite', s => { for (const b of drop) s.delete(b.id); });
+  }
+}
+
+async function listBackups() {
+  const db = await open();
+  if (!db) return [];
+  return new Promise(resolve => {
+    const out = [];
+    try {
+      const t = db.transaction(BACKUPS, 'readonly');
+      const req = t.objectStore(BACKUPS).openCursor();
+      req.onsuccess = () => {
+        const c = req.result;
+        if (!c) return;
+        out.push({ id: c.key, ...c.value });
+        c.continue();
+      };
+      t.oncomplete = () => resolve(out);
+      t.onerror = t.onabort = () => resolve([]);
+    } catch {
+      resolve([]);
+    }
+  });
+}
+
+/** The newest usable snapshot for a slot, or null. */
+async function latestBackup(key) {
+  const mine = (await listBackups()).filter(b => b.key === key && looksLikeSave(b.value));
+  return mine.length ? mine[mine.length - 1] : null;
+}
+
+/* ------------------------------ the mirror ------------------------------- */
+
+/**
+ * Runs once at boot. Anything present in IndexedDB but missing or corrupt in
+ * localStorage is restored, so a cleared cache or a half-written record is
+ * recovered without the player noticing.
+ */
+async function hydrate(keys) {
+  const restored = [];
+  for (const key of keys) {
+    let local = null;
+    try { local = localStorage.getItem(key); } catch { /* private mode */ }
+
+    if (looksLikeSave(local)) {
+      // Local copy is good — make sure the mirror agrees with it.
+      const mirror = await idbGet(key);
+      if (mirror !== local) await idbSet(key, local);
+      continue;
+    }
+
+    const mirror = await idbGet(key);
+    const source = looksLikeSave(mirror) ? mirror : (await latestBackup(key) || {}).value;
+    if (looksLikeSave(source)) {
+      try {
+        localStorage.setItem(key, source);
+        restored.push(key);
+      } catch { /* nothing more we can do */ }
+    }
+  }
+  return restored;
+}
+
+/** Called on every save: mirror it, and snapshot it now and then. */
+let lastBackupAt = 0;
+function mirror(key, value) {
+  if (!looksLikeSave(value)) return;
+  idbSet(key, value);
+  // One snapshot every few minutes is plenty to undo a bad write.
+  if (Date.now() - lastBackupAt > 5 * 60 * 1000) {
+    lastBackupAt = Date.now();
+    pushBackup(key, value);
+  }
+}
+
+/* ---------------------------- durability report -------------------------- */
+
+/** Ask the browser not to evict us. Safari only grants this to installed apps. */
+async function requestPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist) return await navigator.storage.persist();
+  } catch { /* unsupported */ }
+  return false;
+}
+
+function isInstalled() {
+  return !!(navigator.standalone ||
+    (window.matchMedia && matchMedia('(display-mode: standalone)').matches));
+}
+
+async function report() {
+  let persisted = false, usage = 0, quota = 0;
+  try {
+    if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted();
+    if (navigator.storage && navigator.storage.estimate) {
+      const e = await navigator.storage.estimate();
+      usage = e.usage || 0;
+      quota = e.quota || 0;
+    }
+  } catch { /* unsupported */ }
+  return { persisted, usage, quota, installed: isInstalled(), mirrored: !!(await open()) };
+}
+
+/* ---------------------------- the file you keep -------------------------- */
+
+/** Downloads every slot as one JSON file — the copy no browser can clear. */
+function downloadBackup(payload, name) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/** Reads a backup file the player picks. Resolves to the parsed payload. */
+function readBackupFile(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const data = JSON.parse(String(r.result));
+        if (!data || typeof data !== 'object' || !data.slots) throw new Error('shape');
+        resolve(data);
+      } catch {
+        reject(new Error('That file is not a Sunny Acres backup.'));
+      }
+    };
+    r.onerror = () => reject(new Error('That file could not be read.'));
+    r.readAsText(file);
+  });
+}
+return { looksLikeSave, idbGet, idbSet, idbDel, pushBackup, listBackups, latestBackup, hydrate, mirror, requestPersistence, isInstalled, report, downloadBackup, readBackupFile };
+})();
+
+/* ---------- js/cloud.js ---------- */
+const __mod_cloud = (function () {
+/* ==========================================================================
+   cloud.js — signing in and syncing farms to a server.
+
+   This is switched OFF until you fill in CONFIG below. Until then everything
+   here reports "not configured" and the game runs entirely on the device.
+
+   Why it needs configuring: signing in with Google, Apple or Facebook means
+   registering an app with each of them and holding a client secret, which a
+   static page cannot do — the secret would be public. Something server-side
+   has to complete the handshake and own the database of saves. Supabase is
+   the least work: it hosts the OAuth handshake and the database, and speaks
+   plain REST, so no SDK is needed here.
+
+   Setup, once:
+     1. Create a free project at supabase.com and copy its URL + anon key
+        into CONFIG below.
+     2. Authentication -> Providers: switch on Google / Apple / Facebook and
+        paste in the client IDs you get from each provider's console.
+        (Apple requires a paid Apple Developer account; the other two are free.)
+     3. Add the site URL to Authentication -> URL Configuration.
+     4. Run this SQL so each player can only ever touch their own row:
+
+        create table saves (
+          user_id uuid references auth.users on delete cascade,
+          slot    int  not null,
+          data    jsonb not null,
+          updated_at timestamptz default now(),
+          primary key (user_id, slot)
+        );
+        alter table saves enable row level security;
+        create policy "own saves" on saves
+          for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+   The whole surface is four calls: providers(), signIn(), signOut(), sync().
+   ========================================================================== */
+
+const CONFIG = {
+  url: '',        // e.g. 'https://abcdefgh.supabase.co'
+  anonKey: '',    // the public anon key — safe in client code
+};
+
+/** Which logins to offer. Only the ones you enabled server-side will work. */
+const PROVIDERS = [
+  { id: 'google',   name: 'Google',   icon: '🟢' },
+  { id: 'apple',    name: 'Apple',    icon: '🍎' },
+  { id: 'facebook', name: 'Facebook', icon: '🔵' },
+];
+
+const SESSION_KEY = 'sunnyacres.session';
+
+const configured = () => !!(CONFIG.url && CONFIG.anonKey);
+
+/* -------------------------------- session -------------------------------- */
+
+function readSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!s || !s.access_token) return null;
+    if (s.expires_at && s.expires_at * 1000 < Date.now()) return null;
+    return s;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(s) {
+  try {
+    if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_KEY);
+  } catch { /* private mode */ }
+}
+
+const session = () => readSession();
+const signedIn = () => !!readSession();
+
+/** Display name for whoever is signed in. */
+function account() {
+  const s = readSession();
+  if (!s) return null;
+  return { email: s.email || null, provider: s.provider || null };
+}
+
+/**
+ * Supabase hands the tokens back in the URL fragment. Call this once at boot;
+ * it stores the session and cleans the address bar.
+ */
+function captureRedirect() {
+  if (!location.hash || location.hash.indexOf('access_token=') < 0) return false;
+  const p = new URLSearchParams(location.hash.slice(1));
+  const token = p.get('access_token');
+  if (!token) return false;
+  writeSession({
+    access_token: token,
+    refresh_token: p.get('refresh_token') || '',
+    expires_at: Number(p.get('expires_at')) || 0,
+    provider: p.get('provider_token') ? 'oauth' : 'oauth',
+  });
+  history.replaceState(null, '', location.pathname + location.search);
+  return true;
+}
+
+function signIn(provider) {
+  if (!configured()) return false;
+  const back = encodeURIComponent(location.origin + location.pathname);
+  location.href = `${CONFIG.url}/auth/v1/authorize?provider=${provider}&redirect_to=${back}`;
+  return true;
+}
+
+function signOut() {
+  writeSession(null);
+}
+
+/* ------------------------------ the REST bits ---------------------------- */
+
+async function api(path, opts = {}) {
+  const s = readSession();
+  if (!configured() || !s) throw new Error('Not signed in.');
+  const res = await fetch(`${CONFIG.url}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      apikey: CONFIG.anonKey,
+      Authorization: `Bearer ${s.access_token}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) { signOut(); throw new Error('Your sign-in expired. Sign in again.'); }
+  if (!res.ok) throw new Error(`The server said no (${res.status}).`);
+  return res.status === 204 ? null : res.json();
+}
+
+async function pull() {
+  const rows = await api('saves?select=slot,data,updated_at');
+  const out = {};
+  for (const r of rows || []) out[r.slot] = r.data;
+  return out;
+}
+
+async function push(slots) {
+  const rows = Object.entries(slots).map(([slot, data]) => ({
+    slot: Number(slot), data, updated_at: new Date().toISOString(),
+  }));
+  if (!rows.length) return;
+  await api('saves?on_conflict=user_id,slot', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify(rows),
+  });
+}
+
+/* --------------------------------- sync ---------------------------------- */
+
+/**
+ * Two-way sync, newest-wins per slot. `local` is {slot: saveObject}; the
+ * result is what the device should now hold, plus a short summary to show.
+ *
+ * Split out from the network so it can be reasoned about — and tested —
+ * on its own.
+ */
+function merge(local, remote) {
+  const slots = {};
+  const notes = { pulled: 0, pushed: 0, same: 0 };
+  const keys = new Set([...Object.keys(local || {}), ...Object.keys(remote || {})]);
+
+  for (const k of keys) {
+    const a = (local || {})[k];
+    const b = (remote || {})[k];
+    if (a && !b) { slots[k] = a; notes.pushed++; continue; }
+    if (b && !a) { slots[k] = b; notes.pulled++; continue; }
+    const at = a.lastSeen || a.createdAt || 0;
+    const bt = b.lastSeen || b.createdAt || 0;
+    if (bt > at) { slots[k] = b; notes.pulled++; }
+    else if (at > bt) { slots[k] = a; notes.pushed++; }
+    else { slots[k] = a; notes.same++; }
+  }
+  return { slots, notes };
+}
+
+/**
+ * Runs a full round trip. Hands back the merged slots so state.js can write
+ * them, and a summary line for the UI.
+ */
+async function sync(localSlots) {
+  const remote = await pull();
+  const { slots, notes } = merge(localSlots, remote);
+  await push(slots);
+  return { slots, notes };
+}
+return { account, captureRedirect, signIn, signOut, merge, sync, CONFIG, PROVIDERS, configured, session, signedIn };
+})();
+
 /* ---------- js/state.js ---------- */
 const __mod_state = (function () {
 const D = __mod_data;
+const Store = __mod_store;
 const {now, clamp, uid} = __mod_util;
 /* ==========================================================================
    state.js — the save file, plus every read/write that touches it.
@@ -2047,11 +2536,13 @@ const {now, clamp, uid} = __mod_util;
 
 
 
+
 const SAVE_VERSION = 1;
 const SLOTS = 3;
 
 /** Slot 1 keeps the original key so farms from earlier builds survive. */
 const slotKey = i => (i === 0 ? 'sunnyacres.save.v1' : `sunnyacres.save.v1.slot${i + 1}`);
+const allSlotKeys = () => Array.from({ length: SLOTS }, (_, i) => slotKey(i));
 const LAST_SLOT = 'sunnyacres.lastSlot';
 
 let S = null;
@@ -2146,6 +2637,7 @@ function startNew(name, avatar, i = 0) {
 
 function deleteSlot(i) {
   localStorage.removeItem(slotKey(i));
+  Store.idbDel(slotKey(i));
 }
 
 /* ------------------------- moving a farm elsewhere ----------------------- */
@@ -2199,9 +2691,13 @@ let saveTimer = null;
 function save() {
   if (!S) return;
   S.lastSeen = now();
+  const json = JSON.stringify(S);
   try {
-    localStorage.setItem(slotKey(slot), JSON.stringify(S));
+    localStorage.setItem(slotKey(slot), json);
   } catch { /* storage full or private mode — keep playing in memory */ }
+  // Mirror into IndexedDB and snapshot occasionally, so a cleared cache or a
+  // half-written record is recoverable.
+  Store.mirror(slotKey(slot), json);
 }
 
 /** Coalesce the many little writes a tap storm produces. */
@@ -2212,6 +2708,41 @@ function saveSoon() {
 
 function wipe() {
   localStorage.removeItem(slotKey(slot));
+  Store.idbDel(slotKey(slot));
+}
+
+/* --------------------------- whole-device backup ------------------------- */
+
+/** Every slot in one object, for the downloadable backup file. */
+function exportAll() {
+  const slots = {};
+  for (let i = 0; i < SLOTS; i++) {
+    const raw = localStorage.getItem(slotKey(i));
+    if (Store.looksLikeSave(raw)) slots[i] = JSON.parse(raw);
+  }
+  return { app: 'sunny-acres', v: SAVE_VERSION, savedAt: new Date().toISOString(), slots };
+}
+
+/**
+ * Restores a backup file. Returns how many farms were written, or throws
+ * with a message worth showing.
+ */
+function importAll(payload) {
+  if (!payload || !payload.slots) throw new Error('That file is not a Sunny Acres backup.');
+  let n = 0;
+  for (const [i, data] of Object.entries(payload.slots)) {
+    const idx = Number(i);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= SLOTS) continue;
+    const json = JSON.stringify(data);
+    if (!Store.looksLikeSave(json)) continue;
+    try {
+      localStorage.setItem(slotKey(idx), json);
+      Store.mirror(slotKey(idx), json);
+      n++;
+    } catch { /* out of room */ }
+  }
+  if (!n) throw new Error('That backup had no farms in it.');
+  return n;
 }
 
 /* ------------------------------- storage -------------------------------- */
@@ -2408,7 +2939,7 @@ function producibleItems() {
   }
   return [...ids];
 }
-return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, boostLeft, boostsRunning, boostMult, growthMult, craftMult, animalMult, sellMult, orderMult, xpMult, addTrough, takeTrough, grazeRate, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, get S() { return S; }, get slot() { return slot; }, isCrop, troughUnits };
+return { freshState, slotSummaries, load, startNew, deleteSlot, exportCode, importCode, save, saveSoon, wipe, exportAll, importAll, count, siloUsed, barnUsed, spaceFor, addItem, removeItem, hasAll, removeAll, spendCoins, earnCoins, spendGems, addXp, levelProgress, has, boostLeft, boostsRunning, boostMult, growthMult, craftMult, animalMult, sellMult, orderMult, xpMult, addTrough, takeTrough, grazeRate, queueCap, unlockedCrops, unlockedRecipes, animalsOf, addAnimal, producibleItems, SLOTS, slotKey, allSlotKeys, get S() { return S; }, get slot() { return slot; }, isCrop, troughUnits };
 })();
 
 /* ---------- js/game.js ---------- */
@@ -3206,6 +3737,8 @@ const D = __mod_data;
 const St = __mod_state;
 const G = __mod_game;
 const FX = __mod_fx;
+const Store = __mod_store;
+const Cloud = __mod_cloud;
 const {fieldGrid} = __mod_map;
 const {el, fmt, fmtTime, fmtSpan, now, clamp, haptic, setHaptics} = __mod_util;
 const {SFX, setSound, soundOn} = __mod_audio;
@@ -3214,6 +3747,8 @@ const {SFX, setSound, soundOn} = __mod_audio;
    (timers, progress rings) run through lightweight "tickers" so the DOM
    isn't thrown away every frame and scroll position survives.
    ========================================================================== */
+
+
 
 
 
@@ -4367,10 +4902,10 @@ function profileSheet() {
     swap.onclick = () => { St.save(); location.reload(); };
     sheet.appendChild(swap);
 
-    const xfer = el('button', 'btn btn-big', '📤 Move this farm to another device');
-    xfer.style.marginTop = '8px';
-    xfer.onclick = () => transferSheet();
-    sheet.appendChild(xfer);
+    const backup = el('button', 'btn btn-big btn-gold', '🛟 Backup & Safety');
+    backup.style.marginTop = '8px';
+    backup.onclick = () => { close(); backupSheet(); };
+    sheet.appendChild(backup);
 
     const reset = el('button', 'btn btn-big btn-red', '🗑️ Delete this farm');
     reset.style.marginTop = '8px';
@@ -4538,6 +5073,158 @@ function settingsSheet() {
   });
 }
 
+/** Where your farm lives, how safe it is, and every way to copy it. */
+function backupSheet() {
+  openSheet(async (sheet, close) => {
+    sheet.appendChild(el('h2', null, '🛟 Backup & Safety'));
+    sheet.appendChild(el('p', 'sub', 'Where this farm is stored, and how to keep it.'));
+
+    /* --- how safe are we right now --- */
+    const status = el('div');
+    sheet.appendChild(status);
+    const paint = async () => {
+      const r = await Store.report();
+      status.innerHTML = '';
+      const safe = r.installed || r.persisted;
+      status.appendChild(row({
+        icon: safe ? '🛡️' : '⚠️',
+        title: safe ? 'Your farm is protected' : 'Your farm is only in this browser',
+        sub: safe
+          ? 'This browser has marked the game as permanent, so it will not be cleared automatically.'
+          : 'Safari clears data for sites you have not opened in a while. Add the game to your ' +
+            'Home Screen, or keep a backup file, and that stops being a risk.',
+        tone: safe ? 'good' : 'warn',
+      }));
+      status.appendChild(row({
+        icon: '💾',
+        title: 'Saved in two places on this device',
+        sub: `Browser storage${r.mirrored ? ' and a database mirror' : ''}. ` +
+             `The last few snapshots are kept, so a bad write can be undone.`,
+      }));
+      if (!r.installed) {
+        status.appendChild(row({
+          icon: '📲',
+          title: 'Add to Home Screen',
+          sub: 'In Safari tap Share, then Add to Home Screen. Installed games are exempt from ' +
+               'the automatic clear-out — this is the single best thing you can do.',
+        }));
+      }
+    };
+    await paint();
+
+    /* --- the file that nothing can evict --- */
+    sheet.appendChild(el('div', 'fld-label', 'Backup file'));
+    sheet.appendChild(el('div', 'note',
+      'Saves all three farms to a file. Keep it in Files, iCloud Drive or email it to yourself — ' +
+      'nothing on the phone can delete that copy.'));
+
+    const dl = el('button', 'btn btn-big btn-green', '⬇️ Download backup file');
+    dl.style.marginTop = '8px';
+    dl.onclick = () => {
+      haptic();
+      const stamp = new Date().toISOString().slice(0, 10);
+      Store.downloadBackup(St.exportAll(), `sunny-acres-${stamp}.json`);
+      toast('Backup saved', '💾');
+    };
+    sheet.appendChild(dl);
+
+    const picker = el('input');
+    picker.type = 'file';
+    picker.accept = 'application/json,.json';
+    picker.style.display = 'none';
+    picker.onchange = async () => {
+      const f = picker.files && picker.files[0];
+      if (!f) return;
+      try {
+        const payload = await Store.readBackupFile(f);
+        const n = St.importAll(payload);
+        toast(`Restored ${n} farm${n > 1 ? 's' : ''}`, '✅');
+        setTimeout(() => location.reload(), 700);
+      } catch (err) {
+        SFX.error();
+        toast(err.message, '⚠️', true);
+      }
+    };
+    const up = el('button', 'btn btn-big', '⬆️ Restore from a backup file');
+    up.style.marginTop = '8px';
+    up.onclick = () => { haptic(); picker.click(); };
+    sheet.append(picker, up);
+
+    /* --- code transfer --- */
+    sheet.appendChild(el('div', 'fld-label', 'Move one farm'));
+    const xfer = el('button', 'btn btn-big', '📤 Copy this farm as a code');
+    xfer.onclick = () => transferSheet();
+    sheet.appendChild(xfer);
+
+    /* --- cloud --- */
+    sheet.appendChild(el('div', 'fld-label', 'Sign in to sync'));
+    sheet.appendChild(cloudSection());
+
+    const done = el('button', 'btn btn-big btn-blue', 'Done');
+    done.style.marginTop = '12px';
+    done.onclick = close;
+    sheet.appendChild(done);
+  });
+}
+
+/** The login block — real when cloud.js is configured, explanatory when not. */
+function cloudSection() {
+  const wrap = el('div');
+
+  if (!Cloud.configured()) {
+    wrap.appendChild(el('div', 'note',
+      'Signing in with Google, Apple or Facebook needs a server to hold the saves and to keep ' +
+      'the login secrets, which a page like this cannot do on its own. The code for it ships ' +
+      'with the game — see "Cloud saves" in the README to switch it on. Until then the backup ' +
+      'file above is the way to move a farm between devices.'));
+    const dead = el('div', 'provider-row');
+    for (const p of Cloud.PROVIDERS) {
+      dead.appendChild(el('span', 'provider off', `${p.icon} ${p.name}`));
+    }
+    wrap.appendChild(dead);
+    return wrap;
+  }
+
+  const acct = Cloud.account();
+  if (acct) {
+    wrap.appendChild(row({
+      icon: '☁️',
+      title: 'Signed in',
+      sub: acct.email || 'Your farms sync to this account.',
+      trail: costBtn('Sign out', { tone: 'red', onTap: () => { Cloud.signOut(); backupSheet(); } }),
+    }));
+    const syncBtn = el('button', 'btn btn-big btn-green', '🔄 Sync now');
+    syncBtn.onclick = async () => {
+      haptic();
+      syncBtn.disabled = true;
+      syncBtn.textContent = 'Syncing…';
+      try {
+        const { notes } = await Cloud.sync(St.exportAll().slots);
+        toast(`Synced · ${notes.pulled} down, ${notes.pushed} up`, '☁️');
+        setTimeout(() => location.reload(), 700);
+      } catch (err) {
+        SFX.error();
+        toast(err.message, '⚠️', true);
+        syncBtn.disabled = false;
+        syncBtn.textContent = '🔄 Sync now';
+      }
+    };
+    wrap.appendChild(syncBtn);
+    return wrap;
+  }
+
+  wrap.appendChild(el('div', 'note',
+    'Sign in and your farms are copied to your account. Log in on any device to pick them up.'));
+  const rowEl = el('div', 'provider-row');
+  for (const p of Cloud.PROVIDERS) {
+    const b = el('button', 'provider', `${p.icon} ${p.name}`);
+    b.onclick = () => { haptic(); Cloud.signIn(p.id); };
+    rowEl.appendChild(b);
+  }
+  wrap.appendChild(rowEl);
+  return wrap;
+}
+
 /** A farm's whole save as a code you can paste on another phone. */
 function transferSheet() {
   openSheet((sheet, close) => {
@@ -4663,7 +5350,7 @@ function welcomeBack(info) {
     sheet.appendChild(go);
   });
 }
-return { setView, render, refresh, troughPanel, openSheet, itemSheet, machineSheet, settingsSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
+return { setView, render, refresh, troughPanel, openSheet, itemSheet, machineSheet, settingsSheet, backupSheet, toast, levelUpSplash, welcomeBack, get view() { return view; } };
 })();
 
 /* ---------- js/main.js ---------- */
@@ -4673,11 +5360,15 @@ const St = __mod_state;
 const G = __mod_game;
 const UI = __mod_ui;
 const FX = __mod_fx;
+const Store = __mod_store;
+const Cloud = __mod_cloud;
 const {setSound, unlockAudio, SFX} = __mod_audio;
 const {el, fmt, setHaptics} = __mod_util;
 /* ==========================================================================
    main.js — the title screen, onboarding, and the once-a-second heartbeat.
    ========================================================================== */
+
+
 
 
 
@@ -4739,6 +5430,15 @@ function showTitle() {
       };
       card.appendChild(del);
     }
+  }
+
+  // A quiet line about durability, shown once there is something to lose.
+  const note = $('title-note');
+  if (note) {
+    const anyFarm = St.slotSummaries().some(x => !x.empty);
+    note.hidden = !anyFarm || Store.isInstalled();
+    note.textContent = 'Tip: add Sunny Acres to your Home Screen, or keep a backup file, ' +
+                       'so your farm is never cleared. Both are under Backup & Safety.';
   }
 
   $('load-code').onclick = () => {
@@ -4842,7 +5542,30 @@ function boot() {
 
 /* --------------------------------- start --------------------------------- */
 
-showTitle();
+/**
+ * Before anything reads a save: pick up an OAuth redirect if there is one,
+ * restore any slot that localStorage lost from the IndexedDB mirror, and ask
+ * the browser to stop evicting us.
+ */
+async function start() {
+  Cloud.captureRedirect();
+
+  let restored = [];
+  try {
+    restored = await Store.hydrate(St.allSlotKeys());
+  } catch { /* storage unavailable — carry on with whatever is there */ }
+
+  Store.requestPersistence();
+  showTitle();
+
+  if (restored.length) {
+    setTimeout(() => alert(
+      'Your farm was restored from this device\'s backup copy — the browser had cleared its ' +
+      'main storage. Open Backup & Safety to keep a file copy so this cannot bite you.'), 400);
+  }
+}
+
+start();
 return {  };
 })();
 </script>

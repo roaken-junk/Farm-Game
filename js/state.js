@@ -4,13 +4,15 @@
    ========================================================================== */
 
 import * as D from './data.js';
+import * as Store from './store.js';
 import { now, clamp, uid } from './util.js';
 
 const SAVE_VERSION = 1;
 export const SLOTS = 3;
 
 /** Slot 1 keeps the original key so farms from earlier builds survive. */
-const slotKey = i => (i === 0 ? 'sunnyacres.save.v1' : `sunnyacres.save.v1.slot${i + 1}`);
+export const slotKey = i => (i === 0 ? 'sunnyacres.save.v1' : `sunnyacres.save.v1.slot${i + 1}`);
+export const allSlotKeys = () => Array.from({ length: SLOTS }, (_, i) => slotKey(i));
 const LAST_SLOT = 'sunnyacres.lastSlot';
 
 export let S = null;
@@ -105,6 +107,7 @@ export function startNew(name, avatar, i = 0) {
 
 export function deleteSlot(i) {
   localStorage.removeItem(slotKey(i));
+  Store.idbDel(slotKey(i));
 }
 
 /* ------------------------- moving a farm elsewhere ----------------------- */
@@ -158,9 +161,13 @@ let saveTimer = null;
 export function save() {
   if (!S) return;
   S.lastSeen = now();
+  const json = JSON.stringify(S);
   try {
-    localStorage.setItem(slotKey(slot), JSON.stringify(S));
+    localStorage.setItem(slotKey(slot), json);
   } catch { /* storage full or private mode — keep playing in memory */ }
+  // Mirror into IndexedDB and snapshot occasionally, so a cleared cache or a
+  // half-written record is recoverable.
+  Store.mirror(slotKey(slot), json);
 }
 
 /** Coalesce the many little writes a tap storm produces. */
@@ -171,6 +178,41 @@ export function saveSoon() {
 
 export function wipe() {
   localStorage.removeItem(slotKey(slot));
+  Store.idbDel(slotKey(slot));
+}
+
+/* --------------------------- whole-device backup ------------------------- */
+
+/** Every slot in one object, for the downloadable backup file. */
+export function exportAll() {
+  const slots = {};
+  for (let i = 0; i < SLOTS; i++) {
+    const raw = localStorage.getItem(slotKey(i));
+    if (Store.looksLikeSave(raw)) slots[i] = JSON.parse(raw);
+  }
+  return { app: 'sunny-acres', v: SAVE_VERSION, savedAt: new Date().toISOString(), slots };
+}
+
+/**
+ * Restores a backup file. Returns how many farms were written, or throws
+ * with a message worth showing.
+ */
+export function importAll(payload) {
+  if (!payload || !payload.slots) throw new Error('That file is not a Sunny Acres backup.');
+  let n = 0;
+  for (const [i, data] of Object.entries(payload.slots)) {
+    const idx = Number(i);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= SLOTS) continue;
+    const json = JSON.stringify(data);
+    if (!Store.looksLikeSave(json)) continue;
+    try {
+      localStorage.setItem(slotKey(idx), json);
+      Store.mirror(slotKey(idx), json);
+      n++;
+    } catch { /* out of room */ }
+  }
+  if (!n) throw new Error('That backup had no farms in it.');
+  return n;
 }
 
 /* ------------------------------- storage -------------------------------- */
