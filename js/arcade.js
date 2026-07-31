@@ -73,16 +73,31 @@ function backdrop(ctx, groundY, sky = '#bfe7ff', ground = '#8fd05a') {
 /* ========================== cabinet 1 — Crow Patrol ======================= */
 
 /**
+ * Power-ups, earned rather than given: every STREAK_FOR crows killed without
+ * taking a hit drops a capsule from the crow that died. Catch it with the
+ * scarecrow and it runs for a while. Getting hit resets the streak, so the
+ * reward is for a clean run of shooting, not for time spent.
+ */
+const CROW_POWERS = {
+  buck:   { icon: '💥', name: 'Buckshot', secs: 12 },
+  auto:   { icon: '⚡', name: 'Rapid Fire', secs: 12 },
+  shield: { icon: '🛡️', name: 'Shield', secs: 18 },
+};
+const POWER_IDS = ['buck', 'auto', 'shield'];
+const STREAK_FOR = 7;
+
+/**
  * Invaders. The scarecrow slides along the fence and throws kernels on its
  * own, so the whole game is one thumb dragging left and right.
  */
 function makeCrows() {
   const COLS = 6, ROWS = 4;
   const PLAYER_Y = H - 30;
-  const g = { score: 0, lives: 3, over: false, wave: 1, t: 0 };
+  const g = { score: 0, lives: 3, over: false, wave: 1, t: 0, power: null, powerLeft: 0 };
 
   let crows = [], ox = 0, oy = 0, dir = 1, speed = 30;
   let px = W / 2, shots = [], pecks = [], fire = 0, drop = 1.4, hurt = 0;
+  let caps = [], streak = 0, shield = false, flash = 0;
 
   function spawnWave() {
     crows = [];
@@ -100,9 +115,30 @@ function makeCrows() {
   }
   spawnWave();
 
+  function grant(id) {
+    g.power = id;
+    g.powerLeft = CROW_POWERS[id].secs;
+    if (id === 'shield') shield = true;
+    flash = 0.5;
+    g.score += 25;
+    SFX.collect();
+    haptic();
+  }
+
   function loseLife(resetWave) {
+    // A shield eats the hit instead of a life — that is what it is for.
+    if (shield) {
+      shield = false;
+      if (g.power === 'shield') { g.power = null; g.powerLeft = 0; }
+      hurt = 0.4;
+      pecks = [];
+      SFX.error();
+      haptic();
+      return;
+    }
     g.lives--;
     hurt = 0.7;
+    streak = 0;
     pecks = [];
     SFX.error();
     haptic();
@@ -119,13 +155,31 @@ function makeCrows() {
   g.step = dt => {
     g.t += dt;
     hurt = Math.max(0, hurt - dt);
+    flash = Math.max(0, flash - dt);
+
+    if (g.power) {
+      g.powerLeft -= dt;
+      if (g.powerLeft <= 0) {
+        if (g.power === 'shield') shield = false;
+        g.power = null;
+        g.powerLeft = 0;
+      }
+    }
 
     ox += dir * speed * dt;
     if (ox > 36 || ox < -22) { ox = clamp(ox, -22, 36); dir *= -1; oy += 11; }
 
     fire -= dt;
-    if (fire <= 0) { fire = 0.4; shots.push({ x: px, y: PLAYER_Y - 14 }); }
-    for (const s of shots) s.y -= 300 * dt;
+    if (fire <= 0) {
+      fire = g.power === 'auto' ? 0.13 : 0.4;
+      const y = PLAYER_Y - 14;
+      if (g.power === 'buck') {
+        shots.push({ x: px, y, vx: -85 }, { x: px, y, vx: 0 }, { x: px, y, vx: 85 });
+      } else {
+        shots.push({ x: px, y, vx: 0 });
+      }
+    }
+    for (const s of shots) { s.y -= 300 * dt; s.x += (s.vx || 0) * dt; }
 
     drop -= dt;
     if (drop <= 0) {
@@ -147,11 +201,24 @@ function makeCrows() {
           s.y = -999;
           g.score += 10 + g.wave * 2;
           SFX.plant();
+          if (++streak % STREAK_FOR === 0) {
+            caps.push({ x: c.x + ox, y: c.y + oy, id: pick(POWER_IDS) });
+          }
           break;
         }
       }
     }
-    shots = shots.filter(s => s.y > -12);
+    shots = shots.filter(s => s.y > -12 && s.x > -12 && s.x < W + 12);
+
+    /* capsules fall; catching one is the whole reward */
+    for (const cap of caps) cap.y += 78 * dt;
+    for (const cap of caps) {
+      if (Math.abs(cap.x - px) < 22 && Math.abs(cap.y - PLAYER_Y) < 20) {
+        cap.y = H + 999;
+        grant(cap.id);
+      }
+    }
+    caps = caps.filter(cap => cap.y < H + 14);
 
     /* pecks vs scarecrow */
     for (const p of pecks) {
@@ -186,7 +253,7 @@ function makeCrows() {
 
     for (const c of crows) if (c.alive) glyph(ctx, '🐦', c.x + ox, c.y + oy, 22);
 
-    ctx.fillStyle = '#ffd44a';
+    ctx.fillStyle = g.power === 'buck' ? '#ffb02e' : '#ffd44a';
     for (const s of shots) {
       ctx.beginPath();
       ctx.ellipse(s.x, s.y, 3, 5, 0, 0, Math.PI * 2);
@@ -200,11 +267,40 @@ function makeCrows() {
       ctx.fill();
     }
 
+    /* capsules, on a little halo so they never read as another peck */
+    for (const cap of caps) {
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.beginPath();
+      ctx.arc(cap.x, cap.y, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#3d9134';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      glyph(ctx, CROW_POWERS[cap.id].icon, cap.x, cap.y, 15);
+    }
+
     ctx.globalAlpha = hurt > 0 && Math.floor(hurt * 12) % 2 ? 0.35 : 1;
     glyph(ctx, '🧑‍🌾', px, PLAYER_Y, 30);
     ctx.globalAlpha = 1;
 
+    if (shield) {
+      ctx.strokeStyle = `rgba(71,201,255,${0.55 + 0.35 * Math.sin(g.t * 6)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(px, PLAYER_Y - 2, 24, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    if (flash > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${(flash / 0.5) * 0.4})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
     label(ctx, `FLOCK ${g.wave}`, 8, 14, 11, 'rgba(30,60,80,.65)');
+    // How close the next capsule is, so the streak is something you can play for.
+    const togo = STREAK_FOR - (streak % STREAK_FOR);
+    label(ctx, streak ? `STREAK ${streak} · ${togo} to a drop` : `${STREAK_FOR} in a row drops a power-up`,
+          8, 28, 9, 'rgba(30,60,80,.5)');
   };
 
   return g;
@@ -470,6 +566,16 @@ function makeGoat() {
 
 const BUILDERS = { crows: makeCrows, chicken: makeChicken, goat: makeGoat };
 
+/**
+ * The cabinets, out from behind the engine. A game is a plain object driven by
+ * `step(dt)` and drawn separately, so its rules can be exercised without a
+ * canvas — which is the only sane way to test something like "seven kills in a
+ * row drops a capsule".
+ */
+export const CABINETS = BUILDERS;
+export const POWERS = CROW_POWERS;
+export const SIZE = { W, H };
+
 /* ================================ the engine ============================= */
 
 /**
@@ -488,6 +594,7 @@ export function open(gameId, onDone) {
   const head = el('div', 'cab-head');
   head.innerHTML =
     `<span class="cab-name">${game.icon} ${game.name}</span>
+     <span class="cab-power" id="cab-power" hidden></span>
      <span class="cab-stat" id="cab-score">0</span>
      <span class="cab-stat cab-lives" id="cab-lives"></span>`;
   const quit = el('button', 'cab-x', '✕');
@@ -569,10 +676,14 @@ export function open(gameId, onDone) {
   let phase = 'ready', wait = 1.1, raf = 0, last = 0;
   const scoreEl = head.querySelector('#cab-score');
   const livesEl = head.querySelector('#cab-lives');
+  const powerEl = head.querySelector('#cab-power');
 
   function paintChrome() {
     scoreEl.textContent = fmt(g.score);
     livesEl.textContent = g.lives > 0 ? '❤️'.repeat(Math.min(5, g.lives)) : '';
+    const pw = g.power && CROW_POWERS[g.power];
+    powerEl.hidden = !pw;
+    if (pw) powerEl.textContent = `${pw.icon} ${pw.name} ${Math.ceil(g.powerLeft)}s`;
   }
 
   function paint() {

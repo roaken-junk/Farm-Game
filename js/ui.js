@@ -662,9 +662,9 @@ function machinePanel(m) {
     row.appendChild(icBtn);
     const body = el('div', 'body');
     const toTrough = r.out === 'feed';
-    body.innerHTML = `<b>${toTrough ? `Feed · +${D.MILL_UNITS} to trough` : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
+    body.innerHTML = `<b>${toTrough ? 'Animal Feed' : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
       <small>${locked ? '🔒 Level ' + r.level
-        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · fills the trough your animals eat from`
+        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · +${D.MILL_UNITS} to the trough`
         : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
     body.appendChild(ing);
     row.appendChild(body);
@@ -703,25 +703,63 @@ function slotTile(machineId, i) {
         (job.end - now()) / 1000, D.ITEMS[r.out]);
     }
   };
+  // Built once, then only updated — and wearing the same bar as a field or pen,
+  // so a job in progress reads the same way anywhere in the game.
+  b.innerHTML = `<span class="jobic"></span><span class="fill"><i></i><b></b></span>`;
+  const ic = b.querySelector('.jobic');
+  const bar = b.querySelector('.fill > i');
+  const txt = b.querySelector('.fill > b');
+
   T(() => {
     const m = St.S.machines[machineId];
     const job = m.queue[i];
-    if (!job) { b.className = 'slot'; b.innerHTML = '<span style="opacity:.35">＋</span>'; return; }
+    if (!job) {
+      b.className = 'slot';
+      ic.textContent = '＋';
+      ic.style.opacity = '.35';
+      bar.style.width = '0%';
+      txt.textContent = '';
+      return;
+    }
     const r = D.RECIPES.find(x => x.id === job.recipe);
     const out = D.ITEMS[r.out];
     const ready = G.jobReady(job);
     b.className = 'slot ' + (ready ? 'done' : 'busy');
+    ic.textContent = out.icon;
+    ic.style.opacity = '';
     const total = Math.max(1, job.end - job.start);
-    const pct = clamp((now() - job.start) / total, 0, 1) * 100;
-    b.innerHTML = `<span class="ring" style="--p:${pct.toFixed(0)}%"></span><span>${out.icon}</span>
-      <span class="tag">${ready ? 'TAP!' : fmtTime((job.end - now()) / 1000)}</span>`;
+    bar.style.width = (clamp((now() - job.start) / total, 0, 1) * 100).toFixed(1) + '%';
+    txt.textContent = ready ? 'TAP!' : fmtTime((job.end - now()) / 1000);
   });
   return b;
 }
 
 /* -------------------------------- ORDERS --------------------------------- */
 
-const CUSTOMERS = ['👨‍🍳', '👵', '🧑‍🎤', '👮', '🧑‍🏫', '👨‍🔧', '🧕', '🧑‍🚀', '💁', '🧙'];
+/**
+ * Faces and names for the order board. The card used to be headed "Order
+ * #LDRS" — the save's internal id, which means nothing to anyone. A customer
+ * with a name reads as somebody waiting on you.
+ */
+const CUSTOMERS = [
+  { face: '👨‍🍳', name: 'Chef Bruno' },
+  { face: '👵', name: 'Granny Pearl' },
+  { face: '🧑‍🎤', name: 'Jonesy' },
+  { face: '👮', name: 'Officer Dale' },
+  { face: '🧑‍🏫', name: 'Miss Abbott' },
+  { face: '👨‍🔧', name: 'Big Ray' },
+  { face: '🧕', name: 'Yasmin' },
+  { face: '🧑‍🚀', name: 'Captain Vex' },
+  { face: '💁', name: 'Delia' },
+  { face: '🧙', name: 'Old Merrick' },
+];
+
+/** Same order, same customer, every time the board is redrawn. */
+function customerFor(oid) {
+  let h = 5;
+  for (let i = 0; i < oid.length; i++) h = (h * 33 + oid.charCodeAt(i)) % 9973;
+  return CUSTOMERS[h % CUSTOMERS.length];
+}
 
 function ordersView() {
   const S = St.S;
@@ -748,11 +786,11 @@ function ordersView() {
 
 function orderCard(o, i) {
   const card = el('div', 'order');
-  const face = CUSTOMERS[(o.oid.charCodeAt(0) + i) % CUSTOMERS.length];
+  const who = customerFor(o.oid);
   const top = el('div', 'order-top');
-  top.innerHTML = `<span class="who">${face}</span>
-    <div class="body" style="flex:1"><b>Order #${o.oid.slice(0, 4).toUpperCase()}</b>
-      <small class="muted">🪙 ${fmt(o.coins)} · +${o.xp} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
+  top.innerHTML = `<span class="who">${who.face}</span>
+    <div class="body" style="flex:1"><b>${who.name}</b>
+      <small class="muted">🪙 ${fmt(o.coins)} · ⭐ ${fmt(o.xp)} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
   card.appendChild(top);
 
   const reqs = el('div', 'order-req');
@@ -818,13 +856,15 @@ function festivalPanel() {
         { text: `💎 ${t.reward.gems}`, cls: 'chip-gem' },
         { text: `⭐ ${fmt(t.reward.xp)} XP`, cls: '' },
       ],
-      locked: !t.reached,
+      // Not greyed out: an unreached tier is the thing you are playing towards,
+      // so its rewards have to stay readable.
       trail: t.claimed
         ? el('span', 'chip done', '✔')
         : t.reached
           ? costBtn('Claim', { tone: 'green', onTap: () => { G.claimFest(t.i); render(); } })
           : null,
     });
+    if (t.claimed) r.classList.add('locked');
     p.appendChild(r);
   }
 
@@ -932,8 +972,10 @@ function arcadeView() {
     });
 
     list.appendChild(row({
+      // The tile already carries the cabinet's art; repeating the game's own
+      // icon in the title was the same picture twice.
       icon: game.cab,
-      title: `${game.icon} ${game.name}`,
+      title: game.name,
       sub: unlocked ? game.blurb : `🔒 Unlocks at level ${game.level}`,
       chips,
       locked: !unlocked,
@@ -973,6 +1015,13 @@ function arcadeSheet(game) {
     sheet.appendChild(el('div', 'note', game.blurb));
     sheet.appendChild(el('div', 'fld-label', 'Controls'));
     sheet.appendChild(el('div', 'note', game.how));
+
+    if (game.powers) {
+      sheet.appendChild(el('div', 'fld-label', 'Power-ups'));
+      for (const pw of game.powers) {
+        sheet.appendChild(row({ icon: pw.icon, title: pw.name, sub: pw.desc }));
+      }
+    }
 
     sheet.appendChild(el('div', 'fld-label', 'Gem rungs'));
     game.gemAt.forEach((at, i) => {
@@ -1029,21 +1078,40 @@ function shopView() {
     const left = St.boostLeft(b.id);
     const locked = S.level < b.level;
     const cost = b.gems ? `💎 ${b.gems}` : `🪙 ${fmt(b.coins)}`;
-    const row = el('div', 'row' + (locked ? ' locked' : ''));
-    row.innerHTML = `<div class="ic">${b.icon}</div><div class="body"><b>${b.name}</b>
-      <small>${locked ? `🔒 Unlocks at level ${b.level}` : b.desc}</small></div>`;
     const btn = el('button', 'btn btn-sm ' + (left ? 'btn-green' : 'btn-gold'),
       left ? `⏳ ${fmtTime(left)}` : cost);
     btn.disabled = locked || (b.gems ? S.gems < b.gems : S.coins < b.coins);
     btn.onclick = () => { haptic(); G.buyBoost(b.id); render(); };
-    row.appendChild(btn);
-    boosts.appendChild(row);
+    boosts.appendChild(row({
+      icon: b.icon,
+      title: b.name,
+      sub: locked ? `🔒 Unlocks at level ${b.level}` : b.desc,
+      // The duration lives in a chip rather than trailing the sentence, so the
+      // name gets a whole line to itself instead of wrapping mid-word.
+      chips: locked ? null : [{ text: `⏳ ${b.mins} min`, cls: left ? 'done' : '' }],
+      locked,
+      trail: btn,
+    }));
   }
   frag.appendChild(boosts);
 
-  /* feed */
+  /* feed — the trough itself lives on the Animals tab; this is just the till */
   const feed = panel(`<em>🌾</em>Feed`);
-  feed.appendChild(troughPanel());
+  const hay = costBtn(`🪙 ${fmt(D.HAY.coins)}`, {
+    disabled: St.troughUnits() >= D.TROUGH_CAP || S.coins < D.HAY.coins,
+    onTap: () => { G.buyHay(); render(); },
+  });
+  feed.appendChild(row({
+    icon: '🌾',
+    title: 'Hay Bale',
+    sub: 'Tops the trough up on the spot. Your animals eat from it themselves.',
+    chips: [
+      { text: `+${D.HAY.units} feed`, cls: 'done' },
+      { text: `🥣 ${St.troughUnits()} / ${D.TROUGH_CAP}`,
+        cls: St.troughUnits() < D.TROUGH_CAP * 0.15 ? 'miss' : '' },
+    ],
+    trail: hay,
+  }));
   frag.appendChild(feed);
 
   /* land */

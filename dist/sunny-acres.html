@@ -260,32 +260,60 @@ button, input { font: inherit; color: inherit; }
   flex-shrink: 0;
 }
 
+/**
+ * Each tab wears the same rounded, outlined tile the rest of the game uses for
+ * icons — a bare emoji on wood looked like a placeholder next to the chunky
+ * cards everywhere else. The selected tab's tile lifts and goes gold.
+ */
 .tab {
   flex: 1;
+  min-width: 0;
   border: 0;
   background: none;
-  padding: 7px 0 9px;
+  padding: 6px 1px 7px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  color: #52300f;
+  gap: 3px;
+  color: #4a2a0c;
   font-size: 10px;
   font-weight: 800;
+  letter-spacing: -.2px;
   position: relative;
   transition: transform .12s ease;
 }
-.tab em { font-style: normal; font-size: 21px; line-height: 1; filter: saturate(.75) opacity(.75); }
-/* Seven tabs on a narrow phone: let the labels use every pixel they can. */
-.tab { min-width: 0; padding-left: 1px; padding-right: 1px; letter-spacing: -.2px; }
-.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
-.tab.on em { filter: none; transform: translateY(-2px) scale(1.12); }
-.tab:active { transform: scale(.94); }
+.tab em {
+  font-style: normal;
+  width: 34px; height: 34px;
+  border-radius: 11px;
+  border: 2px solid rgba(74, 42, 12, .38);
+  background: radial-gradient(circle at 34% 26%, #fffaf0, #f0dcb4 74%);
+  box-shadow:
+    inset 0 -2px 0 rgba(120, 70, 25, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .85),
+    0 2px 0 rgba(0, 0, 0, .18);
+  display: grid; place-items: center;
+  font-size: 19px;
+  line-height: 1;
+  transition: transform .14s ease, background .18s ease, box-shadow .18s ease;
+}
+.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+.tab.on em {
+  border-color: #7a4708;
+  background: radial-gradient(circle at 34% 26%, #fff6d4, var(--gold) 78%);
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 -2px 0 rgba(120, 70, 25, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .8),
+    0 3px 0 rgba(0, 0, 0, .22),
+    0 0 0 3px rgba(255, 196, 46, .38);
+}
+.tab:active em { transform: translateY(1px) scale(.92); }
 
 .tab .badge {
   position: absolute;
-  top: 3px; right: 50%;
-  margin-right: -22px;
+  top: 0; right: 50%;
+  margin-right: -21px;
   min-width: 17px; height: 17px;
   border-radius: 9px;
   background: var(--red);
@@ -295,6 +323,7 @@ button, input { font: inherit; color: inherit; }
   font-weight: 800;
   display: grid; place-items: center;
   padding: 0 3px;
+  z-index: 1;
 }
 
 /* -------------------------------- pieces --------------------------------- */
@@ -484,10 +513,18 @@ button, input { font: inherit; color: inherit; }
 
 /* --------------------------------- lists --------------------------------- */
 
+/**
+ * The body asks for at least 150px. When the icon, the text and a trailing
+ * button can't all fit in that, the button wraps onto its own line instead of
+ * squeezing the text into a two-word column — which is what used to happen to
+ * every boost and recipe once larger text became the default.
+ */
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  row-gap: 8px;
   padding: 9px;
   border-radius: var(--r-md);
   background: linear-gradient(180deg, #fffdf6, var(--card-2));
@@ -528,10 +565,16 @@ button.ic::after {
   transition: opacity .15s;
 }
 button.ic:hover::after { opacity: 1; }
-.row .body { flex: 1; min-width: 0; }
+.row .body { flex: 1 1 150px; min-width: 0; }
 .row .body b { display: block; font-size: var(--t-body); font-weight: 900; letter-spacing: -.01em; }
 .row .body small { display: block; font-size: var(--t-sub); color: var(--ink-soft); font-weight: 700; line-height: 1.4; margin-top: 1px; }
-.row.locked { opacity: .62; filter: grayscale(.7); }
+/* Anything trailing the body sticks to the right, on its own line or not. */
+.row > .btn, .row > .switch, .row > .chip, .row > .row-actions { margin-left: auto; }
+/* Greyed enough to read as unavailable, not so much that the text goes with it. */
+.row.locked { opacity: .72; filter: grayscale(.45); }
+
+/* Stacked explanatory lines need air between them, or they read as one block. */
+.muted + .muted { margin-top: 6px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
 .chip {
@@ -607,26 +650,46 @@ button.ic:hover::after { opacity: 1; }
   font-size: var(--t-sub); font-weight: 900; color: var(--ink-soft);
 }
 
-.slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+/* A workshop slot is a field tile: same shape, same bottom bar, same wording. */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
 .slot {
   position: relative;
-  width: 60px; height: 60px;
-  border-radius: 12px;
-  border: 2.5px dashed rgba(156, 95, 38, .4);
+  aspect-ratio: 1;
+  border-radius: var(--r-md);
+  border: 3px dashed rgba(156, 95, 38, .4);
   background: rgba(255, 255, 255, .45);
   display: grid; place-items: center;
-  font-size: 25px;
   padding: 0;
+  overflow: hidden;
+  transition: transform .1s ease, border-color .2s ease;
 }
-.slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
-.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); box-shadow: 0 0 0 3px rgba(87, 192, 75, .3); }
-.slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
-.slot .ring {
-  position: absolute; inset: -3px;
-  border-radius: 14px;
-  background: conic-gradient(var(--green) var(--p, 0%), transparent 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+.slot:active { transform: scale(.96); }
+.slot .jobic {
+  font-size: clamp(34px, 10.5vw, 48px);
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25));
+}
+.slot.busy .jobic, .slot.done .jobic { margin-bottom: 15px; }
+.slot .fill { height: 19px; }
+.slot .fill > b { font-size: var(--t-tiny); }
+/* An empty slot has nothing to count down, so it wears no bar. */
+.slot:not(.busy):not(.done) .fill { display: none; }
+.slot.busy {
+  border-style: solid;
+  border-color: var(--wood-dk);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, #ffeec9);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .08), 0 3px 0 rgba(0, 0, 0, .14);
+}
+.slot.done {
+  border-style: solid;
+  border-color: var(--gold);
+  background: linear-gradient(180deg, #ffe9a0, #ffcd4d);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .14), 0 0 0 3px rgba(255, 196, 46, .4);
 }
 
 /* orders */
@@ -1152,11 +1215,23 @@ button.ic:hover::after { opacity: 1; }
 }
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
 
-/* A seed you have unlocked but never picked off the rack. */
+/**
+ * A seed you have unlocked but never picked off the rack: it glows, so a crop
+ * becoming available is something you see rather than something you find.
+ * `no-motion` keeps the glow but stops it pulsing.
+ */
 .seedchip.fresh {
   overflow: visible;
   border-color: var(--green-dk);
-  animation: seedNudge 1.9s ease-in-out infinite;
+  background: linear-gradient(180deg, #f4fff0, #dcf7cd);
+  animation: seedGlow 1.6s ease-in-out infinite, seedNudge 3.4s ease-in-out infinite;
+}
+@keyframes seedGlow {
+  0%, 100% { box-shadow: 0 2px 0 var(--green-dk), 0 0 0 2px rgba(87, 192, 75, .45), 0 0 9px rgba(87, 192, 75, .5); }
+  50%      { box-shadow: 0 2px 0 var(--green-dk), 0 0 0 5px rgba(87, 192, 75, .28), 0 0 18px rgba(87, 192, 75, .8); }
+}
+body.no-motion .seedchip.fresh {
+  box-shadow: 0 2px 0 var(--green-dk), 0 0 0 3px rgba(87, 192, 75, .4), 0 0 12px rgba(87, 192, 75, .6);
 }
 .seedchip .newflag {
   position: absolute;
@@ -1183,15 +1258,17 @@ button.ic:hover::after { opacity: 1; }
 }
 
 /* boosts in the HUD */
+/* A thin status strip, not a row of its own: it should cost the top bar as
+   little height as it can while a boost is running. */
 .boostbar {
   width: 100%;
   display: flex;
   gap: 5px;
   overflow-x: auto;
-  margin-top: 6px;
-  padding-bottom: 2px;
+  margin-top: 4px;
   scrollbar-width: none;
 }
+.boostbar::-webkit-scrollbar { display: none; }
 .boostbar::-webkit-scrollbar { display: none; }
 .boostchip {
   flex: 0 0 auto;
@@ -1199,9 +1276,11 @@ button.ic:hover::after { opacity: 1; }
   background: rgba(255, 255, 255, .9);
   border: 2px solid var(--green-dk);
   border-radius: 999px;
-  padding: 1px 9px 1px 6px;
-  font-size: 11px;
+  padding: 0 8px 0 5px;
+  font-size: var(--t-tiny);
   font-weight: 900;
+  line-height: 17px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* =================== shared components & polish pass ====================== */
@@ -1454,6 +1533,22 @@ button.ic:hover::after { opacity: 1; }
   text-shadow: 0 0 10px rgba(255, 196, 46, .5);
 }
 .cab-lives { margin-left: 0; font-size: var(--t-sub); letter-spacing: -1px; }
+.cab-power {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(87, 192, 75, .28);
+  border: 1.5px solid rgba(160, 240, 140, .6);
+  color: #d8ffcc;
+  font-size: var(--t-tiny);
+  font-weight: 900;
+  white-space: nowrap;
+  animation: cab-in .2s ease-out;
+}
+/* With a power-up showing it claims the gap; without one, the score does. */
+.cab-power ~ .cab-stat { margin-left: 0; }
+.cab-power[hidden] ~ .cab-stat { margin-left: auto; }
+.cab-power ~ .cab-lives, .cab-power[hidden] ~ .cab-lives { margin-left: 0; }
 .cab-x {
   flex-shrink: 0;
   width: 34px; height: 34px;
@@ -1918,22 +2013,22 @@ for (const g of CRAFTED)       ITEMS[g.id] = { ...g, kind: 'good', level: (RECIP
 const BOOSTS = [
   { id: 'coffee', name: 'Farmhand Coffee', icon: '☕', effect: 'grow',   mult: 2,
     mins: 30, coins: 2500,  level: 3,
-    desc: 'Crops ripen twice as fast for 30 minutes.' },
+    desc: 'Crops ripen twice as fast.' },
   { id: 'market', name: 'Market Day',      icon: '💰', effect: 'sell',   mult: 1.5,
     mins: 20, coins: 5000,  level: 5,
-    desc: 'Everything sells for +50% for 20 minutes.' },
+    desc: 'Everything sells for +50%.' },
   { id: 'feast',  name: 'Feed Frenzy',     icon: '🌟', effect: 'animal', mult: 2,
     mins: 30, coins: 7500,  level: 7,
-    desc: 'Animals produce twice as fast for 30 minutes.' },
+    desc: 'Animals produce twice as fast.' },
   { id: 'rush',   name: 'Rush Order',      icon: '⚡', effect: 'craft',  mult: 2,
     mins: 30, coins: 12000, level: 9,
-    desc: 'Workshops craft twice as fast for 30 minutes.' },
+    desc: 'Workshops craft twice as fast.' },
   { id: 'school', name: 'Farm School',     icon: '📘', effect: 'xp',     mult: 2,
     mins: 30, gems: 6,      level: 6,
-    desc: 'Double XP from everything for 30 minutes.' },
+    desc: 'Double XP from everything.' },
   { id: 'clover', name: 'Lucky Clover',    icon: '🍀', effect: 'order',  mult: 1.5,
     mins: 20, gems: 8,      level: 8,
-    desc: 'Order payouts +50% for 20 minutes.' },
+    desc: 'Order payouts +50%.' },
 ];
 
 /** Permanent upgrades — the "game gets easier as you go" track. */
@@ -2085,21 +2180,27 @@ const ARCADE = [
   {
     id: 'crows', name: 'Crow Patrol', icon: '🌽', cab: '🐦', level: 1,
     tag: 'Invaders',
-    blurb: 'Crows are after the corn. Slide the scarecrow — it throws kernels itself.',
-    how: 'Drag anywhere to move. Clear a flock and the next one starts lower.',
+    blurb: 'Keep the flock off your corn.',
+    how: 'Drag anywhere to move. Seven crows in a row without a hit drops a ' +
+         'power-up — catch it.',
+    powers: [
+      { icon: '💥', name: 'Buckshot', desc: 'Three kernels a shot, in a spread.' },
+      { icon: '⚡', name: 'Rapid Fire', desc: 'Throws three times as fast.' },
+      { icon: '🛡️', name: 'Shield', desc: 'Eats the next peck instead of a life.' },
+    ],
     gemAt: [120, 320, 700, 1300],
   },
   {
     id: 'chicken', name: 'Chicken Run', icon: '🐓', cab: '🚜', level: 3,
     tag: 'Crossing',
-    blurb: 'Get the hen across the tractor lanes. Every one home speeds them up.',
+    blurb: 'Get the hen home across the lanes.',
     how: 'Tap the middle to hop forward, the sides to step across. Swipes work too.',
     gemAt: [60, 150, 320, 600],
   },
   {
     id: 'goat', name: 'Hungry Goat', icon: '🐐', cab: '🥬', level: 5,
     tag: 'Snake',
-    blurb: 'Loose in the veg patch, and it never stops. Eat without doubling back.',
+    blurb: 'Eat the patch without doubling back.',
     how: 'Tap the left half to turn left, the right half to turn right. Swipes work too.',
     gemAt: [100, 260, 550, 1000],
   },
@@ -4219,16 +4320,31 @@ function backdrop(ctx, groundY, sky = '#bfe7ff', ground = '#8fd05a') {
 /* ========================== cabinet 1 — Crow Patrol ======================= */
 
 /**
+ * Power-ups, earned rather than given: every STREAK_FOR crows killed without
+ * taking a hit drops a capsule from the crow that died. Catch it with the
+ * scarecrow and it runs for a while. Getting hit resets the streak, so the
+ * reward is for a clean run of shooting, not for time spent.
+ */
+const CROW_POWERS = {
+  buck:   { icon: '💥', name: 'Buckshot', secs: 12 },
+  auto:   { icon: '⚡', name: 'Rapid Fire', secs: 12 },
+  shield: { icon: '🛡️', name: 'Shield', secs: 18 },
+};
+const POWER_IDS = ['buck', 'auto', 'shield'];
+const STREAK_FOR = 7;
+
+/**
  * Invaders. The scarecrow slides along the fence and throws kernels on its
  * own, so the whole game is one thumb dragging left and right.
  */
 function makeCrows() {
   const COLS = 6, ROWS = 4;
   const PLAYER_Y = H - 30;
-  const g = { score: 0, lives: 3, over: false, wave: 1, t: 0 };
+  const g = { score: 0, lives: 3, over: false, wave: 1, t: 0, power: null, powerLeft: 0 };
 
   let crows = [], ox = 0, oy = 0, dir = 1, speed = 30;
   let px = W / 2, shots = [], pecks = [], fire = 0, drop = 1.4, hurt = 0;
+  let caps = [], streak = 0, shield = false, flash = 0;
 
   function spawnWave() {
     crows = [];
@@ -4246,9 +4362,30 @@ function makeCrows() {
   }
   spawnWave();
 
+  function grant(id) {
+    g.power = id;
+    g.powerLeft = CROW_POWERS[id].secs;
+    if (id === 'shield') shield = true;
+    flash = 0.5;
+    g.score += 25;
+    SFX.collect();
+    haptic();
+  }
+
   function loseLife(resetWave) {
+    // A shield eats the hit instead of a life — that is what it is for.
+    if (shield) {
+      shield = false;
+      if (g.power === 'shield') { g.power = null; g.powerLeft = 0; }
+      hurt = 0.4;
+      pecks = [];
+      SFX.error();
+      haptic();
+      return;
+    }
     g.lives--;
     hurt = 0.7;
+    streak = 0;
     pecks = [];
     SFX.error();
     haptic();
@@ -4265,13 +4402,31 @@ function makeCrows() {
   g.step = dt => {
     g.t += dt;
     hurt = Math.max(0, hurt - dt);
+    flash = Math.max(0, flash - dt);
+
+    if (g.power) {
+      g.powerLeft -= dt;
+      if (g.powerLeft <= 0) {
+        if (g.power === 'shield') shield = false;
+        g.power = null;
+        g.powerLeft = 0;
+      }
+    }
 
     ox += dir * speed * dt;
     if (ox > 36 || ox < -22) { ox = clamp(ox, -22, 36); dir *= -1; oy += 11; }
 
     fire -= dt;
-    if (fire <= 0) { fire = 0.4; shots.push({ x: px, y: PLAYER_Y - 14 }); }
-    for (const s of shots) s.y -= 300 * dt;
+    if (fire <= 0) {
+      fire = g.power === 'auto' ? 0.13 : 0.4;
+      const y = PLAYER_Y - 14;
+      if (g.power === 'buck') {
+        shots.push({ x: px, y, vx: -85 }, { x: px, y, vx: 0 }, { x: px, y, vx: 85 });
+      } else {
+        shots.push({ x: px, y, vx: 0 });
+      }
+    }
+    for (const s of shots) { s.y -= 300 * dt; s.x += (s.vx || 0) * dt; }
 
     drop -= dt;
     if (drop <= 0) {
@@ -4293,11 +4448,24 @@ function makeCrows() {
           s.y = -999;
           g.score += 10 + g.wave * 2;
           SFX.plant();
+          if (++streak % STREAK_FOR === 0) {
+            caps.push({ x: c.x + ox, y: c.y + oy, id: pick(POWER_IDS) });
+          }
           break;
         }
       }
     }
-    shots = shots.filter(s => s.y > -12);
+    shots = shots.filter(s => s.y > -12 && s.x > -12 && s.x < W + 12);
+
+    /* capsules fall; catching one is the whole reward */
+    for (const cap of caps) cap.y += 78 * dt;
+    for (const cap of caps) {
+      if (Math.abs(cap.x - px) < 22 && Math.abs(cap.y - PLAYER_Y) < 20) {
+        cap.y = H + 999;
+        grant(cap.id);
+      }
+    }
+    caps = caps.filter(cap => cap.y < H + 14);
 
     /* pecks vs scarecrow */
     for (const p of pecks) {
@@ -4332,7 +4500,7 @@ function makeCrows() {
 
     for (const c of crows) if (c.alive) glyph(ctx, '🐦', c.x + ox, c.y + oy, 22);
 
-    ctx.fillStyle = '#ffd44a';
+    ctx.fillStyle = g.power === 'buck' ? '#ffb02e' : '#ffd44a';
     for (const s of shots) {
       ctx.beginPath();
       ctx.ellipse(s.x, s.y, 3, 5, 0, 0, Math.PI * 2);
@@ -4346,11 +4514,40 @@ function makeCrows() {
       ctx.fill();
     }
 
+    /* capsules, on a little halo so they never read as another peck */
+    for (const cap of caps) {
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.beginPath();
+      ctx.arc(cap.x, cap.y, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#3d9134';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      glyph(ctx, CROW_POWERS[cap.id].icon, cap.x, cap.y, 15);
+    }
+
     ctx.globalAlpha = hurt > 0 && Math.floor(hurt * 12) % 2 ? 0.35 : 1;
     glyph(ctx, '🧑‍🌾', px, PLAYER_Y, 30);
     ctx.globalAlpha = 1;
 
+    if (shield) {
+      ctx.strokeStyle = `rgba(71,201,255,${0.55 + 0.35 * Math.sin(g.t * 6)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(px, PLAYER_Y - 2, 24, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    if (flash > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${(flash / 0.5) * 0.4})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
     label(ctx, `FLOCK ${g.wave}`, 8, 14, 11, 'rgba(30,60,80,.65)');
+    // How close the next capsule is, so the streak is something you can play for.
+    const togo = STREAK_FOR - (streak % STREAK_FOR);
+    label(ctx, streak ? `STREAK ${streak} · ${togo} to a drop` : `${STREAK_FOR} in a row drops a power-up`,
+          8, 28, 9, 'rgba(30,60,80,.5)');
   };
 
   return g;
@@ -4616,6 +4813,16 @@ function makeGoat() {
 
 const BUILDERS = { crows: makeCrows, chicken: makeChicken, goat: makeGoat };
 
+/**
+ * The cabinets, out from behind the engine. A game is a plain object driven by
+ * `step(dt)` and drawn separately, so its rules can be exercised without a
+ * canvas — which is the only sane way to test something like "seven kills in a
+ * row drops a capsule".
+ */
+const CABINETS = BUILDERS;
+const POWERS = CROW_POWERS;
+const SIZE = { W, H };
+
 /* ================================ the engine ============================= */
 
 /**
@@ -4634,6 +4841,7 @@ function open(gameId, onDone) {
   const head = el('div', 'cab-head');
   head.innerHTML =
     `<span class="cab-name">${game.icon} ${game.name}</span>
+     <span class="cab-power" id="cab-power" hidden></span>
      <span class="cab-stat" id="cab-score">0</span>
      <span class="cab-stat cab-lives" id="cab-lives"></span>`;
   const quit = el('button', 'cab-x', '✕');
@@ -4715,10 +4923,14 @@ function open(gameId, onDone) {
   let phase = 'ready', wait = 1.1, raf = 0, last = 0;
   const scoreEl = head.querySelector('#cab-score');
   const livesEl = head.querySelector('#cab-lives');
+  const powerEl = head.querySelector('#cab-power');
 
   function paintChrome() {
     scoreEl.textContent = fmt(g.score);
     livesEl.textContent = g.lives > 0 ? '❤️'.repeat(Math.min(5, g.lives)) : '';
+    const pw = g.power && CROW_POWERS[g.power];
+    powerEl.hidden = !pw;
+    if (pw) powerEl.textContent = `${pw.icon} ${pw.name} ${Math.ceil(g.powerLeft)}s`;
   }
 
   function paint() {
@@ -4823,7 +5035,7 @@ function open(gameId, onDone) {
 function close() {
   if (live) live.leave();
 }
-return { open, close, isOpen };
+return { open, close, isOpen, CABINETS, POWERS, SIZE };
 })();
 
 /* ---------- js/ui.js ---------- */
@@ -5502,9 +5714,9 @@ function machinePanel(m) {
     row.appendChild(icBtn);
     const body = el('div', 'body');
     const toTrough = r.out === 'feed';
-    body.innerHTML = `<b>${toTrough ? `Feed · +${D.MILL_UNITS} to trough` : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
+    body.innerHTML = `<b>${toTrough ? 'Animal Feed' : out.name + (r.qty > 1 ? ' ×' + r.qty : '')}</b>
       <small>${locked ? '🔒 Level ' + r.level
-        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · fills the trough your animals eat from`
+        : toTrough ? `⏱ ${fmtTime(G.craftTime(r))} · +${D.MILL_UNITS} to the trough`
         : `⏱ ${fmtTime(G.craftTime(r))} · 🪙${fmt(G.sellPrice(r.out))} · +${out.xp} XP`}</small>`;
     body.appendChild(ing);
     row.appendChild(body);
@@ -5543,25 +5755,63 @@ function slotTile(machineId, i) {
         (job.end - now()) / 1000, D.ITEMS[r.out]);
     }
   };
+  // Built once, then only updated — and wearing the same bar as a field or pen,
+  // so a job in progress reads the same way anywhere in the game.
+  b.innerHTML = `<span class="jobic"></span><span class="fill"><i></i><b></b></span>`;
+  const ic = b.querySelector('.jobic');
+  const bar = b.querySelector('.fill > i');
+  const txt = b.querySelector('.fill > b');
+
   T(() => {
     const m = St.S.machines[machineId];
     const job = m.queue[i];
-    if (!job) { b.className = 'slot'; b.innerHTML = '<span style="opacity:.35">＋</span>'; return; }
+    if (!job) {
+      b.className = 'slot';
+      ic.textContent = '＋';
+      ic.style.opacity = '.35';
+      bar.style.width = '0%';
+      txt.textContent = '';
+      return;
+    }
     const r = D.RECIPES.find(x => x.id === job.recipe);
     const out = D.ITEMS[r.out];
     const ready = G.jobReady(job);
     b.className = 'slot ' + (ready ? 'done' : 'busy');
+    ic.textContent = out.icon;
+    ic.style.opacity = '';
     const total = Math.max(1, job.end - job.start);
-    const pct = clamp((now() - job.start) / total, 0, 1) * 100;
-    b.innerHTML = `<span class="ring" style="--p:${pct.toFixed(0)}%"></span><span>${out.icon}</span>
-      <span class="tag">${ready ? 'TAP!' : fmtTime((job.end - now()) / 1000)}</span>`;
+    bar.style.width = (clamp((now() - job.start) / total, 0, 1) * 100).toFixed(1) + '%';
+    txt.textContent = ready ? 'TAP!' : fmtTime((job.end - now()) / 1000);
   });
   return b;
 }
 
 /* -------------------------------- ORDERS --------------------------------- */
 
-const CUSTOMERS = ['👨‍🍳', '👵', '🧑‍🎤', '👮', '🧑‍🏫', '👨‍🔧', '🧕', '🧑‍🚀', '💁', '🧙'];
+/**
+ * Faces and names for the order board. The card used to be headed "Order
+ * #LDRS" — the save's internal id, which means nothing to anyone. A customer
+ * with a name reads as somebody waiting on you.
+ */
+const CUSTOMERS = [
+  { face: '👨‍🍳', name: 'Chef Bruno' },
+  { face: '👵', name: 'Granny Pearl' },
+  { face: '🧑‍🎤', name: 'Jonesy' },
+  { face: '👮', name: 'Officer Dale' },
+  { face: '🧑‍🏫', name: 'Miss Abbott' },
+  { face: '👨‍🔧', name: 'Big Ray' },
+  { face: '🧕', name: 'Yasmin' },
+  { face: '🧑‍🚀', name: 'Captain Vex' },
+  { face: '💁', name: 'Delia' },
+  { face: '🧙', name: 'Old Merrick' },
+];
+
+/** Same order, same customer, every time the board is redrawn. */
+function customerFor(oid) {
+  let h = 5;
+  for (let i = 0; i < oid.length; i++) h = (h * 33 + oid.charCodeAt(i)) % 9973;
+  return CUSTOMERS[h % CUSTOMERS.length];
+}
 
 function ordersView() {
   const S = St.S;
@@ -5588,11 +5838,11 @@ function ordersView() {
 
 function orderCard(o, i) {
   const card = el('div', 'order');
-  const face = CUSTOMERS[(o.oid.charCodeAt(0) + i) % CUSTOMERS.length];
+  const who = customerFor(o.oid);
   const top = el('div', 'order-top');
-  top.innerHTML = `<span class="who">${face}</span>
-    <div class="body" style="flex:1"><b>Order #${o.oid.slice(0, 4).toUpperCase()}</b>
-      <small class="muted">🪙 ${fmt(o.coins)} · +${o.xp} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
+  top.innerHTML = `<span class="who">${who.face}</span>
+    <div class="body" style="flex:1"><b>${who.name}</b>
+      <small class="muted">🪙 ${fmt(o.coins)} · ⭐ ${fmt(o.xp)} XP${o.gems ? ` · 💎 ${o.gems}` : ''}</small></div>`;
   card.appendChild(top);
 
   const reqs = el('div', 'order-req');
@@ -5658,13 +5908,15 @@ function festivalPanel() {
         { text: `💎 ${t.reward.gems}`, cls: 'chip-gem' },
         { text: `⭐ ${fmt(t.reward.xp)} XP`, cls: '' },
       ],
-      locked: !t.reached,
+      // Not greyed out: an unreached tier is the thing you are playing towards,
+      // so its rewards have to stay readable.
       trail: t.claimed
         ? el('span', 'chip done', '✔')
         : t.reached
           ? costBtn('Claim', { tone: 'green', onTap: () => { G.claimFest(t.i); render(); } })
           : null,
     });
+    if (t.claimed) r.classList.add('locked');
     p.appendChild(r);
   }
 
@@ -5772,8 +6024,10 @@ function arcadeView() {
     });
 
     list.appendChild(row({
+      // The tile already carries the cabinet's art; repeating the game's own
+      // icon in the title was the same picture twice.
       icon: game.cab,
-      title: `${game.icon} ${game.name}`,
+      title: game.name,
       sub: unlocked ? game.blurb : `🔒 Unlocks at level ${game.level}`,
       chips,
       locked: !unlocked,
@@ -5813,6 +6067,13 @@ function arcadeSheet(game) {
     sheet.appendChild(el('div', 'note', game.blurb));
     sheet.appendChild(el('div', 'fld-label', 'Controls'));
     sheet.appendChild(el('div', 'note', game.how));
+
+    if (game.powers) {
+      sheet.appendChild(el('div', 'fld-label', 'Power-ups'));
+      for (const pw of game.powers) {
+        sheet.appendChild(row({ icon: pw.icon, title: pw.name, sub: pw.desc }));
+      }
+    }
 
     sheet.appendChild(el('div', 'fld-label', 'Gem rungs'));
     game.gemAt.forEach((at, i) => {
@@ -5869,21 +6130,40 @@ function shopView() {
     const left = St.boostLeft(b.id);
     const locked = S.level < b.level;
     const cost = b.gems ? `💎 ${b.gems}` : `🪙 ${fmt(b.coins)}`;
-    const row = el('div', 'row' + (locked ? ' locked' : ''));
-    row.innerHTML = `<div class="ic">${b.icon}</div><div class="body"><b>${b.name}</b>
-      <small>${locked ? `🔒 Unlocks at level ${b.level}` : b.desc}</small></div>`;
     const btn = el('button', 'btn btn-sm ' + (left ? 'btn-green' : 'btn-gold'),
       left ? `⏳ ${fmtTime(left)}` : cost);
     btn.disabled = locked || (b.gems ? S.gems < b.gems : S.coins < b.coins);
     btn.onclick = () => { haptic(); G.buyBoost(b.id); render(); };
-    row.appendChild(btn);
-    boosts.appendChild(row);
+    boosts.appendChild(row({
+      icon: b.icon,
+      title: b.name,
+      sub: locked ? `🔒 Unlocks at level ${b.level}` : b.desc,
+      // The duration lives in a chip rather than trailing the sentence, so the
+      // name gets a whole line to itself instead of wrapping mid-word.
+      chips: locked ? null : [{ text: `⏳ ${b.mins} min`, cls: left ? 'done' : '' }],
+      locked,
+      trail: btn,
+    }));
   }
   frag.appendChild(boosts);
 
-  /* feed */
+  /* feed — the trough itself lives on the Animals tab; this is just the till */
   const feed = panel(`<em>🌾</em>Feed`);
-  feed.appendChild(troughPanel());
+  const hay = costBtn(`🪙 ${fmt(D.HAY.coins)}`, {
+    disabled: St.troughUnits() >= D.TROUGH_CAP || S.coins < D.HAY.coins,
+    onTap: () => { G.buyHay(); render(); },
+  });
+  feed.appendChild(row({
+    icon: '🌾',
+    title: 'Hay Bale',
+    sub: 'Tops the trough up on the spot. Your animals eat from it themselves.',
+    chips: [
+      { text: `+${D.HAY.units} feed`, cls: 'done' },
+      { text: `🥣 ${St.troughUnits()} / ${D.TROUGH_CAP}`,
+        cls: St.troughUnits() < D.TROUGH_CAP * 0.15 ? 'miss' : '' },
+    ],
+    trail: hay,
+  }));
   frag.appendChild(feed);
 
   /* land */

@@ -244,32 +244,60 @@ button, input { font: inherit; color: inherit; }
   flex-shrink: 0;
 }
 
+/**
+ * Each tab wears the same rounded, outlined tile the rest of the game uses for
+ * icons — a bare emoji on wood looked like a placeholder next to the chunky
+ * cards everywhere else. The selected tab's tile lifts and goes gold.
+ */
 .tab {
   flex: 1;
+  min-width: 0;
   border: 0;
   background: none;
-  padding: 7px 0 9px;
+  padding: 6px 1px 7px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  color: #52300f;
+  gap: 3px;
+  color: #4a2a0c;
   font-size: 10px;
   font-weight: 800;
+  letter-spacing: -.2px;
   position: relative;
   transition: transform .12s ease;
 }
-.tab em { font-style: normal; font-size: 21px; line-height: 1; filter: saturate(.75) opacity(.75); }
-/* Seven tabs on a narrow phone: let the labels use every pixel they can. */
-.tab { min-width: 0; padding-left: 1px; padding-right: 1px; letter-spacing: -.2px; }
-.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
-.tab.on em { filter: none; transform: translateY(-2px) scale(1.12); }
-.tab:active { transform: scale(.94); }
+.tab em {
+  font-style: normal;
+  width: 34px; height: 34px;
+  border-radius: 11px;
+  border: 2px solid rgba(74, 42, 12, .38);
+  background: radial-gradient(circle at 34% 26%, #fffaf0, #f0dcb4 74%);
+  box-shadow:
+    inset 0 -2px 0 rgba(120, 70, 25, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .85),
+    0 2px 0 rgba(0, 0, 0, .18);
+  display: grid; place-items: center;
+  font-size: 19px;
+  line-height: 1;
+  transition: transform .14s ease, background .18s ease, box-shadow .18s ease;
+}
+.tab.on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+.tab.on em {
+  border-color: #7a4708;
+  background: radial-gradient(circle at 34% 26%, #fff6d4, var(--gold) 78%);
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 -2px 0 rgba(120, 70, 25, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .8),
+    0 3px 0 rgba(0, 0, 0, .22),
+    0 0 0 3px rgba(255, 196, 46, .38);
+}
+.tab:active em { transform: translateY(1px) scale(.92); }
 
 .tab .badge {
   position: absolute;
-  top: 3px; right: 50%;
-  margin-right: -22px;
+  top: 0; right: 50%;
+  margin-right: -21px;
   min-width: 17px; height: 17px;
   border-radius: 9px;
   background: var(--red);
@@ -279,6 +307,7 @@ button, input { font: inherit; color: inherit; }
   font-weight: 800;
   display: grid; place-items: center;
   padding: 0 3px;
+  z-index: 1;
 }
 
 /* -------------------------------- pieces --------------------------------- */
@@ -468,10 +497,18 @@ button, input { font: inherit; color: inherit; }
 
 /* --------------------------------- lists --------------------------------- */
 
+/**
+ * The body asks for at least 150px. When the icon, the text and a trailing
+ * button can't all fit in that, the button wraps onto its own line instead of
+ * squeezing the text into a two-word column — which is what used to happen to
+ * every boost and recipe once larger text became the default.
+ */
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  row-gap: 8px;
   padding: 9px;
   border-radius: var(--r-md);
   background: linear-gradient(180deg, #fffdf6, var(--card-2));
@@ -512,10 +549,16 @@ button.ic::after {
   transition: opacity .15s;
 }
 button.ic:hover::after { opacity: 1; }
-.row .body { flex: 1; min-width: 0; }
+.row .body { flex: 1 1 150px; min-width: 0; }
 .row .body b { display: block; font-size: var(--t-body); font-weight: 900; letter-spacing: -.01em; }
 .row .body small { display: block; font-size: var(--t-sub); color: var(--ink-soft); font-weight: 700; line-height: 1.4; margin-top: 1px; }
-.row.locked { opacity: .62; filter: grayscale(.7); }
+/* Anything trailing the body sticks to the right, on its own line or not. */
+.row > .btn, .row > .switch, .row > .chip, .row > .row-actions { margin-left: auto; }
+/* Greyed enough to read as unavailable, not so much that the text goes with it. */
+.row.locked { opacity: .72; filter: grayscale(.45); }
+
+/* Stacked explanatory lines need air between them, or they read as one block. */
+.muted + .muted { margin-top: 6px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
 .chip {
@@ -591,26 +634,46 @@ button.ic:hover::after { opacity: 1; }
   font-size: var(--t-sub); font-weight: 900; color: var(--ink-soft);
 }
 
-.slots { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+/* A workshop slot is a field tile: same shape, same bottom bar, same wording. */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
 .slot {
   position: relative;
-  width: 60px; height: 60px;
-  border-radius: 12px;
-  border: 2.5px dashed rgba(156, 95, 38, .4);
+  aspect-ratio: 1;
+  border-radius: var(--r-md);
+  border: 3px dashed rgba(156, 95, 38, .4);
   background: rgba(255, 255, 255, .45);
   display: grid; place-items: center;
-  font-size: 25px;
   padding: 0;
+  overflow: hidden;
+  transition: transform .1s ease, border-color .2s ease;
 }
-.slot.busy { border-style: solid; background: linear-gradient(180deg, #fff, #ffeec9); }
-.slot.done { border-color: var(--green-dk); background: linear-gradient(180deg, #dcffcb, #a9ec8b); box-shadow: 0 0 0 3px rgba(87, 192, 75, .3); }
-.slot .tag { position: absolute; bottom: -2px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: var(--ink-soft); }
-.slot .ring {
-  position: absolute; inset: -3px;
-  border-radius: 14px;
-  background: conic-gradient(var(--green) var(--p, 0%), transparent 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+.slot:active { transform: scale(.96); }
+.slot .jobic {
+  font-size: clamp(34px, 10.5vw, 48px);
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25));
+}
+.slot.busy .jobic, .slot.done .jobic { margin-bottom: 15px; }
+.slot .fill { height: 19px; }
+.slot .fill > b { font-size: var(--t-tiny); }
+/* An empty slot has nothing to count down, so it wears no bar. */
+.slot:not(.busy):not(.done) .fill { display: none; }
+.slot.busy {
+  border-style: solid;
+  border-color: var(--wood-dk);
+  background: var(--grain), linear-gradient(180deg, #fffdf7, #ffeec9);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .08), 0 3px 0 rgba(0, 0, 0, .14);
+}
+.slot.done {
+  border-style: solid;
+  border-color: var(--gold);
+  background: linear-gradient(180deg, #ffe9a0, #ffcd4d);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .14), 0 0 0 3px rgba(255, 196, 46, .4);
 }
 
 /* orders */
@@ -1136,11 +1199,23 @@ button.ic:hover::after { opacity: 1; }
 }
 .seedchip.locked { filter: grayscale(1); opacity: .55; }
 
-/* A seed you have unlocked but never picked off the rack. */
+/**
+ * A seed you have unlocked but never picked off the rack: it glows, so a crop
+ * becoming available is something you see rather than something you find.
+ * `no-motion` keeps the glow but stops it pulsing.
+ */
 .seedchip.fresh {
   overflow: visible;
   border-color: var(--green-dk);
-  animation: seedNudge 1.9s ease-in-out infinite;
+  background: linear-gradient(180deg, #f4fff0, #dcf7cd);
+  animation: seedGlow 1.6s ease-in-out infinite, seedNudge 3.4s ease-in-out infinite;
+}
+@keyframes seedGlow {
+  0%, 100% { box-shadow: 0 2px 0 var(--green-dk), 0 0 0 2px rgba(87, 192, 75, .45), 0 0 9px rgba(87, 192, 75, .5); }
+  50%      { box-shadow: 0 2px 0 var(--green-dk), 0 0 0 5px rgba(87, 192, 75, .28), 0 0 18px rgba(87, 192, 75, .8); }
+}
+body.no-motion .seedchip.fresh {
+  box-shadow: 0 2px 0 var(--green-dk), 0 0 0 3px rgba(87, 192, 75, .4), 0 0 12px rgba(87, 192, 75, .6);
 }
 .seedchip .newflag {
   position: absolute;
@@ -1167,15 +1242,17 @@ button.ic:hover::after { opacity: 1; }
 }
 
 /* boosts in the HUD */
+/* A thin status strip, not a row of its own: it should cost the top bar as
+   little height as it can while a boost is running. */
 .boostbar {
   width: 100%;
   display: flex;
   gap: 5px;
   overflow-x: auto;
-  margin-top: 6px;
-  padding-bottom: 2px;
+  margin-top: 4px;
   scrollbar-width: none;
 }
+.boostbar::-webkit-scrollbar { display: none; }
 .boostbar::-webkit-scrollbar { display: none; }
 .boostchip {
   flex: 0 0 auto;
@@ -1183,9 +1260,11 @@ button.ic:hover::after { opacity: 1; }
   background: rgba(255, 255, 255, .9);
   border: 2px solid var(--green-dk);
   border-radius: 999px;
-  padding: 1px 9px 1px 6px;
-  font-size: 11px;
+  padding: 0 8px 0 5px;
+  font-size: var(--t-tiny);
   font-weight: 900;
+  line-height: 17px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* =================== shared components & polish pass ====================== */
@@ -1438,6 +1517,22 @@ button.ic:hover::after { opacity: 1; }
   text-shadow: 0 0 10px rgba(255, 196, 46, .5);
 }
 .cab-lives { margin-left: 0; font-size: var(--t-sub); letter-spacing: -1px; }
+.cab-power {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(87, 192, 75, .28);
+  border: 1.5px solid rgba(160, 240, 140, .6);
+  color: #d8ffcc;
+  font-size: var(--t-tiny);
+  font-weight: 900;
+  white-space: nowrap;
+  animation: cab-in .2s ease-out;
+}
+/* With a power-up showing it claims the gap; without one, the score does. */
+.cab-power ~ .cab-stat { margin-left: 0; }
+.cab-power[hidden] ~ .cab-stat { margin-left: auto; }
+.cab-power ~ .cab-lives, .cab-power[hidden] ~ .cab-lives { margin-left: 0; }
 .cab-x {
   flex-shrink: 0;
   width: 34px; height: 34px;

@@ -54,16 +54,20 @@ scale up as the timer ran down, which read as jitter rather than as growth.
 Sowing drops the seed in with a puff of soil; harvesting pops the crop out of
 the ground and sends it flying to the silo.
 
-When levelling opens a seed you have never planted, its chip in the rack wears a
-**NEW** flag and the Farm tab carries a badge, so a new crop never slips by
-unnoticed. Picking the seed up clears both.
+When levelling opens a seed you have never planted, its chip in the rack
+**glows** and wears a **NEW** flag, and the Farm tab carries a badge — so a crop
+becoming available is something you see rather than something you find. Picking
+the seed up clears all three.
+
+Workshop slots wear the same tile and the same bottom bar as fields and pens, so
+a job in progress reads the same way wherever you are.
 
 | Tab | What you do there |
 | --- | --- |
 | 🌾 **Farm** | The field grid. Plant and harvest by tapping soil; the seed rack sits under it. |
 | 🐓 **Animals** | Buy animals and collect eggs, milk, bacon, wool and honey. They feed themselves. |
 | 🏭 **Craft** | Build workshops and turn raw goods into far more valuable ones. |
-| 📋 **Orders** | Fill a customer's crate for ~40% more than the goods are worth, plus XP. |
+| 📋 **Orders** | Fill a named customer's crate for ~40% more than the goods are worth, plus XP. |
 | 🏆 **Goals** | Daily bonus streak, plus six tiered goals that pay out coins and gems. |
 | 🕹️ **Arcade** | Three mini-games in the back of the barn. They pay gems. |
 | 🛒 **Shop** | Boosts, the market, land, storage and permanent upgrades. |
@@ -122,6 +126,20 @@ built for one thumb in portrait:
 
 Swipes and arrow keys work everywhere too. Crow Patrol is open from the start;
 Chicken Run unlocks at level 3 and Hungry Goat at level 5.
+
+**Crow Patrol has power-ups, and they are earned rather than given.** Seven
+crows in a row without taking a hit drops a capsule from the crow that died;
+catch it with the scarecrow and it runs on a timer. Getting hit resets the
+streak, so the reward is for a clean run of shooting, not for time served.
+
+| Power-up | What it does | Runs for |
+| --- | --- | --- |
+| 💥 **Buckshot** | Three kernels a shot, in a spread | 12s |
+| ⚡ **Rapid Fire** | Throws three times as fast | 12s |
+| 🛡️ **Shield** | Eats the next peck instead of a life | 18s |
+
+The cabinet's card shows the streak you're on and how many more crows until the
+next drop.
 
 Each cabinet has **four score rungs**. Clear a rung during a run and it pays a
 gem, so one good run beats four mediocre ones, and beating your own best always
